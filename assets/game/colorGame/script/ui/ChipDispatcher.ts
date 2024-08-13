@@ -146,7 +146,7 @@ export class ChipDispatcher extends Component {
                             if (childId < 4) {
                                 while (payNode.children.length > 0) {
                                     const child = payNode.children[0];
-                                    if (chipNode.children.length > 10) {
+                                    if (chipNode.children.length > 60) {
                                         this.pool.put(child);//退還
                                     } else {
                                         child.parent = chipNode;
