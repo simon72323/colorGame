@@ -1,0 +1,10 @@
+include:
+  - project: gt/gt5/frontend/cicd/cicd
+    ref: main
+    file: module/cocos_project_build.yml
+variables:
+  RSYNC_SRC_PATH: dist/web-mobile
+  PROJECT_NAME: Mahjong
+  COCOS_CREATOR_VERSION: 3.8.1
+  COCOS_BUILD_CONFIG_PATH: buildConfig_web-mobile.json
+  COCOS_TESTING: "false"

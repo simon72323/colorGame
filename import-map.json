@@ -1,0 +1,6 @@
+{
+    "imports": {
+        "@casino-mono/mvc": "./assets/game/mahjong/script/framework/mvc/index.ts",
+        "@casino-mono/share-tools": "./assets/game/mahjong/script/framework/share-tools/index.ts"
+    }
+}

@@ -1,0 +1,24 @@
+{
+  "ver": "1.2.0",
+  "importer": "directory",
+  "imported": true,
+  "uuid": "86049470-880d-4d7d-9d2f-eaf046cd1515",
+  "files": [],
+  "subMetas": {},
+  "userData": {
+    "isBundle": true,
+    "bundleFilterConfig": [
+      {
+        "range": "include",
+        "type": "url",
+        "patchOption": {
+          "patchType": "glob",
+          "value": "db://assets/game/mahjong/texture/lang/en/**/spriteFrame"
+        },
+        "assets": [
+          ""
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "__version__": "1.0.6",
+  "general": {
+    "designResolution": {
+      "width": 1080,
+      "height": 1920,
+      "fitHeight": true,
+      "fitWidth": true
+    }
+  },
+  "custom_joint_texture_layouts": [],
+  "layer": [],
+  "script": {
+    "importMap": "project://import-map.json",
+    "preserveSymlinks": true
+  },
+  "physics": {
+    "fixedTimeStep": 0.0166,
+    "maxSubSteps": 1,
+    "gravity": {
+      "y": -10,
+      "z": 0
+    },
+    "autoSimulation": true,
+    "defaultMaterial": "7b2e991b-9f7b-416e-8bf3-574e5b509ee6",
+    "allowSleep": true,
+    "sleepThreshold": 0.1
+  }
+}
