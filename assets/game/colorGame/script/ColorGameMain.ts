@@ -28,7 +28,7 @@ export class ColorGameMain extends Component {
     @property({ type: Node, tooltip: "下注勝利顯示區" })
     private betWin: Node = null;
     @property({ type: Node, tooltip: "下注分數區" })
-    private betScore: Node = null;
+    private betCredit: Node = null;
     @property({ type: Node, tooltip: "下注提示光區" })
     private betLight: Node = null;
 
