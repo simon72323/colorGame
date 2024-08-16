@@ -142,12 +142,19 @@ export class ColorGameMain extends Component {
                     for (let i of winNum) {
                         this.betWin.children[i + 1].active = false;
                     }
-                    //新局開始
                     this.resetRount();
-                }, 3)
+                }, 4)
             }, 1)
         })
     }
+
+    //等待下局
+    // private waitRound() {
+    //     this.countDown.getComponent(CountDown).runCountDown(12, () => {
+    //         console.log("新局開始")
+    //         this.resetRount();
+    //     });
+    // }
 
     update(deltaTime: number) {
 

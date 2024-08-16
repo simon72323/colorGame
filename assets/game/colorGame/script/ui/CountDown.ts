@@ -31,12 +31,13 @@ export class CountDown extends Component {
                     .then(tween(this.timeNode).to(0.5, { scale: new Vec3(1, 1, 1) }))
                     .start();
             }
-            tween(this.labelNode).to(0.1, { scale: new Vec3(1.3, 1.3, 1) }, { easing: 'sineOut' })
-                .then(tween(this.labelNode).to(0.15, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }))
-                .start();
             if (timer === 0) {
                 this.timeNode.active = false;
                 callback();
+            } else {
+                tween(this.labelNode).to(0.1, { scale: new Vec3(1.3, 1.3, 1) }, { easing: 'sineOut' })
+                    .then(tween(this.labelNode).to(0.15, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }))
+                    .start();
             }
         }, 1, time - 1, 1)
     }
