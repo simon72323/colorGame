@@ -31977,10 +31977,7 @@
         "__expectedType__": "cc.AnimationClip"
       }
     ],
-    "_defaultClip": {
-      "__uuid__": "960f9cb9-5e89-49f5-8e78-85fef906e824",
-      "__expectedType__": "cc.AnimationClip"
-    },
+    "_defaultClip": null,
     "_id": "e0Cc1L25VMqZv8yPOb3QsG"
   },
   {
