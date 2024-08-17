@@ -11,7 +11,7 @@ interface PathData {
 export class awardGroup {
     public firstPos: number[] = [];//起始3骰子位置(9組數字)
     public firstRotate: number[] = [];//起始3骰子旋轉(12組數字)
-    public diceEuler: Vec3[] = [];//起始骰子角度
+    public diceEuler: Vec3[] = [];//起始骰子角度(******新局開始前會先跟後端要的資料******)
     public pathID: number = 100;//路徑ID
     public winNumber: number[] = [];//勝利3顏色編號
 }
@@ -25,15 +25,15 @@ export class ColorGameDemoData extends Component {
     /**每局下注金額 */
     // public betScore: number = 100;
     /**遊戲demo幾局 */
-    public demoRound: number = 100;
-    private rounder: number = -1;//表演中的回合
+    // public demoRound: number = 100;
+    // private rounder: number = -1;//表演中的回合
     /**遊戲開獎表演資料*/
-    private roundDatas: Array<awardGroup> = [];
+    // private roundDatas: Array<awardGroup> = [];
     public roundData: awardGroup;//目前回合資料
 
     public pathData: PathData[] = [];//路徑資料
 
-    onLoad() {
+    public loadPathJson(callback: any) {
         // 讀取 JSON 文件
         resources.load("colorGamePathData/ColorGamePath", JsonAsset, (err, jsonAsset) => {
             if (err) {
@@ -44,30 +44,32 @@ export class ColorGameDemoData extends Component {
             for (let i = 0; i < jsonAsset.json.length; i++) {
                 this.pathData[i] = jsonAsset.json[i];
             }
-            this.setRoundData();//設置回合表演資料
+            callback();
         });
     }
 
-    public setDemoRound() {
-        this.rounder++;//回合+1
-        this.roundData = this.roundDatas[this.rounder];//設置回合表演內容
-        console.log("後端資料", this.roundData)
-    }
+    // public setDemoRound() {
+    //     this.rounder++;//回合+1
+    //     this.roundData = this.roundDatas[this.rounder];//設置回合表演內容
+    //     console.log("後端資料", this.roundData)
+    // }
 
-    //設置回合表演資料
-    private setRoundData() {
+    //獲取回合表演資料
+    public getRoundData(callback: any) {
         //模擬後端生成表演資料
-        for (let i = 0; i < this.demoRound; i++) {
-            const awardGroupData: awardGroup = new awardGroup();//本局參數
-            awardGroupData.pathID = Math.floor(Math.random() * 1000);
-            awardGroupData.firstPos = this.pathData[awardGroupData.pathID].pos[0];//起始位置
-            awardGroupData.firstRotate = this.pathData[awardGroupData.pathID].rotate[0];//起始旋轉
-            awardGroupData.winNumber = this.randomNumber();
-            awardGroupData.diceEuler = this.diceRotate(awardGroupData.pathID, awardGroupData.winNumber);//起始骰子角度
-            console.log("轉換的角度", awardGroupData.diceEuler)
-            this.roundDatas.push(awardGroupData);//設置一般遊戲中獎表演資料
-        }
-        console.log("後端所有資料", this.roundDatas)
+        // for (let i = 0; i < this.demoRound; i++) {
+        const awardGroupData: awardGroup = new awardGroup();//本局參數
+        awardGroupData.pathID = Math.floor(Math.random() * 1000);
+        awardGroupData.firstPos = this.pathData[awardGroupData.pathID].pos[0];//起始位置
+        awardGroupData.firstRotate = this.pathData[awardGroupData.pathID].rotate[0];//起始旋轉
+        awardGroupData.winNumber = this.randomNumber();
+        awardGroupData.diceEuler = this.diceRotate(awardGroupData.pathID, awardGroupData.winNumber);//起始骰子角度
+        this.roundData = awardGroupData;
+        callback();
+        // console.log("轉換的角度", awardGroupData.diceEuler)
+        // this.roundDatas.push(awardGroupData);//設置一般遊戲中獎表演資料
+        // }
+        // console.log("後端所有資料", this.roundDatas)
         // this.setDemoRound();
     }
 

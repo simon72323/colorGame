@@ -5,6 +5,7 @@ import { DiceRunSet } from './path/DiceRunSet';
 import { ChipDispatcher } from './ui/ChipDispatcher';
 import { CountDown } from './ui/CountDown';
 import { ColorGameDemoData } from './ColorGameDemoData';
+import { ColorGameValue } from './ColorGameValue';
 // import { ColorGameDemoData } from './ColorGameDemoData';
 // import { ColorGameInterfaceData } from './ColorGameInterfaceData';
 // import { ChipDispatcher } from './ui/ChipDispatcher';
@@ -44,9 +45,11 @@ export class ColorGameMain extends Component {
 
     private betState: Boolean = true;//可下注狀態
 
-    private betScoreRange: number[] = [10, 20, 50, 100, 200];
+
     @property({ type: ColorGameDemoData, tooltip: "demo回合腳本" })
     private demoData: ColorGameDemoData = null;
+    @property({ type: ColorGameValue, tooltip: "demo回合腳本" })
+    private gameValue: ColorGameValue = null;
 
     onLoad() {
 
@@ -56,17 +59,21 @@ export class ColorGameMain extends Component {
     start() {
         this.marquee.addText('----------這是公告~!這是公告~!這是公告~!');
         this.marquee.run();
+        this.demoData.loadPathJson(() => {
+            this.newRound();
+        })
 
-        this.scheduleOnce(() => {
-            this.resetRount();
-        }, 3)
+        // this.scheduleOnce(() => {
+        //     this.resetRount();
+        // }, 3)
     }
 
     //新局
-    resetRount() {
-        this.demoData.setDemoRound();//生成新回合
-        this.box3D.getComponent(DiceRunSet).diceIdle();//初始化骰子
-        this.betStart();
+    newRound() {
+        this.demoData.getRoundData(() => {
+            this.box3D.getComponent(DiceRunSet).diceIdle();//初始化骰子
+            this.betStart();
+        });//生成新回合
     }
 
     //開始押注
@@ -93,7 +100,7 @@ export class ColorGameMain extends Component {
         // if (this.betState) {
         for (let i = 0; i < 4; i++) {
             if (Math.random() > 0.5)
-                this.chipDispatcher.createChipToBetArea(Math.floor(Math.random() * 6), i, this.betScoreRange[Math.floor(Math.random() * 5)]);
+                this.chipDispatcher.createChipToBetArea(Math.floor(Math.random() * 6), i, this.gameValue.betScoreRange[Math.floor(Math.random() * 5)]);
         }
         // }
     }
@@ -142,7 +149,7 @@ export class ColorGameMain extends Component {
                     for (let i of winNum) {
                         this.betWin.children[i + 1].active = false;
                     }
-                    this.resetRount();
+                    this.newRound();
                 }, 4)
             }, 1)
         })
