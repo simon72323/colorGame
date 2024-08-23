@@ -11,7 +11,7 @@ export default class PoolHandler {
     /**取得 */
     public get(pre: Prefab): Node {
         const poolName = pre.name;//pool物件都會掛上"pool_"前綴名稱
-        // console.log(poolName)
+
         if (this.poolTable === null) {
             this.poolTable = new Map([[poolName, new NodePool()]]);
         }
@@ -19,11 +19,14 @@ export default class PoolHandler {
         if (pool === undefined) {
             this.poolTable.set(poolName, new NodePool());
             pool = this.poolTable.get(poolName);
+
         }
         if (pool.size() > 0) {
+            // console.log('提取', poolName)
             return pool.get();
         } else {
             pool.put(instantiate(pre));
+            // console.log('新生成', poolName)
         }
         return pool.get();
     }
@@ -38,7 +41,7 @@ export default class PoolHandler {
         if (pool === null) {
             return;
         }
-        // console.log("正式回收",pool)
+        // console.log("正式回收", pool)
         pool.put(node);
     }
 

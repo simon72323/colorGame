@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.26",
+  "ver": "1.0.27",
   "importer": "image",
   "imported": true,
   "uuid": "9f7ba363-3e09-4c2d-baa8-ad9b6d9b72b8",
@@ -43,13 +43,13 @@
         "trimThreshold": 1,
         "rotated": false,
         "offsetX": 0,
-        "offsetY": 0,
+        "offsetY": -0.5,
         "trimX": 0,
-        "trimY": 0,
+        "trimY": 1,
         "width": 662,
-        "height": 151,
+        "height": 177,
         "rawWidth": 662,
-        "rawHeight": 151,
+        "rawHeight": 178,
         "borderTop": 0,
         "borderBottom": 0,
         "borderLeft": 0,
@@ -62,16 +62,16 @@
         "vertices": {
           "rawPosition": [
             -331,
-            -75.5,
+            -88.5,
             0,
             331,
-            -75.5,
+            -88.5,
             0,
             -331,
-            75.5,
+            88.5,
             0,
             331,
-            75.5,
+            88.5,
             0
           ],
           "indexes": [
@@ -84,9 +84,9 @@
           ],
           "uv": [
             0,
-            151,
+            177,
             662,
-            151,
+            177,
             0,
             0,
             662,
@@ -98,18 +98,18 @@
             1,
             0,
             0,
+            0.9943820224719101,
             1,
-            1,
-            1
+            0.9943820224719101
           ],
           "minPos": [
             -331,
-            -75.5,
+            -88.5,
             0
           ],
           "maxPos": [
             331,
-            75.5,
+            88.5,
             0
           ]
         },
@@ -129,6 +129,6 @@
     "type": "sprite-frame",
     "hasAlpha": true,
     "fixAlphaTransparencyArtifacts": false,
-    "redirect": "9f7ba363-3e09-4c2d-baa8-ad9b6d9b72b8@f9941"
+    "redirect": "9f7ba363-3e09-4c2d-baa8-ad9b6d9b72b8@6c48a"
   }
 }

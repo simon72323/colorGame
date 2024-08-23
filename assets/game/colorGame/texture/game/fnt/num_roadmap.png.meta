@@ -1,5 +1,5 @@
 {
-  "ver": "1.0.26",
+  "ver": "1.0.27",
   "importer": "image",
   "imported": true,
   "uuid": "a67ad75a-f26f-43b8-abb5-830139635fff",
@@ -42,14 +42,14 @@
         "trimType": "auto",
         "trimThreshold": 1,
         "rotated": false,
-        "offsetX": 0,
-        "offsetY": 0,
+        "offsetX": -2,
+        "offsetY": 1,
         "trimX": 0,
         "trimY": 0,
-        "width": 120,
-        "height": 104,
+        "width": 116,
+        "height": 128,
         "rawWidth": 120,
-        "rawHeight": 104,
+        "rawHeight": 130,
         "borderTop": 0,
         "borderBottom": 0,
         "borderLeft": 0,
@@ -61,17 +61,17 @@
         "meshType": 0,
         "vertices": {
           "rawPosition": [
-            -60,
-            -52,
+            -58,
+            -64,
             0,
-            60,
-            -52,
+            58,
+            -64,
             0,
-            -60,
-            52,
+            -58,
+            64,
             0,
-            60,
-            52,
+            58,
+            64,
             0
           ],
           "indexes": [
@@ -84,32 +84,32 @@
           ],
           "uv": [
             0,
-            104,
-            120,
-            104,
+            130,
+            116,
+            130,
             0,
-            0,
-            120,
-            0
+            2,
+            116,
+            2
           ],
           "nuv": [
             0,
+            0.015384615384615385,
+            0.9666666666666667,
+            0.015384615384615385,
             0,
             1,
-            0,
-            0,
-            1,
-            1,
+            0.9666666666666667,
             1
           ],
           "minPos": [
-            -60,
-            -52,
+            -58,
+            -64,
             0
           ],
           "maxPos": [
-            60,
-            52,
+            58,
+            64,
             0
           ]
         },
@@ -129,6 +129,6 @@
     "type": "sprite-frame",
     "hasAlpha": true,
     "fixAlphaTransparencyArtifacts": false,
-    "redirect": "a67ad75a-f26f-43b8-abb5-830139635fff@f9941"
+    "redirect": "a67ad75a-f26f-43b8-abb5-830139635fff@6c48a"
   }
 }

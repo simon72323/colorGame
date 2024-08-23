@@ -16,6 +16,8 @@ export class awardGroup {
     public winNumber: number[] = [];//勝利3顏色編號
 }
 
+
+
 @ccclass('ColorGameDemoData')
 export class ColorGameDemoData extends Component {
     //***************仿gameInfo的腳本 ****************/
@@ -23,15 +25,26 @@ export class ColorGameDemoData extends Component {
     /**押注的antes索引 */
     // public nowBetIndex = 0;
     /**每局下注金額 */
-    // public betScore: number = 100;
+    // public betCredit: number = 100;
     /**遊戲demo幾局 */
     // public demoRound: number = 100;
     // private rounder: number = -1;//表演中的回合
     /**遊戲開獎表演資料*/
     // private roundDatas: Array<awardGroup> = [];
     public roundData: awardGroup;//目前回合資料
+    /**遊戲前一百局資料*/
+    public colorRoad: number[][] = [];
+    public colorPer: number[] = [0, 0, 0, 0, 0, 0];//前100局顏色比例
 
     public pathData: PathData[] = [];//路徑資料
+
+    onLoad() {
+        //生成100局資料(模擬用)
+        for (let i = 0; i < 100; i++) {
+            this.colorRoad.push([Math.floor(Math.random() * 6), Math.floor(Math.random() * 6), Math.floor(Math.random() * 6)]);
+        }
+    }
+
 
     public loadPathJson(callback: any) {
         // 讀取 JSON 文件
@@ -55,7 +68,7 @@ export class ColorGameDemoData extends Component {
     // }
 
     //獲取回合表演資料
-    public getRoundData(callback: any) {
+    public getRoundData(callback?: any) {
         //模擬後端生成表演資料
         // for (let i = 0; i < this.demoRound; i++) {
         const awardGroupData: awardGroup = new awardGroup();//本局參數
@@ -71,6 +84,25 @@ export class ColorGameDemoData extends Component {
         // }
         // console.log("後端所有資料", this.roundDatas)
         // this.setDemoRound();
+    }
+
+    // public updataColorRoad() {
+    //     this.colorRoad.pop();
+    //     this.colorRoad.unshift(this.roundData.winNumber);
+    // }
+
+    public getColorPer() {
+        let color = [0, 0, 0, 0, 0, 0];
+        for (let i = 0; i < this.colorRoad.length; i++) {
+            color[this.colorRoad[i][0]]++;
+            color[this.colorRoad[i][1]]++;
+            color[this.colorRoad[i][2]]++;
+        }
+        for (let i = 0; i < this.colorPer.length; i++) {
+            this.colorPer[i] = color[i] / 3;//設置顏色百分比
+        }
+        return this.colorPer;
+        // callback();
     }
 
     //模擬後端路徑與開獎三顏色之骰子校正旋轉值(路徑id，勝利的三顏色編號)，回傳3個子物件的旋轉值

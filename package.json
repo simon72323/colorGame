@@ -1,9 +1,9 @@
 {
   "name": "mahjong",
-  "version": "0.4.73",
+  "version": "0.4.74",
   "uuid": "6e99cd3b-e2d9-4612-a727-8adf0dee4e08",
   "creator": {
-    "version": "3.8.1"
+    "version": "3.8.3"
   },
   "dependencies": {
     "crypto-es": "^2.1.0",
@@ -34,7 +34,7 @@
   },
   "scripts": {
     "build": "gulp",
-    "precommit": "npm --no-git-tag-version version patch; git add package.json package-lock.json                ",
+    "precommit": "npm version patch --no-git-tag-version && git add package.json package-lock.json",
     "test": "jest --coverage --detectOpenHandles",
     "patch2": "git stash; npm version patch; git stash pop;",
     "patch": "npm version patch",

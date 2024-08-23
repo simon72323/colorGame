@@ -46,7 +46,7 @@ export class SaveDiceData extends Component {
                 let diceNode = this.node.children[i];
                 for (let j = 0; j < 3; j++) {
                     this.node.children[i].children[j].getComponent(RigidBody).type = RigidBody.Type.KINEMATIC; // 停止物理模拟
-                    diceNode.children[j].setPosition(new Vec3(j * 1.2 - 1.2, 4.73, -1.95));
+                    diceNode.children[j].setPosition(new Vec3(j * 1.2 - 1.2, 4.77, -1.83));
                     // console.log("位置" + diceNode.children[j].position);
                     let random = Math.floor(Math.random() * 6);
                     this.point[random]++;

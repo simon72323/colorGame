@@ -1,5 +1,5 @@
 {
-  "ver": "2.3.12",
+  "ver": "2.3.13",
   "importer": "gltf",
   "imported": true,
   "uuid": "21449da4-244b-4972-8e73-c4ec0c36e5b2",
@@ -58,7 +58,6 @@
   },
   "userData": {
     "imageMetas": [],
-    "redirect": "21449da4-244b-4972-8e73-c4ec0c36e5b2@bb6cc",
     "lods": {
       "enable": false,
       "hasBuiltinLOD": false,

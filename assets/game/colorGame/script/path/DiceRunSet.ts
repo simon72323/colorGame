@@ -1,5 +1,5 @@
-import { _decorator, Component, Vec3, Quat, tween, Animation, Node } from 'cc';
-import { ColorGameDemoData } from '../ColorGameDemoData';
+import { _decorator, Component, Vec3, Quat, find, Animation, Node } from 'cc';
+import { ColorGameData } from '../ColorGameData';
 const { ccclass, property } = _decorator;
 
 @ccclass('DiceRunSet')
@@ -15,26 +15,26 @@ export class DiceRunSet extends Component {
     private dataFrame = 0;//播放中的路徑影格
     private saveFrameTime = 0.033;
     // private winNumber = [1, 1, 1];
-    @property({ type: ColorGameDemoData, tooltip: "demo回合腳本" })
-    private demoData: ColorGameDemoData = null;
+    private gameData: ColorGameData = null;//demo回合腳本
 
-    // onLoad() {
-    // 讀取 JSON 文件
-    // resources.load("colorGamePathData/ColorGamePath30", JsonAsset, (err, jsonAsset) => {
-    //     if (err) {
-    //         console.error(err);
-    //         return;
-    //     }
-    //     // 獲取json資料
-    //     for (let i = 0; i < jsonAsset.json.length; i++) {
-    //         this.pathData[i] = jsonAsset.json[i];
-    //     }
-    // });
-    // }
+    onLoad() {
+        this.gameData = find('Canvas/Scripts/GameDemoData').getComponent(ColorGameData);
+        // 讀取 JSON 文件
+        // resources.load("colorGamePathData/ColorGamePath30", JsonAsset, (err, jsonAsset) => {
+        //     if (err) {
+        //         console.error(err);
+        //         return;
+        //     }
+        //     // 獲取json資料
+        //     for (let i = 0; i < jsonAsset.json.length; i++) {
+        //         this.pathData[i] = jsonAsset.json[i];
+        //     }
+        // });
+    }
 
     //初始化骰子
     diceIdle() {
-        const roundData = this.demoData.roundData;
+        const roundData = this.gameData.roundData;
         console.log("資料", roundData)
         //初始化所有骰子位置
         for (let i = 0; i < this.dice.length; i++) {
@@ -60,7 +60,7 @@ export class DiceRunSet extends Component {
     //開骰表演(回傳表演結束)
     diceStart(callback: any) {
         // this.diceIdle();//初始化骰子
-        const pathData = this.demoData.pathData[this.demoData.roundData.pathID];//路徑表演資料
+        const pathData = this.gameData.pathData[this.gameData.roundData.pathID];//路徑表演資料
         this.frame.setRotationFromEuler(new Vec3(-90, 180, 0));//初始化翻板動畫
         this.frame.getComponent(Animation).play();//播放翻板動畫
 
@@ -88,12 +88,12 @@ export class DiceRunSet extends Component {
                 //     this.diceStart();//再次播放
                 // }, 1)
             }
-        }, 0, frameLength - 1, 0)
+        }, 0, frameLength - 1, 0.1)
     }
 
     //模擬後端路徑與開獎三顏色之骰子校正旋轉值(路徑id，勝利的三顏色編號)，回傳3個子物件的旋轉值
     // diceRotate(id: number, winNumber: number[]) {
-    //     const pathEndColor = this.demoData.pathData[id].diceNumber
+    //     const pathEndColor = this.gameData.pathData[id].diceNumber
     //     const changeEuler = [
     //         [new Vec3(0, 0, 0), new Vec3(-90, 0, 0), new Vec3(0, 0, 90), new Vec3(0, 0, -90), new Vec3(90, 0, 0), new Vec3(180, 0, 0)],
     //         [new Vec3(90, 0, 0), new Vec3(0, 0, 0), new Vec3(0, -90, 0), new Vec3(0, 90, 0), new Vec3(0, 180, 0), new Vec3(-90, 0, 0)],
