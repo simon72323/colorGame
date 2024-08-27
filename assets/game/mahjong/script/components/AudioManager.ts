@@ -72,6 +72,7 @@ export class AudioManager implements IAudioManager {
 
     // 初始化
     protected async init(): Promise<void> {
+        console.log("初始化")
         const node: Node = new Node("AudioManager");
         this._node = node;
         director.addPersistRootNode(node);

@@ -2,7 +2,7 @@
   "ver": "1.0.27",
   "importer": "image",
   "imported": true,
-  "uuid": "9cc2d745-f99d-43c1-baaf-ca1f4d55a94f",
+  "uuid": "5361f8ed-15ee-45d2-909b-fba25694cffc",
   "files": [
     ".json",
     ".png"
@@ -10,14 +10,14 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "9cc2d745-f99d-43c1-baaf-ca1f4d55a94f@6c48a",
+      "uuid": "5361f8ed-15ee-45d2-909b-fba25694cffc@6c48a",
       "displayName": "pic_chip_s_05",
       "id": "6c48a",
       "name": "texture",
       "userData": {
         "wrapModeS": "clamp-to-edge",
         "wrapModeT": "clamp-to-edge",
-        "imageUuidOrDatabaseUri": "9cc2d745-f99d-43c1-baaf-ca1f4d55a94f",
+        "imageUuidOrDatabaseUri": "5361f8ed-15ee-45d2-909b-fba25694cffc",
         "isUuid": true,
         "visible": false,
         "minfilter": "linear",
@@ -34,7 +34,7 @@
     },
     "f9941": {
       "importer": "sprite-frame",
-      "uuid": "9cc2d745-f99d-43c1-baaf-ca1f4d55a94f@f9941",
+      "uuid": "5361f8ed-15ee-45d2-909b-fba25694cffc@f9941",
       "displayName": "pic_chip_s_05",
       "id": "f9941",
       "name": "spriteFrame",
@@ -114,7 +114,7 @@
           ]
         },
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "9cc2d745-f99d-43c1-baaf-ca1f4d55a94f@6c48a",
+        "imageUuidOrDatabaseUri": "5361f8ed-15ee-45d2-909b-fba25694cffc@6c48a",
         "atlasUuid": ""
       },
       "ver": "1.0.12",
@@ -129,6 +129,6 @@
     "type": "sprite-frame",
     "hasAlpha": true,
     "fixAlphaTransparencyArtifacts": false,
-    "redirect": "9cc2d745-f99d-43c1-baaf-ca1f4d55a94f@6c48a"
+    "redirect": "5361f8ed-15ee-45d2-909b-fba25694cffc@6c48a"
   }
 }

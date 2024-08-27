@@ -17,7 +17,7 @@ export class BetArea extends Component {
 
     private onBetAreaPressed(param: string): void {
         // console.log('注區', param + '按下')
-        this.chipDispatcher.createChipToBetArea(Number(param), 4);
+        this.chipDispatcher.createChipToBetArea(Number(param), 0);
         // if (this.onBetAreaPressedCallback) {
         //     console.log("傳按下",param)
         //     this.onBetAreaPressedCallback(param);

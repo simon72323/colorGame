@@ -18,7 +18,7 @@ export class DiceRunSet extends Component {
     private gameData: ColorGameData = null;//demo回合腳本
 
     onLoad() {
-        this.gameData = find('Canvas/Scripts/GameDemoData').getComponent(ColorGameData);
+        this.gameData = find('Canvas/Scripts/ColorGameData').getComponent(ColorGameData);
         // 讀取 JSON 文件
         // resources.load("colorGamePathData/ColorGamePath30", JsonAsset, (err, jsonAsset) => {
         //     if (err) {
@@ -34,13 +34,13 @@ export class DiceRunSet extends Component {
 
     //初始化骰子
     diceIdle() {
-        const roundData = this.gameData.roundData;
-        console.log("資料", roundData)
+        const firstPos = this.gameData.firstPos;
+        const firstRotate = this.gameData.firstRotate;
         //初始化所有骰子位置
         for (let i = 0; i < this.dice.length; i++) {
-            this.dice[i].setPosition(new Vec3(roundData.firstPos[i * 3 + 0], roundData.firstPos[i * 3 + 1], roundData.firstPos[i * 3 + 2]));
-            this.dice[i].setRotation(new Quat(roundData.firstRotate[i * 4 + 0], roundData.firstRotate[i * 4 + 1], roundData.firstRotate[i * 4 + 2], roundData.firstRotate[i * 4 + 3]));
-            this.dice[i].children[0].setRotationFromEuler(roundData.diceEuler[i]);
+            this.dice[i].setPosition(new Vec3(firstPos[i * 3 + 0], firstPos[i * 3 + 1], firstPos[i * 3 + 2]));
+            this.dice[i].setRotation(new Quat(firstRotate[i * 4 + 0], firstRotate[i * 4 + 1], firstRotate[i * 4 + 2], firstRotate[i * 4 + 3]));
+            this.dice[i].children[0].setRotationFromEuler(this.gameData.diceEuler[i]);
             this.dice[i].active = true;//顯示骰子
         }
     }
@@ -60,7 +60,7 @@ export class DiceRunSet extends Component {
     //開骰表演(回傳表演結束)
     diceStart(callback: any) {
         // this.diceIdle();//初始化骰子
-        const pathData = this.gameData.pathData[this.gameData.roundData.pathID];//路徑表演資料
+        const pathData = this.gameData.pathData[this.gameData.pathID];//路徑表演資料
         this.frame.setRotationFromEuler(new Vec3(-90, 180, 0));//初始化翻板動畫
         this.frame.getComponent(Animation).play();//播放翻板動畫
 

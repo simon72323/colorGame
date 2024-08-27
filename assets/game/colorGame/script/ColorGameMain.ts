@@ -1,15 +1,14 @@
-import { _decorator, Component, Node, find, Label, Button, Sprite, Animation, game } from 'cc';
+import { _decorator, Component, Node, find, Label, Button, Sprite, Animation, game, UIOpacity, utils } from 'cc';
 // import PoolHandler from '../../../common/script/tools/PoolHandler';
 import { Marquee } from '../../../common/script/components/Marquee';
 import { DiceRunSet } from './path/DiceRunSet';
 import { ChipDispatcher } from './ui/ChipDispatcher';
 import { CountDown } from './ui/CountDown';
 import { ColorGameData } from './ColorGameData';
-// import { ColorGameValue } from './ColorGameValue';
 import { ColorGameResource } from './ColorGameResource';
 import { ColorGameRoad } from './ColorGameRoad';
 import { ColorGameZoom } from './ColorGameZoom';
-// import { UtilsKit } from '../../../common/script/lib/UtilsKit';
+import { UtilsKit_Simon } from '../../../common/script/lib/UtilsKit_Simon';
 import { WorkOnBlur_Simon } from '../../../common/script/tools/WorkOnBlur_Simon';
 import { WorkerTimeout_Simon } from '../../../common/script/lib/WorkerTimeout_Simon';
 // import { ColorGameData } from './ColorGameData';
@@ -20,8 +19,6 @@ const { ccclass, property } = _decorator;
 @ccclass('ColorGameMain')
 export class ColorGameMain extends Component {
 
-    // private myPool: PoolHandler = null;//創建物件池
-    // private selectChipData: SelectChipData;
     @property({ type: Node, tooltip: "背景燈光" })
     public bgLight: Node = null;
     @property({ type: Node, tooltip: "資訊面板" })
@@ -35,7 +32,7 @@ export class ColorGameMain extends Component {
     @property({ type: Node, tooltip: "下注區資訊" })
     public betInfo: Node = null;
     @property({ type: Node, tooltip: "下注分數區" })
-    public betCreditArea: Node = null;
+    public betScoreArea: Node = null;
     @property({ type: Node, tooltip: "下注提示光區" })
     private betLight: Node = null;
     @property({ type: Node, tooltip: "籌碼選擇區" })
@@ -58,7 +55,7 @@ export class ColorGameMain extends Component {
     @property({ type: Node, tooltip: "下注分數按鈕(公版)" })
     public comBtnBet: Node = null;
     @property({ type: Node, tooltip: "分數兌換按鈕(公版)" })
-    public comBtnCredits: Node = null;
+    public comBtnScores: Node = null;
 
 
     // private betState: Boolean = true;//可下注狀態
@@ -67,7 +64,6 @@ export class ColorGameMain extends Component {
     @property({ type: ChipDispatcher, tooltip: "籌碼派發層" })
     private chipDispatcher: ChipDispatcher = null;
     private gameData: ColorGameData = null;
-    // private gameValue: ColorGameValue = null;
     private gameResource: ColorGameResource = null;
     private gameRoad: ColorGameRoad = null;
     private gameZoom: ColorGameZoom = null;
@@ -82,6 +78,8 @@ export class ColorGameMain extends Component {
         this.gameResource = find('Canvas/Scripts/ColorGameResource').getComponent(ColorGameResource);
         this.gameRoad = find('Canvas/Scripts/ColorGameRoad').getComponent(ColorGameRoad);
         this.gameZoom = find('Canvas/Scripts/ColorGameZoom').getComponent(ColorGameZoom);
+        this.comBtnScores.getChildByName('Label').getComponent(Label).string = UtilsKit_Simon.FormatNumber(this.gameData.localScore);//顯示玩家分數
+
     }
 
 
@@ -125,12 +123,12 @@ export class ColorGameMain extends Component {
     //新局
     newRound() {
         this.gameData.getRoundData(() => {
+            this.comBtnBet.getChildByName('Label').getComponent(Label).string = UtilsKit_Simon.FormatNumber(this.gameData.localBetTotal);//本地玩家下注分數歸0
             this.bgLight.getComponent(Animation).play('BgLightIdle');
-            // console.log(this.gameData.colorRoad[0],this.gameData.colorRoad[1])
             this.box3D.getComponent(DiceRunSet).diceIdle();//初始化骰子
             this.gameData.resetValue();
-            for (let i = 0; i < this.betCreditArea.children.length; i++) {
-                this.betCreditArea.children[i].getComponent(Label).string = this.numberSpecification(this.gameData.betCreditValue[i]);//重置玩家注區分數
+            for (let i = 0; i < 6; i++) {
+                this.betInfo.children[i].getComponent(UIOpacity).opacity = 255;
             }
             this.betStart();
         });
@@ -138,7 +136,6 @@ export class ColorGameMain extends Component {
 
     //開始押注
     private betStart() {
-
         this.gameZoom.showing();
         this.stageTitle.children[0].active = true;
         this.betLight.active = true;//下注提示光
@@ -162,7 +159,7 @@ export class ColorGameMain extends Component {
         this.scheduleOnce(() => {
             for (let i = 1; i < 5; i++) {
                 if (Math.random() > 0.5)
-                    this.chipDispatcher.createChipToBetArea(Math.floor(Math.random() * 6), i);
+                    this.chipDispatcher.createChipToBetArea(Math.floor(Math.random() * 6), i, this.gameData.betScoreRange[Math.floor(Math.random() * 5)]);
             }
         }, 0.1 + Math.random() * 0.1)
     }
@@ -186,14 +183,16 @@ export class ColorGameMain extends Component {
 
     //開骰表演
     private runDice() {
-        let winNumber = this.gameData.roundData.winNumber;
+        let winNumber = this.gameData.winNumber;
         this.box3D.getComponent(DiceRunSet).diceStart(() => {
             this.bgLight.getComponent(Animation).play('BgLightOpen');
             const diceNum = [0, 1, 2, 3, 4, 5];
             const loseNum = diceNum.filter(number => !winNumber.includes(number));
             for (let i of loseNum) {
                 this.chipDispatcher.getComponent(ChipDispatcher).recycleChip(i);//回收未開獎的籌碼
-                this.betCreditArea.children[i].getComponent(Label).string = '0';
+                this.betScoreArea.children[i].getComponent(Label).string = '0';
+                this.betInfo.children[i].getComponent(UIOpacity).opacity = 100;
+                // this.gameData.localBetScore[i] = 0;
             }
             let betCount = [0, 0, 0, 0, 0, 0];//每個注區的開獎數量
             for (let i of winNumber) {
@@ -201,20 +200,20 @@ export class ColorGameMain extends Component {
             }
             const winNum = Array.from(new Set(winNumber));//勝利的注區(單一數字)
             this.betWin.active = true;
-            this.gameData.localWinCredit = 0;
+            this.gameData.localWinScore = 0;
             for (let i of winNum) {
                 this.betWin.children[i].active = true;
                 //判斷玩家是否有下注中獎區
-                if (this.gameData.betCreditValue[i] > 0) {
-                    this.gameData.betCreditValue[i] *= betCount[i] === 3 ? 10 : betCount[i] + 1;//注區分數變更
-                    this.gameData.localWinCredit += this.gameData.betCreditValue[i];
-                    this.betCreditArea.children[i].getComponent(Label).string = this.numberSpecification(this.gameData.betCreditValue[i]);
+                if (this.gameData.localBetScore[i] > 0) {
+                    this.gameData.localBetScore[i] *= betCount[i] === 3 ? 10 : betCount[i] + 1;//注區分數變更(倍率)
+                    this.gameData.localWinScore += this.gameData.localBetScore[i];
+                    this.betScoreArea.children[i].getComponent(Label).string = UtilsKit_Simon.FormatNumber(this.gameData.localBetScore[i]);
                     this.mainPlayerWin.children[i].active = true;
                     this.mainPlayerWin.children[i].children[0].getComponent(Sprite).spriteFrame = this.gameResource.winOddSpriteFrame[betCount[i] - 1];
                 }
             }
-            if (this.gameData.localWinCredit > 0) {
-                this.infoBar.getChildByName('Win').getChildByName('WinScore').getChildByName('Label').getComponent(Label).string = this.numberSpecification(this.gameData.localWinCredit);
+            if (this.gameData.localWinScore > 0) {
+                this.infoBar.getChildByName('Win').getChildByName('WinScore').getChildByName('Label').getComponent(Label).string = UtilsKit_Simon.FormatNumber(this.gameData.localWinScore);
                 this.infoBar.getComponent(Animation).play('InfoBarWin');
             }
             //顯示結算區
@@ -231,23 +230,14 @@ export class ColorGameMain extends Component {
                     this.chipDispatcher.getComponent(ChipDispatcher).createPayChipToBetArea(i, betCount[i] === 3 ? 9 : betCount[i]);
                 }
                 this.scheduleOnce(() => {
-                    console.log("玩家贏", this.gameData.localWinCredit)
-                    if (this.gameData.localWinCredit > 0) {
-                        this.playerPos.children[4].children[0].getChildByName('Win').getComponent(Label).string = '+' + this.numberSpecification(this.gameData.localWinCredit);
-                        this.playerPos.children[4].children[0].active = true;
-                        //玩家現金額更新
-                        this.gameData.localCredit += this.gameData.localWinCredit;
-                        this.comBtnCredits.getChildByName('Label').getComponent(Label).string = this.numberSpecification(this.gameData.localCredit);
-                        this.comBtnCredits.getComponent(Animation).play();
+                    console.log("玩家贏", this.gameData.localWinScore)
+                    if (this.gameData.localWinScore > 0) {
+                        this.playerPos.children[0].children[0].getChildByName('Win').getComponent(Label).string = '+' + UtilsKit_Simon.FormatNumber(this.gameData.localWinScore);
+                        this.playerPos.children[0].children[0].active = true;
+                        this.gameData.localScore += this.gameData.localWinScore;//玩家現金額更新
                     }
-                    for (let i = 0; i < 3; i++) {
-                        // console.log(i,"玩家贏",this.gameData.otherPlayerWinCredit[i])
-                        // if (this.gameData.otherPlayerWinCredit[i] > 0) {
-                        //     this.gameData.otherPlayerCredit[i] += this.gameData.otherPlayerWinCredit[i];
-                        //     this.playerPos.children[i].children[0].getChildByName('Label').getComponent(Label).string = this.numberSpecification(this.gameData.otherPlayerCredit[i]);
-                        //     this.playerPos.children[i].children[0].getComponent(Animation).play();
-                        // }
-                    }
+                    this.comBtnScores.getComponent(Animation).play();
+                    this.gameData.updataUIScore();//更新介面分數
                 }, 2.1)
                 this.scheduleOnce(() => {
                     this.betWin.active = false;
@@ -260,11 +250,6 @@ export class ColorGameMain extends Component {
                 }, 4)
             }, 1)
         })
-    }
-
-    /**規格化數值(取小數點後2位)*/
-    private numberSpecification(num: number): string {
-        return num.toLocaleString('zh', { maximumFractionDigits: 2, minimumFractionDigits: 0 });
     }
     //等待下局
     // private waitRound() {
