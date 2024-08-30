@@ -8,23 +8,11 @@ export class ColorGameResource extends Component {
     @property({ type: Prefab, tooltip: "本地玩家下注籌碼" })
     public betChipColor: Prefab = null;
     @property({ type: [SpriteFrame], tooltip: "下注籌碼貼圖" })
-    public chipSpriteFrame: SpriteFrame[] = [];
-    // @property({ type: [SpriteFrame], tooltip: "按鈕籌碼貼圖" })
-    // public btnChipSpriteFrame: SpriteFrame[] = [];
+    public chipSF: SpriteFrame[] = [];
     @property({ type: [SpriteFrame], tooltip: "結算區骰子顏色" })
-    public resultColorSpriteFrame: SpriteFrame[] = [];
+    public resultColorSF: SpriteFrame[] = [];
     @property({ type: [SpriteFrame], tooltip: "路紙區骰子顏色" })
-    public roadColorSpriteFrame: SpriteFrame[] = [];
+    public roadColorSF: SpriteFrame[] = [];
     @property({ type: [SpriteFrame], tooltip: "勝利倍率貼圖" })
-    public winOddSpriteFrame: SpriteFrame[] = [];
-
-    start() {
-
-    }
-
-    update(deltaTime: number) {
-
-    }
+    public winOddSF: SpriteFrame[] = [];
 }
-
-

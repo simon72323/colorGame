@@ -1,4 +1,5 @@
 import { _decorator, Component, RigidBody, Vec3, Quat, Node, Animation, PhysicsSystem } from 'cc';
+import { UtilsKitS } from '../../../../common/script/lib/UtilsKitS';
 const { ccclass, property } = _decorator;
 
 interface PathData {
@@ -15,7 +16,7 @@ export class SaveDiceData extends Component {
     private idNum = 0;
     private length = [];
     private point = [0, 0, 0, 0, 0, 0];//起始點數
-    // private numberShow = [0, 0, 0, 0, 0, 0];//開獎點數
+    private numberShow = [0, 0, 0, 0, 0, 0];//開獎點數
     // private saveFrameTime = 0.02;
     private saveNum = 0;
 
@@ -24,7 +25,7 @@ export class SaveDiceData extends Component {
 
     onLoad() {
     }
-    start() {
+    async start() {
         PhysicsSystem.instance.gravity = new Vec3(0, -30, 0);
         this.isRecording = false;
         for (let i = 0; i < this.node.children.length; i++) {
@@ -32,15 +33,16 @@ export class SaveDiceData extends Component {
                 this.node.children[i].children[j].getComponent(RigidBody).type = RigidBody.Type.DYNAMIC; // 啟用物理模拟
             }
         }
-        this.scheduleOnce(() => {
-            this.startRun();
-
-        }, 7)
+        // this.scheduleOnce(()=>{
+        //     this.startRun();
+        // },7)
+        await UtilsKitS.Delay(7);
+        this.startRun();
     }
 
     startRun() {
         this.pathData = [];//清空資料
-        this.schedule(() => {
+        this.schedule(async () => {
             //初始化所有骰子位置
             for (let i = 0; i < this.node.children.length; i++) {
                 let diceNode = this.node.children[i];
@@ -86,60 +88,56 @@ export class SaveDiceData extends Component {
 
                 let boxMove = this.node.children[i].getChildByName('box').getChildByName('lid').children[0];
                 boxMove.setRotationFromEuler(new Vec3(-90, 180, 0));//初始化翻板動畫
-                this.scheduleOnce(() => {
+                this.scheduleOnce(()=>{
                     boxMove.getComponent(Animation).play();//播放翻板動畫
-                }, 0.2)
-
+                },0.2)
             }
             // this.boxMove.setRotationFromEuler(new Vec3(-90, 180, 0));//初始化翻板動畫
-            this.scheduleOnce(() => {
-                // this.boxMove.getComponent(Animation).play();//播放翻板動畫
-                this.isRecording = true;
-                this.saveNum = 0;
-                // this.scheduleOnce(() => {
-                for (let i = 0; i < this.node.children.length; i++) {
-                    for (let j = 0; j < 3; j++) {
-                        const mass = 1 + Math.random();
-                        const downPower = -100 * mass - Math.random() * 10 * mass;//根據id設置力道
-                        const lrPower = 30 * mass - Math.random() * 60 * mass;//根據id設置力道
-                        const randomForce = new Vec3(lrPower, downPower, 0);
-                        const randomAngular = new Vec3(10 - Math.random() * 20, 5 - Math.random() * 10, 5 - Math.random() * 10);
-                        this.node.children[i].children[j].getComponent(RigidBody).type = RigidBody.Type.DYNAMIC; // 允许物理模拟
-                        // console.log("執行物理")
-                        this.node.children[i].children[j].getComponent(RigidBody).mass = mass;
-                        this.node.children[i].children[j].getComponent(RigidBody).allowSleep = true;
-                        this.node.children[i].children[j].getComponent(RigidBody).linearDamping = 0;
-                        this.node.children[i].children[j].getComponent(RigidBody).angularDamping = 0;
-                        this.node.children[i].children[j].getComponent(RigidBody).useGravity = true;
-                        this.node.children[i].children[j].getComponent(RigidBody).linearFactor = new Vec3(1, 1, 1);
-                        this.node.children[i].children[j].getComponent(RigidBody).angularFactor = new Vec3(1, 1, 1);
-                        this.node.children[i].children[j].getComponent(RigidBody).applyForce(randomForce);
-                        this.node.children[i].children[j].getComponent(RigidBody).setAngularVelocity(randomAngular);
-                    }
+            await UtilsKitS.Delay(0.3);
+            // this.boxMove.getComponent(Animation).play();//播放翻板動畫
+            this.isRecording = true;
+            this.saveNum = 0;
+            for (let i = 0; i < this.node.children.length; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const mass = 1 + Math.random();
+                    const downPower = -100 * mass - Math.random() * 10 * mass;//根據id設置力道
+                    const lrPower = 30 * mass - Math.random() * 60 * mass;//根據id設置力道
+                    const randomForce = new Vec3(lrPower, downPower, 0);
+                    const randomAngular = new Vec3(10 - Math.random() * 20, 5 - Math.random() * 10, 5 - Math.random() * 10);
+                    this.node.children[i].children[j].getComponent(RigidBody).type = RigidBody.Type.DYNAMIC; // 允许物理模拟
+                    // console.log("執行物理")
+                    this.node.children[i].children[j].getComponent(RigidBody).mass = mass;
+                    this.node.children[i].children[j].getComponent(RigidBody).allowSleep = true;
+                    this.node.children[i].children[j].getComponent(RigidBody).linearDamping = 0;
+                    this.node.children[i].children[j].getComponent(RigidBody).angularDamping = 0;
+                    this.node.children[i].children[j].getComponent(RigidBody).useGravity = true;
+                    this.node.children[i].children[j].getComponent(RigidBody).linearFactor = new Vec3(1, 1, 1);
+                    this.node.children[i].children[j].getComponent(RigidBody).angularFactor = new Vec3(1, 1, 1);
+                    this.node.children[i].children[j].getComponent(RigidBody).applyForce(randomForce);
+                    this.node.children[i].children[j].getComponent(RigidBody).setAngularVelocity(randomAngular);
                 }
-                // }, 0.1)
-            }, 0.3)
-            this.scheduleOnce(() => {
-                this.stopRecording();
-                for (let i = 0; i < this.node.children.length; i++) {
-                    let newNumber =
-                        [
-                            this.diceNumber(this.node.children[i].children[0], Math.floor(i / 10) * 10),
-                            this.diceNumber(this.node.children[i].children[1], Math.floor(i / 10) * 10),
-                            this.diceNumber(this.node.children[i].children[2], Math.floor(i / 10) * 10)
-                        ];
-                    this.pathData[i + this.idNum].diceNumber = newNumber;//紀錄結果點數
-                    // for (let j = 0; j < 3; j++) {
-                    //     this.numberShow[newNumber[j]]++;
-                    // }
-                    if (this.pathData[i + this.idNum].pos.length > 90)
-                        this.length.push(this.pathData[i + this.idNum].pos.length);
+            }
+            await UtilsKitS.Delay(4.7);
+            this.stopRecording();
+            for (let i = 0; i < this.node.children.length; i++) {
+                let newNumber =
+                    [
+                        this.diceNumber(this.node.children[i].children[0], Math.floor(i / 10) * 10),
+                        this.diceNumber(this.node.children[i].children[1], Math.floor(i / 10) * 10),
+                        this.diceNumber(this.node.children[i].children[2], Math.floor(i / 10) * 10)
+                    ];
+                this.pathData[i + this.idNum].diceNumber = newNumber;//紀錄結果點數
+                // console.log(this.idNum,newNumber)
+                for (let j = 0; j < 3; j++) {
+                    this.numberShow[newNumber[j]]++;
                 }
-                // console.log(this.pathData)
-                this.idNum += 100;
-                if (this.idNum > 999)
-                    this.saveDataAsJson();
-            }, 5)
+                if (this.pathData[i + this.idNum].pos.length > 90)
+                    this.length.push(this.pathData[i + this.idNum].pos.length);
+            }
+            // console.log(this.pathData)
+            this.idNum += 100;
+            if (this.idNum > 999)
+                this.saveDataAsJson();
         }, 5.5, 9, 0.01)
     }
 
@@ -266,7 +264,7 @@ export class SaveDiceData extends Component {
     saveDataAsJson() {
         // console.log(this.length)
         // console.log('起始點數分佈:' + this.point)
-        // console.log('開獎點數分佈:' + this.numberShow)
+        console.log('開獎點數分佈:' + this.numberShow)
         const jsonData = JSON.stringify(this.pathData, (key, value) => {
             if (value instanceof Vec3)
                 return { x: value.x, y: value.y, z: value.z || undefined };

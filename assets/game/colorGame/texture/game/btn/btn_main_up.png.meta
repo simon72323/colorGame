@@ -43,13 +43,13 @@
         "trimThreshold": 1,
         "rotated": false,
         "offsetX": 0,
-        "offsetY": 0,
+        "offsetY": -4,
         "trimX": 0,
-        "trimY": 0,
+        "trimY": 8,
         "width": 155,
         "height": 154,
         "rawWidth": 155,
-        "rawHeight": 154,
+        "rawHeight": 162,
         "borderTop": 0,
         "borderBottom": 0,
         "borderLeft": 0,
@@ -98,9 +98,9 @@
             1,
             0,
             0,
+            0.9506172839506173,
             1,
-            1,
-            1
+            0.9506172839506173
           ],
           "minPos": [
             -77.5,

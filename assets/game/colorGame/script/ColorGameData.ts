@@ -1,7 +1,9 @@
-import { _decorator, Component, resources, JsonAsset, Vec3, find, Label, Animation, UITransform } from 'cc';
+import { _decorator, Component, resources, JsonAsset, Vec3, find, Label, Animation, UITransform, Toggle, Sprite } from 'cc';
 // import { PahtData } from './path/PahtData';
 import { ColorGameMain } from './ColorGameMain';
-import { UtilsKit_Simon } from '../../../common/script/lib/UtilsKit_Simon';
+
+// import { ColorGameResource } from './ColorGameResource';
+import { UtilsKitS } from '../../../common/script/lib/UtilsKitS';
 const { ccclass, property } = _decorator;
 
 //路徑資料
@@ -41,9 +43,9 @@ export class ColorGameData extends Component {
     public roundTime: number = 12;//回合時間
 
     public betAreaPercent: number[] = [0, 0, 0, 0, 0, 0];//各下注區分數百分比(前端計算)
-    public betScoreRange: number[] = [2, 5, 10, 20, 50000];
+    public betScoreRange: number[] = [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000];
     public selectChipID: number = 1;//目前選擇的籌碼
-    public selectChipIDArray: number[] = [0, 1, 2, 3, 4];
+    public chipSetID: number[] = [0, 1, 2, 3, 4];//玩家配置的籌碼ID
     public localScore: number = 250000;//本地玩家分數
     public localBetTotal: number = 0;//本地玩家下注總分
     public localWinScore: number = 0;//本地玩家贏得分數
@@ -51,7 +53,7 @@ export class ColorGameData extends Component {
 
     //各下注區總分
     public colorPer: number[] = [0, 0, 0, 0, 0, 0];//100局顏色比例
-    public chipSet: number[] = [0, 1, 2, 3, 4];//玩家配置的籌碼ID
+    // public chipSet: number[] = [0, 1, 2, 3, 4];//玩家配置的籌碼ID數量
     public localBetScore: number[] = [0, 0, 0, 0, 0, 0];//目前玩家下注籌碼分數(注區)
 
     /**遊戲前一百局資料*/
@@ -61,14 +63,31 @@ export class ColorGameData extends Component {
 
     public gameMain: ColorGameMain = null;
 
+    // public gameResource: ColorGameResource = null;
+
+    private numberShow = [0, 0, 0, 0, 0, 0];//開獎點數
 
     onLoad() {
         this.gameMain = find('Canvas/Scripts/ColorGameMain').getComponent(ColorGameMain);
+
+        // this.gameResource = find('Canvas/Scripts/ColorGameResource').getComponent(ColorGameResource);
         //獲取後端資料
         //生成100局資料(模擬用)
         for (let i = 0; i < 100; i++) {
             this.colorRoad.push([Math.floor(Math.random() * 6), Math.floor(Math.random() * 6), Math.floor(Math.random() * 6)]);
         }
+        //設置籌碼參數
+        // let checkID = this.chipSet.length > 1 ? 1 : 0;
+        // this.selectChipID = this.chipSet[checkID];
+
+        // for (let i = 0; i < this.chipSet.length; i++) {
+        //     const selectChip = this.gameMain.selectChip.children[i];
+        //     selectChip.active = true;
+        //     selectChip.getChildByName('Label').getComponent(Label).string = this.betScoreRange[this.chipSet[i]].toString();
+        // }
+        // this.gameMain.selectChip.children[checkID].getComponent(Toggle).isChecked = true;
+        // console.log(this.chipSetID.length)
+
     }
 
     //初始化資料(新局)
@@ -85,34 +104,47 @@ export class ColorGameData extends Component {
 
     //模擬每秒接收的資料數據
 
+    // 讀取 JSON 文件
+    public loadPathJson(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            resources.load("colorGamePathData/ColorGamePath", JsonAsset, (err, jsonAsset) => {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                // 獲取json資料
+                for (let i = 0; i < jsonAsset.json.length; i++) {
+                    this.pathData[i] = jsonAsset.json[i];
+                }
+                // console.log("路徑資料讀取完成")
+                for(let i=0;i<this.pathData.length;i++){
+                    for(let j=0;j<this.pathData[i].diceNumber.length;j++){
+                        this.numberShow[this.pathData[i].diceNumber[j]]++;
+                    }
+                    // this.pathData[i].diceNumber
+                }
+                console.log('開獎點數分佈:' + this.numberShow)
+                resolve();
+            });
+        })
 
-    public loadPathJson(callback: any) {
-        // 讀取 JSON 文件
-        resources.load("colorGamePathData/ColorGamePath", JsonAsset, (err, jsonAsset) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            // 獲取json資料
-            for (let i = 0; i < jsonAsset.json.length; i++) {
-                this.pathData[i] = jsonAsset.json[i];
-            }
-            // console.log("路徑資料讀取完成")
-            callback();
-        });
     }
 
     //更新分數
     public updataUIScore() {
-        this.gameMain.comBtnBet.getChildByName('Label').getComponent(Label).string = UtilsKit_Simon.FormatNumber(this.localBetTotal);
-        this.gameMain.comBtnScores.getChildByName('Label').getComponent(Label).string = UtilsKit_Simon.FormatNumber(this.localScore);
+        this.gameMain.comBtnBet.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.localBetTotal);
+        this.gameMain.comBtnScores.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.localScore);
 
         for (let i = 1; i < 4; i++) {
-            this.gameMain.playerPos.children[i].children[0].getChildByName('Label').getComponent(Label).string = UtilsKit_Simon.FormatNumber(this.otherPlayerScore[i - 1]);
+            this.gameMain.playerPos.children[i].children[0].getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.otherPlayerScore[i - 1]);
         }
         for (let i = 0; i < 6; i++) {
-            this.gameMain.betInfo.children[i].getChildByName('Credit').getChildByName('Label').getComponent(Label).string = UtilsKit_Simon.FormatNumber(this.betAreaTotal[i]);
-            this.gameMain.betScoreArea.children[i].getComponent(Label).string = UtilsKit_Simon.FormatNumber(this.localBetScore[i]);
+            this.gameMain.betInfo.children[i].getChildByName('Credit').getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.betAreaTotal[i]);
+            this.gameMain.betInfo.children[i].getChildByName('BetScore').getComponent(Label).string = UtilsKitS.NumDigits(this.localBetScore[i]);
+            // console.log(i)
+            // console.log(this.gameMain.betInfo.children[i].getChildByName('BetScore').getComponent(Label).string);
+            // console.log(UtilsKitS.FormatNumber(this.localBetScore[i]))
+            
         }
         this.updataBetPercent();//更新下注比例
     }
@@ -135,26 +167,26 @@ export class ColorGameData extends Component {
     }
 
     //獲取回合表演資料
-    public getRoundData(callback?: any) {
-        //模擬後端生成表演資料
-        // for (let i = 0; i < this.demoRound; i++) {
-        // const awardGroupData: awardGroup = new awardGroup();//本局參數
-        this.pathID = Math.floor(Math.random() * 1000);
-        this.firstPos = this.pathData[this.pathID].pos[0];//起始位置
-        this.firstRotate = this.pathData[this.pathID].rotate[0];//起始旋轉
-        this.winNumber = this.randomNumber();
-        this.diceEuler = this.diceRotate(this.pathID, this.winNumber);//起始骰子角度
-        // this.roundData = awardGroupData;
-        callback();
-        // console.log("轉換的角度", awardGroupData.diceEuler)
-        // this.roundDatas.push(awardGroupData);//設置一般遊戲中獎表演資料
-        // }
-        // console.log("後端所有資料", this.roundDatas)
-        // this.setDemoRound();
+    public getRoundData(): Promise<void> {
+        return new Promise<void>((resolve) => {
+            //模擬後端生成表演資料
+            this.pathID = Math.floor(Math.random() * 1000);
+            this.firstPos = this.pathData[this.pathID].pos[0];//起始位置
+            this.firstRotate = this.pathData[this.pathID].rotate[0];//起始旋轉
+            this.winNumber = this.randomNumber();
+            this.diceEuler = this.diceRotate(this.pathID, this.winNumber);//起始骰子角度
+            resolve();
+            // console.log("轉換的角度", awardGroupData.diceEuler)
+            // this.roundDatas.push(awardGroupData);//設置一般遊戲中獎表演資料
+            // }
+            // console.log("後端所有資料", this.roundDatas)
+            // this.setDemoRound();
+        })
+
     }
 
     public setSelectChipID(event: Event, id: number) {
-        this.selectChipID = this.selectChipIDArray[id];
+        this.selectChipID = this.chipSetID[id];
     }
 
     // public updataColorRoad() {
@@ -173,11 +205,13 @@ export class ColorGameData extends Component {
             this.colorPer[i] = color[i] / 3;//設置顏色百分比
         }
         return this.colorPer;
-        // callback();
     }
 
     //模擬後端路徑與開獎三顏色之骰子校正旋轉值(路徑id，勝利的三顏色編號)，回傳3個子物件的旋轉值
     private diceRotate(id: number, winNumber: number[]) {
+        console.log('表演的路徑id',id);
+        console.log('表演的路徑id結果編號',this.pathData[id].diceNumber);
+        console.log('希望的結果編號',winNumber);
         const pathEndColor = this.pathData[id].diceNumber
         const changeEuler = [
             [new Vec3(0, 0, 0), new Vec3(-90, 0, 0), new Vec3(0, 0, 90), new Vec3(0, 0, -90), new Vec3(90, 0, 0), new Vec3(180, 0, 0)],

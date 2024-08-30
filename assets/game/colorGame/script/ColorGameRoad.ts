@@ -18,8 +18,12 @@ export class ColorGameRoad extends Component {
         this.gameResource = find('Canvas/Scripts/ColorGameResource').getComponent(ColorGameResource);
     }
 
-    //更新走勢
-    public updataRoadMap() {
+    //更新路紙
+    public updataRoadMap(winNumber?: number[]) {
+        if (winNumber) {
+            this.gameData.colorRoad.pop();//清除最後一筆路紙
+            this.gameData.colorRoad.unshift(winNumber);//新增一筆路紙
+        }
         const colorPer = this.gameData.getColorPer();//獲得前100局顏色比例
         const colorMap = this.roadMap.getChildByName('ColorMap');
         const popupColorMap = this.roadMapPopup.getChildByName('ColorMap');
@@ -30,12 +34,12 @@ export class ColorGameRoad extends Component {
         }
         for (let i = 0; i < 3; i++) {
             this.roadMap.getChildByName('LastColor').children[i].getComponent(Sprite).spriteFrame =
-                this.gameResource.roadColorSpriteFrame[this.gameData.colorRoad[0][i]];
+                this.gameResource.roadColorSF[this.gameData.colorRoad[0][i]];
         }
         for (let i = 0; i < 10; i++) {
             for (let j = 0; j < 3; j++) {
                 this.roadMapPopup.getChildByName('LastColor').children[i].children[j].getComponent(Sprite).spriteFrame =
-                    this.gameResource.roadColorSpriteFrame[this.gameData.colorRoad[i][j]];
+                    this.gameResource.roadColorSF[this.gameData.colorRoad[i][j]];
             }
         }
 

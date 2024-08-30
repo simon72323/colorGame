@@ -8,9 +8,11 @@ import { ColorGameData } from './ColorGameData';
 import { ColorGameResource } from './ColorGameResource';
 import { ColorGameRoad } from './ColorGameRoad';
 import { ColorGameZoom } from './ColorGameZoom';
-import { UtilsKit_Simon } from '../../../common/script/lib/UtilsKit_Simon';
+import { UtilsKitS } from '../../../common/script/lib/UtilsKitS';
 import { WorkOnBlur_Simon } from '../../../common/script/tools/WorkOnBlur_Simon';
 import { WorkerTimeout_Simon } from '../../../common/script/lib/WorkerTimeout_Simon';
+import { ColorGameBigWin } from './ui/ColorGameBigWin';
+import { ColorGameChipSet } from './ColorGameChipSet';
 // import { ColorGameData } from './ColorGameData';
 // import { ColorGameInterfaceData } from './ColorGameInterfaceData';
 // import { ChipDispatcher } from './ui/ChipDispatcher';
@@ -31,8 +33,6 @@ export class ColorGameMain extends Component {
     private betWin: Node = null;
     @property({ type: Node, tooltip: "下注區資訊" })
     public betInfo: Node = null;
-    @property({ type: Node, tooltip: "下注分數區" })
-    public betScoreArea: Node = null;
     @property({ type: Node, tooltip: "下注提示光區" })
     private betLight: Node = null;
     @property({ type: Node, tooltip: "籌碼選擇區" })
@@ -41,6 +41,8 @@ export class ColorGameMain extends Component {
     public mainPlayerWin: Node = null;
     @property({ type: Node, tooltip: "結算" })
     private result: Node = null;
+    @property({ type: Node, tooltip: "大贏分" })
+    private bigWin: Node = null;
 
     @property({ type: Node, tooltip: "3d盒子" })
     private box3D: Node = null;
@@ -67,6 +69,7 @@ export class ColorGameMain extends Component {
     private gameResource: ColorGameResource = null;
     private gameRoad: ColorGameRoad = null;
     private gameZoom: ColorGameZoom = null;
+    public gameChipSet: ColorGameChipSet = null;
 
     onLoad() {
         //啟用後台運行(針對動畫、tween、schedule、spine等動畫)
@@ -78,101 +81,70 @@ export class ColorGameMain extends Component {
         this.gameResource = find('Canvas/Scripts/ColorGameResource').getComponent(ColorGameResource);
         this.gameRoad = find('Canvas/Scripts/ColorGameRoad').getComponent(ColorGameRoad);
         this.gameZoom = find('Canvas/Scripts/ColorGameZoom').getComponent(ColorGameZoom);
-        this.comBtnScores.getChildByName('Label').getComponent(Label).string = UtilsKit_Simon.FormatNumber(this.gameData.localScore);//顯示玩家分數
+        this.comBtnScores.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.localScore);//顯示玩家分數
+        this.gameChipSet = find('Canvas/Scripts/ColorGameChipSet').getComponent(ColorGameChipSet);
 
     }
 
-
-    // 顯示共贏得分數
-    // async showWinTotalScore(score: number): Promise<void> {
-    //     return new Promise(async (resolve) => {
-    //         // AudioManager.getInstance().play(SoundFiles.WinScore);
-
-    //         // this.winTotalScoreNode.getChildByName('score').getChildByName('label').getComponent(Label).string = UtilsKit.NumberSpecification(score); // 共贏分設置
-
-    //         await this.playWinTotalScoreAnimation();
-    //         console.log("呼叫動畫播放3")
-    //         resolve();
-    //     })
-    // }
-
-    // private playWinTotalScoreAnimation(): Promise<void> {
-    //     return new Promise(async (resolve) => {
-    //         console.log("呼叫動畫播放1")
-    //         UtilsKit.PlayAnimation(this.testAnim); // 顯示共贏得
-    //         // const animationComponent: Animation = this.testAnim.getComponent(Animation);
-    //         // animationComponent.getState("scoreShow").speed = 2;
-    //         console.log("呼叫動畫播放2")
-    //         // await UtilsKit2.DeferByScheduleOnce(700);
-    //         // animationComponent.pause();
-
-    //         resolve();
-    //     })
-    // }
-
-
-    start() {
-        this.marquee.addText('----------這是公告~!這是公告~!這是公告~!');
-        this.marquee.run();
-        this.gameData.loadPathJson(() => {
-            this.gameRoad.updataRoadMap();
-            this.newRound();
-        })
+    public async start() {
+        // this.marquee.addText('----------這是公告~!這是公告~!這是公告~!');
+        // this.marquee.run();
+        await this.gameData.loadPathJson();
+        this.gameChipSet.updataSelectChip();
+        this.gameRoad.updataRoadMap();
+        this.newRound();
     }
 
     //新局
-    newRound() {
-        this.gameData.getRoundData(() => {
-            this.comBtnBet.getChildByName('Label').getComponent(Label).string = UtilsKit_Simon.FormatNumber(this.gameData.localBetTotal);//本地玩家下注分數歸0
-            this.bgLight.getComponent(Animation).play('BgLightIdle');
-            this.box3D.getComponent(DiceRunSet).diceIdle();//初始化骰子
-            this.gameData.resetValue();
-            for (let i = 0; i < 6; i++) {
-                this.betInfo.children[i].getComponent(UIOpacity).opacity = 255;
-            }
-            this.betStart();
-        });
+    private async newRound() {
+        await this.gameData.getRoundData();
+        this.comBtnBet.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.localBetTotal);//本地玩家下注分數歸0
+        this.bgLight.getComponent(Animation).play('BgLightIdle');
+        this.box3D.getComponent(DiceRunSet).diceIdle();//初始化骰子
+        this.gameData.resetValue();
+        for (let i = 0; i < 6; i++) {
+            this.betInfo.children[i].getComponent(UIOpacity).opacity = 255;
+        }
+        this.betStart();
     }
 
     //開始押注
-    private betStart() {
+    private async betStart() {
         this.gameZoom.showing();
         this.stageTitle.children[0].active = true;
         this.betLight.active = true;//下注提示光
         this.btnState(true);
-        this.scheduleOnce(() => {
-            this.stageTitle.children[0].active = false;
-            //模擬多人下注
-            this.schedule(() => {
-                this.otherPlayerBet();
-            }, 0.2, 50, 1)
-            //等待時間倒數
-            this.countDown.getComponent(CountDown).runCountDown(12, () => {
-                console.log("下注結束")
-                this.betStop();
-            });
-        }, 1)
+        await UtilsKitS.Delay(1);
+        this.stageTitle.children[0].active = false;
+        //模擬多人下注
+        this.schedule(() => {
+            this.otherPlayerBet();
+        }, 0.2, 50, 1)
+        await this.countDown.getComponent(CountDown).runCountDown(12);//等待時間倒數
+        this.betStop();
     }
 
     //其他玩家押注
-    private otherPlayerBet() {
-        this.scheduleOnce(() => {
-            for (let i = 1; i < 5; i++) {
-                if (Math.random() > 0.5)
-                    this.chipDispatcher.createChipToBetArea(Math.floor(Math.random() * 6), i, this.gameData.betScoreRange[Math.floor(Math.random() * 5)]);
+    private async otherPlayerBet() {
+        await UtilsKitS.Delay(0.1 + Math.random() * 0.1);
+        for (let i = 1; i < 5; i++) {
+            if (Math.random() > 0.5) {
+                const randomBetArea = Math.floor(Math.random() * 6);
+                const randomBetRange = this.gameData.betScoreRange[Math.floor(Math.random() * this.gameData.betScoreRange.length)];
+                this.chipDispatcher.createChipToBetArea(randomBetArea, i, randomBetRange);
             }
-        }, 0.1 + Math.random() * 0.1)
+        }
     }
 
     //停止押注
-    private betStop() {
+    private async betStop() {
         this.stageTitle.children[1].active = true;
-        this.scheduleOnce(() => {
-            this.stageTitle.children[1].active = false;
-            this.btnState(false);
-            this.gameZoom.hideing();
-            this.runDice();
-        }, 1)
+        this.btnState(false);
+        this.gameZoom.hideing();
+        await UtilsKitS.Delay(1);
+        this.stageTitle.children[1].active = false;
+        this.chipDispatcher.saveRebetData();
+        this.runDice();
     }
 
     private btnState(bool: boolean) {
@@ -181,76 +153,94 @@ export class ColorGameMain extends Component {
         }
     }
 
+    // //儲存該局下注資訊
+    // private saveRebetData() {
+    //     this.chipDispatcher
+    //     this.rebetSave
+    // }
+
     //開骰表演
-    private runDice() {
+    private async runDice() {
         let winNumber = this.gameData.winNumber;
-        this.box3D.getComponent(DiceRunSet).diceStart(() => {
-            this.bgLight.getComponent(Animation).play('BgLightOpen');
-            const diceNum = [0, 1, 2, 3, 4, 5];
-            const loseNum = diceNum.filter(number => !winNumber.includes(number));
-            for (let i of loseNum) {
-                this.chipDispatcher.getComponent(ChipDispatcher).recycleChip(i);//回收未開獎的籌碼
-                this.betScoreArea.children[i].getComponent(Label).string = '0';
-                this.betInfo.children[i].getComponent(UIOpacity).opacity = 100;
-                // this.gameData.localBetScore[i] = 0;
+        await this.box3D.getComponent(DiceRunSet).diceStart();
+        this.bgLight.getComponent(Animation).play('BgLightOpen');//背景燈閃爍
+        this.betWin.active = true;
+        let betCount = [0, 0, 0, 0, 0, 0];//每個注區的開獎數量
+        for (let i of winNumber) {
+            betCount[i]++;
+        }
+        this.gameData.localWinScore = 0;
+        const winNum = new Set(winNumber);//過濾重複數字
+
+        //中獎注區設置
+        for (let i of winNum) {
+            this.betWin.children[i].active = true;
+            //判斷玩家是否有下注該中獎區
+            if (this.gameData.localBetScore[i] > 0) {
+                this.gameData.localBetScore[i] *= betCount[i] === 3 ? 10 : betCount[i] + 1;//注區分數變更(倍率)
+                this.gameData.localWinScore += this.gameData.localBetScore[i];
+                this.betInfo.children[i].getChildByName('BetScore').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.localBetScore[i]);
+                this.mainPlayerWin.children[i].active = true;
+                this.mainPlayerWin.children[i].children[0].getComponent(Sprite).spriteFrame = this.gameResource.winOddSF[betCount[i] - 1];
             }
-            let betCount = [0, 0, 0, 0, 0, 0];//每個注區的開獎數量
-            for (let i of winNumber) {
-                betCount[i]++;
-            }
-            const winNum = Array.from(new Set(winNumber));//勝利的注區(單一數字)
-            this.betWin.active = true;
-            this.gameData.localWinScore = 0;
-            for (let i of winNum) {
-                this.betWin.children[i].active = true;
-                //判斷玩家是否有下注中獎區
-                if (this.gameData.localBetScore[i] > 0) {
-                    this.gameData.localBetScore[i] *= betCount[i] === 3 ? 10 : betCount[i] + 1;//注區分數變更(倍率)
-                    this.gameData.localWinScore += this.gameData.localBetScore[i];
-                    this.betScoreArea.children[i].getComponent(Label).string = UtilsKit_Simon.FormatNumber(this.gameData.localBetScore[i]);
-                    this.mainPlayerWin.children[i].active = true;
-                    this.mainPlayerWin.children[i].children[0].getComponent(Sprite).spriteFrame = this.gameResource.winOddSpriteFrame[betCount[i] - 1];
-                }
-            }
-            if (this.gameData.localWinScore > 0) {
-                this.infoBar.getChildByName('Win').getChildByName('WinScore').getChildByName('Label').getComponent(Label).string = UtilsKit_Simon.FormatNumber(this.gameData.localWinScore);
+        }
+
+        //未中獎注區設置
+        const diceNum = [0, 1, 2, 3, 4, 5];
+        const loseNum = diceNum.filter(number => !winNumber.includes(number));
+        for (let i of loseNum) {
+            this.gameData.localBetScore[i] = 0;
+            this.betInfo.children[i].getChildByName('BetScore').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.localBetScore[i]);
+            this.betInfo.children[i].getComponent(UIOpacity).opacity = 100;
+        }
+        //本地玩家勝利設置
+        if (this.gameData.localWinScore > 0) {
+            const showWinScore = () => {
+                this.infoBar.getChildByName('Win').getChildByName('WinScore').getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.localWinScore);
                 this.infoBar.getComponent(Animation).play('InfoBarWin');
             }
-            //顯示結算區
-            this.result.active = true;
-            for (let i = 0; i < 3; i++) {
-                this.result.getChildByName(`Dice${i}`).getComponent(Sprite).spriteFrame = this.gameResource.resultColorSpriteFrame[winNumber[i]];
-            }
-            this.gameData.colorRoad.pop();//清除走勢
-            this.gameData.colorRoad.unshift(winNumber);//新增走勢
-            this.gameRoad.updataRoadMap();//更新路紙
-            this.scheduleOnce(() => {
-                //派彩
-                for (let i of winNum) {
-                    this.chipDispatcher.getComponent(ChipDispatcher).createPayChipToBetArea(i, betCount[i] === 3 ? 9 : betCount[i]);
-                }
-                this.scheduleOnce(() => {
-                    console.log("玩家贏", this.gameData.localWinScore)
-                    if (this.gameData.localWinScore > 0) {
-                        this.playerPos.children[0].children[0].getChildByName('Win').getComponent(Label).string = '+' + UtilsKit_Simon.FormatNumber(this.gameData.localWinScore);
-                        this.playerPos.children[0].children[0].active = true;
-                        this.gameData.localScore += this.gameData.localWinScore;//玩家現金額更新
-                    }
-                    this.comBtnScores.getComponent(Animation).play();
-                    this.gameData.updataUIScore();//更新介面分數
-                }, 2.1)
-                this.scheduleOnce(() => {
-                    this.betWin.active = false;
-                    for (let i of winNum) {
-                        this.betWin.children[i].active = false;
-                    }
-                    this.result.active = false;
-                    this.infoBar.getComponent(Animation).play('InfoBarTip');
-                    this.newRound();
-                }, 4)
-            }, 1)
-        })
+            if (winNum.size > 0) {
+                this.bigWin.active = true;
+                this.bigWin.getComponent(ColorGameBigWin).runScore(this.gameData.localWinScore, () => {
+                    showWinScore();
+                });
+                // showWinScore();
+            } else
+                showWinScore();
+        }
+        //顯示結算彈窗
+        this.result.active = true;
+        for (let i = 0; i < 3; i++) {
+            this.result.getChildByName(`Dice${i}`).getComponent(Sprite).spriteFrame = this.gameResource.resultColorSF[winNumber[i]];
+        }
+        this.gameRoad.updataRoadMap(winNumber);//更新路紙
+        await UtilsKitS.Delay(1);
+        for (let i of loseNum) {
+            this.chipDispatcher.getComponent(ChipDispatcher).recycleChip(i);//回收未中獎的籌碼
+        }
+        await UtilsKitS.Delay(0.9);
+        for (let i of winNum) {
+            this.chipDispatcher.getComponent(ChipDispatcher).createPayChipToBetArea(i, betCount[i] === 3 ? 9 : betCount[i]);//派彩
+        }
+        await UtilsKitS.Delay(2.1);
+        // console.log("玩家贏", this.gameData.localWinScore)
+        if (this.gameData.localWinScore > 0) {
+            this.playerPos.children[0].children[0].getChildByName('Win').getComponent(Label).string = '+' + UtilsKitS.NumDigits(this.gameData.localWinScore);
+            this.playerPos.children[0].children[0].active = true;
+            this.gameData.localScore += this.gameData.localWinScore;//玩家現金額更新
+        }
+        this.comBtnScores.getComponent(Animation).play();
+        this.gameData.updataUIScore();//更新介面分數
+        await UtilsKitS.Delay(2);
+        this.betWin.active = false;
+        for (let i of winNum) {
+            this.betWin.children[i].active = false;
+        }
+        this.result.active = false;
+        this.infoBar.getComponent(Animation).play('InfoBarTip');
+        this.newRound();
     }
+
     //等待下局
     // private waitRound() {
     //     this.countDown.getComponent(CountDown).runCountDown(12, () => {
