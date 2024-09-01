@@ -1,7 +1,7 @@
 import { _decorator, Component, find, Node, Label, Sprite, Button, Animation, color, Toggle, UIOpacity } from 'cc';
-import { UtilsKitS } from '../../../common/script/lib/UtilsKitS';
-import { ColorGameData } from './ColorGameData';
-import { ColorGameMain } from './ColorGameMain';
+// import { UtilsKitS } from '../../../common/script/lib/UtilsKitS';
+// import { ColorGameData } from './ColorGameData';
+// import { ColorGameMain } from './ColorGameMain';
 // import { ColorGameValue } from './ColorGameValue';
 // import { ColorGameResource } from './ColorGameResource';
 const { ccclass, property } = _decorator;

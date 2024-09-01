@@ -1,23 +1,27 @@
-import { _decorator, Component, Node } from 'cc';
-import { ChipDispatcher } from './ChipDispatcher';
+import { _decorator, Component, find } from 'cc';
+import { ColorGameChipControl } from './ColorGameChipControl';
+import { ColorGameData } from './ColorGameData';
 // import PoolHandler from '../../../common/script/tools/PoolHandler';
 const { ccclass, property } = _decorator;
 
-@ccclass('BetArea')
-export class BetArea extends Component {
+@ccclass('ColorGameBetArea')
+export class ColorGameBetArea extends Component {
     // public onBetAreaPressedCallback: (param: string) => void = null!;
     // public onBetAreaPressFailedCallback: (param: string) => void = null!;
-    @property({ type: ChipDispatcher, tooltip: "籌碼派發層" })
-    private chipDispatcher: ChipDispatcher = null;
+    // @property({ type: ColorGameChip, tooltip: "籌碼派發層" })
+    private gameChipControl: ColorGameChipControl = null;
+    private gameData: ColorGameData = null;
 
     public onLoad(): void {
+        this.gameChipControl = find('Canvas/Scripts/ColorGameChipControl').getComponent(ColorGameChipControl);
+        this.gameData = find('Canvas/Scripts/ColorGameData').getComponent(ColorGameData);
         this.node.on('OnButtonEventPressed', this.onBetAreaPressed, this);
         this.node.on('OnButtonEventPressFailed', this.onBetAreaPressFailed, this);
     }
 
     private onBetAreaPressed(param: string): void {
         // console.log('注區', param + '按下')
-        this.chipDispatcher.createChipToBetArea(Number(param), 0);
+        this.gameChipControl.createChipToBetArea(Number(param), 0, this.gameData.selectChipID);
         // if (this.onBetAreaPressedCallback) {
         //     console.log("傳按下",param)
         //     this.onBetAreaPressedCallback(param);

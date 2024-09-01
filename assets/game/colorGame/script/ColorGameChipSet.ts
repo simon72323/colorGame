@@ -6,7 +6,7 @@ import { ColorGameMain } from './ColorGameMain';
 // import { ColorGameResource } from './ColorGameResource';
 const { ccclass, property } = _decorator;
 
-@ccclass('ColorGame')
+@ccclass('ColorGameChipSet')
 export class ColorGameChipSet extends Component {
     private gameData: ColorGameData = null;
     public gameMain: ColorGameMain = null;

@@ -2,7 +2,7 @@ import { _decorator, Component, Node, find, Label, Button, Sprite, Animation, ga
 // import PoolHandler from '../../../common/script/tools/PoolHandler';
 import { Marquee } from '../../../common/script/components/Marquee';
 import { DiceRunSet } from './path/DiceRunSet';
-import { ChipDispatcher } from './ui/ChipDispatcher';
+import { ColorGameChipControl } from './ColorGameChipControl';
 import { CountDown } from './ui/CountDown';
 import { ColorGameData } from './ColorGameData';
 import { ColorGameResource } from './ColorGameResource';
@@ -15,7 +15,7 @@ import { ColorGameBigWin } from './ui/ColorGameBigWin';
 import { ColorGameChipSet } from './ColorGameChipSet';
 // import { ColorGameData } from './ColorGameData';
 // import { ColorGameInterfaceData } from './ColorGameInterfaceData';
-// import { ChipDispatcher } from './ui/ChipDispatcher';
+// import { ColorGameChip } from './ui/ColorGameChip';
 const { ccclass, property } = _decorator;
 
 @ccclass('ColorGameMain')
@@ -63,8 +63,8 @@ export class ColorGameMain extends Component {
     // private betState: Boolean = true;//可下注狀態
 
     //腳本
-    @property({ type: ChipDispatcher, tooltip: "籌碼派發層" })
-    private chipDispatcher: ChipDispatcher = null;
+    // @property({ type: ColorGameChipControl, tooltip: "籌碼派發層" })
+    private gameChipControl: ColorGameChipControl = null;
     private gameData: ColorGameData = null;
     private gameResource: ColorGameResource = null;
     private gameRoad: ColorGameRoad = null;
@@ -81,9 +81,10 @@ export class ColorGameMain extends Component {
         this.gameResource = find('Canvas/Scripts/ColorGameResource').getComponent(ColorGameResource);
         this.gameRoad = find('Canvas/Scripts/ColorGameRoad').getComponent(ColorGameRoad);
         this.gameZoom = find('Canvas/Scripts/ColorGameZoom').getComponent(ColorGameZoom);
-        this.comBtnScores.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.localScore);//顯示玩家分數
         this.gameChipSet = find('Canvas/Scripts/ColorGameChipSet').getComponent(ColorGameChipSet);
+        this.gameChipControl = find('Canvas/Scripts/ColorGameChipControl').getComponent(ColorGameChipControl);
 
+        this.comBtnScores.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.localScore);//顯示玩家分數
     }
 
     public async start() {
@@ -130,8 +131,9 @@ export class ColorGameMain extends Component {
         for (let i = 1; i < 5; i++) {
             if (Math.random() > 0.5) {
                 const randomBetArea = Math.floor(Math.random() * 6);
-                const randomBetRange = this.gameData.betScoreRange[Math.floor(Math.random() * this.gameData.betScoreRange.length)];
-                this.chipDispatcher.createChipToBetArea(randomBetArea, i, randomBetRange);
+                const randomChipID = Math.floor(Math.random() * this.gameData.betScoreRange.length);
+                // const randomBetRange = this.gameData.betScoreRange[Math.floor(Math.random() * this.gameData.betScoreRange.length)];
+                this.gameChipControl.createChipToBetArea(randomBetArea, i, randomChipID);
             }
         }
     }
@@ -141,23 +143,28 @@ export class ColorGameMain extends Component {
         this.stageTitle.children[1].active = true;
         this.btnState(false);
         this.gameZoom.hideing();
+        // this.gameChipControl.betStop();
         await UtilsKitS.Delay(1);
         this.stageTitle.children[1].active = false;
-        this.chipDispatcher.saveRebetData();
+        this.gameChipControl.updataRebetData();//更新續押資料
         this.runDice();
     }
 
     private btnState(bool: boolean) {
-        for (let betBtn of this.betArea.children) {
-            betBtn.getComponent(Button).interactable = bool;//禁用下注按鈕
+        //案段按鈕狀態啟用，且續押階段是1(單次續押)，續押回歸初始狀態
+        if (bool) {
+            console.log('狀態2', this.gameChipControl.rebetState)
+            if (this.gameChipControl.rebetState === 'onceBet')
+                this.gameChipControl.setRebet(null, 'init');//初始化
+            else if (this.gameChipControl.rebetState === 'autoBet')
+                this.gameChipControl.runRebet();//執行續押
         }
-    }
 
-    // //儲存該局下注資訊
-    // private saveRebetData() {
-    //     this.chipDispatcher
-    //     this.rebetSave
-    // }
+        for (let betBtn of this.betArea.children) {
+            betBtn.getComponent(Button).interactable = bool;//下注按鈕狀態
+        }
+        this.gameChipControl.btnRebet.getComponent(Button).interactable = bool;//續押按鈕狀態
+    }
 
     //開骰表演
     private async runDice() {
@@ -216,11 +223,11 @@ export class ColorGameMain extends Component {
         this.gameRoad.updataRoadMap(winNumber);//更新路紙
         await UtilsKitS.Delay(1);
         for (let i of loseNum) {
-            this.chipDispatcher.getComponent(ChipDispatcher).recycleChip(i);//回收未中獎的籌碼
+            this.gameChipControl.recycleChip(i);//回收未中獎的籌碼
         }
         await UtilsKitS.Delay(0.9);
         for (let i of winNum) {
-            this.chipDispatcher.getComponent(ChipDispatcher).createPayChipToBetArea(i, betCount[i] === 3 ? 9 : betCount[i]);//派彩
+            this.gameChipControl.createPayChipToBetArea(i, betCount[i] === 3 ? 9 : betCount[i]);//派彩
         }
         await UtilsKitS.Delay(2.1);
         // console.log("玩家贏", this.gameData.localWinScore)
