@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, tween, Vec3, Label, Sprite, find, Animation, UITransform, } from 'cc';
+import { _decorator, Component, Node, tween, Vec3, Label, Sprite, find, Animation, UITransform, Button, } from 'cc';
 import { ColorGameMain } from './ColorGameMain';
 import { ColorGameResource } from './ColorGameResource';
 import { ColorGameData } from './ColorGameData';
@@ -33,11 +33,12 @@ export class ColorGameChipControl extends Component {
     public rebetScoreLable: Label = null;
     @property({ type: [Node], tooltip: "跟注按鈕(3顆)" })
     public btnCall: Node[] = [];
+    @property({ type: Node, tooltip: "提示訊息" })
+    public tipMessage: Node = null;
 
-    // public playerBetData: PlayerBetData[] = [];//目前玩家下注資料
     private rebetSave: number[][] = [[], [], [], [], [], []];//上局本地玩家續押資料[下注區][籌碼ID]
     private rebetScore: number = 0;//續押金額
-    public rebetState: string = 'init';//續押狀態(0=未續押，1=單次續押，2=自動續押)
+    public rebetState: string = 'init';//'init','onceBet','autoBet'
 
     onLoad() {
         this.gameMain = find('Canvas/Scripts/ColorGameMain').getComponent(ColorGameMain);
@@ -55,7 +56,13 @@ export class ColorGameChipControl extends Component {
             this.pool.put(pool);
         }
         tempPool = [];
-        // console.log(tempPool);
+        this.rebetScoreLable.string = UtilsKitS.NumDigits(this.rebetScore);
+    }
+
+    public resetRound() {
+        if (this.rebetState !== 'autoBet')
+            this.btnRebet.getComponent(Button).interactable = true;
+        console.log('狀態', this.rebetState)
     }
 
     //更新續押資料
@@ -70,28 +77,34 @@ export class ColorGameChipControl extends Component {
         }
         this.rebetScore = this.gameData.localBetTotal;
         this.rebetScoreLable.string = UtilsKitS.NumDigits(this.rebetScore);
-        console.log("續押資料", this.rebetSave)
     }
 
     //設置續押狀態
     public setRebet(event: Event, state: string) {
-        this.rebetState = state;
-        console.log('狀態', this.rebetState)
         switch (state) {
             case 'init'://未續押狀態
+                this.rebetState = state;
+                console.log('狀態', this.rebetState)
                 this.btnRebet.active = true;
                 this.btnAuto.active = false;
                 this.btnAutoStop.active = false;
                 break;
             case 'onceBet'://單次續押狀態
+                this.rebetState = state;
+                console.log('狀態', this.rebetState)
                 if (this.btnRebet.active)
                     this.runRebet();
                 else {
+                    this.showTipMessage("取消自動續押");
+
                     this.btnAuto.active = true;
                     this.btnAutoStop.active = false;
                 }
                 break;
             case 'autoBet'://自動續押狀態
+                this.showTipMessage("啟用自動續押");
+                this.rebetState = state;
+                console.log('狀態', this.rebetState)
                 this.btnRebet.active = false;
                 this.btnAuto.active = false;
                 this.btnAutoStop.active = true;
@@ -101,13 +114,14 @@ export class ColorGameChipControl extends Component {
 
     //執行續押
     public runRebet() {
-        if (this.rebetScore < 0) {
-            console.log("無續押資料")
+        if (this.rebetScore <= 0) {
+            this.setRebet(null, 'init');
+            this.showTipMessage("請先投注");
             return;
         }
         if (this.gameData.localScore < this.rebetScore) {
             this.setRebet(null, 'init');
-            console.log("分數不足無法續押")
+            this.showTipMessage("分數不足無法續押");
             return;
         }
         if (this.rebetState !== 'autoBet') {
@@ -115,32 +129,15 @@ export class ColorGameChipControl extends Component {
             this.btnAuto.active = true;
             this.btnAutoStop.active = false;
         }
-
-        console.log("單次續押")
         for (let i = 0; i < this.rebetSave.length; i++) {
             for (let j of this.rebetSave[i]) {
-                this.createChipToBetArea(i, 0, j);//籌碼派發
+                this.createChipToBetArea(i, 0, j, true);//籌碼派發
             }
         }
     }
-    // //按下續押按鈕
-    // public btnRebetTouch() {
-    //     this.rebetState = 1;
-    //     this.setRebet();
-    // }
-
-    // public btnAutoTouch() {
-    //     this.rebetState = 2;
-    //     this.setRebet();
-    // }
-
-    // public btnAutoStopTouch() {
-    //     this.rebetState = 1;
-    //     this.setRebet();
-    // }
 
     //生成籌碼到注區(注區id，下注人，籌碼分ID)
-    public createChipToBetArea(betId: number, playerId: number, chipID: number) {
+    public createChipToBetArea(betId: number, playerId: number, chipID: number, rebet: boolean) {
         let betChip: Node;
         let betChipHeight: number;
         let betChipWidth: number;
@@ -148,21 +145,28 @@ export class ColorGameChipControl extends Component {
         let movePos: Vec3;//籌碼移動位置
         let chipScore = this.gameData.betScoreRange[chipID];
         if (playerId === 0) {
+            // if (this.gameData.localBetTotal > 0)
+            //     this.btnRebet.getComponent(Button).interactable = false;
+            if (this.gameData.localBetTotal + chipScore > this.gameData.limit) {
+                this.showTipMessage("投注超過限額");
+                return;
+            }
+            this.btnRebet.getComponent(Button).interactable = false;
             betChip = this.chipDispatcher.getChildByName('MainPlayer').children[betId];//下注區節點
-            // const selectChipID = this.gameData.selectChipID;
             poolBetChip = this.pool.get(this.gameResource.betChipColor);
             poolBetChip.getComponent(Sprite).spriteFrame = this.gameResource.chipSF[chipID];//設置籌碼貼圖
             poolBetChip.getComponent(SetChipID).chipID = chipID;
-            // chipScore = this.gameData.betScoreRange[selectChipID];
             poolBetChip.children[0].getComponent(Label).string = UtilsKitS.NumDigits(chipScore);//設置籌碼分數
             poolBetChip.parent = betChip;
-            //*****注意續押的籌碼編號可能會跟選擇區的籌碼不同，如果執行續押，籌碼會從玩家頭像下注 */
-            if (this.rebetState === 'init')
-                poolBetChip.position = this.gameMain.selectChip.children[this.gameData.chipSetID.indexOf(chipID)].getWorldPosition().subtract(betChip.worldPosition);
-            else
-                poolBetChip.position = this.gameMain.playerPos.children[0].getWorldPosition().subtract(betChip.worldPosition);
             this.gameData.localBetTotal += chipScore;//本地下注總分增加
             this.gameData.localScore -= chipScore;
+            //*****注意續押的籌碼編號可能會跟選擇區的籌碼不同，如果執行續押，籌碼會從玩家頭像下注 */
+            if (rebet)
+                poolBetChip.position = this.gameMain.playerPos.children[0].getWorldPosition().subtract(betChip.worldPosition);
+            else
+                poolBetChip.position = this.gameMain.selectChip.children[this.gameData.chipSetID.indexOf(chipID)].getWorldPosition().subtract(betChip.worldPosition);
+
+            this.rebetScoreLable.string = UtilsKitS.NumDigits(this.gameData.localBetTotal);//續押分數更新
             this.gameMain.comBtnBet.getComponent(Animation).play();
             // this.updataBetInfo(betId, playerId, chipScore);//分數變化
         } else {
@@ -282,5 +286,14 @@ export class ColorGameChipControl extends Component {
                 }).start();
             }
         }
+    }
+
+    //提示訊息顯示
+    public async showTipMessage(tx: string) {
+        const tip = this.pool.get(this.gameResource.tipMessage);
+        tip.parent = this.tipMessage;
+        tip.children[0].getComponent(Label).string = tx;
+        await UtilsKitS.Delay(1);
+        this.pool.put(tip);
     }
 }

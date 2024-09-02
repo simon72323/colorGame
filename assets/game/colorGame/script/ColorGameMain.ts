@@ -43,6 +43,7 @@ export class ColorGameMain extends Component {
     private result: Node = null;
     @property({ type: Node, tooltip: "大贏分" })
     private bigWin: Node = null;
+    
 
     @property({ type: Node, tooltip: "3d盒子" })
     private box3D: Node = null;
@@ -58,9 +59,6 @@ export class ColorGameMain extends Component {
     public comBtnBet: Node = null;
     @property({ type: Node, tooltip: "分數兌換按鈕(公版)" })
     public comBtnScores: Node = null;
-
-
-    // private betState: Boolean = true;//可下注狀態
 
     //腳本
     // @property({ type: ColorGameChipControl, tooltip: "籌碼派發層" })
@@ -103,6 +101,7 @@ export class ColorGameMain extends Component {
         this.bgLight.getComponent(Animation).play('BgLightIdle');
         this.box3D.getComponent(DiceRunSet).diceIdle();//初始化骰子
         this.gameData.resetValue();
+        this.gameChipControl.resetRound();
         for (let i = 0; i < 6; i++) {
             this.betInfo.children[i].getComponent(UIOpacity).opacity = 255;
         }
@@ -132,8 +131,7 @@ export class ColorGameMain extends Component {
             if (Math.random() > 0.5) {
                 const randomBetArea = Math.floor(Math.random() * 6);
                 const randomChipID = Math.floor(Math.random() * this.gameData.betScoreRange.length);
-                // const randomBetRange = this.gameData.betScoreRange[Math.floor(Math.random() * this.gameData.betScoreRange.length)];
-                this.gameChipControl.createChipToBetArea(randomBetArea, i, randomChipID);
+                this.gameChipControl.createChipToBetArea(randomBetArea, i, randomChipID,false);
             }
         }
     }
@@ -153,7 +151,6 @@ export class ColorGameMain extends Component {
     private btnState(bool: boolean) {
         //案段按鈕狀態啟用，且續押階段是1(單次續押)，續押回歸初始狀態
         if (bool) {
-            console.log('狀態2', this.gameChipControl.rebetState)
             if (this.gameChipControl.rebetState === 'onceBet')
                 this.gameChipControl.setRebet(null, 'init');//初始化
             else if (this.gameChipControl.rebetState === 'autoBet')
@@ -230,7 +227,6 @@ export class ColorGameMain extends Component {
             this.gameChipControl.createPayChipToBetArea(i, betCount[i] === 3 ? 9 : betCount[i]);//派彩
         }
         await UtilsKitS.Delay(2.1);
-        // console.log("玩家贏", this.gameData.localWinScore)
         if (this.gameData.localWinScore > 0) {
             this.playerPos.children[0].children[0].getChildByName('Win').getComponent(Label).string = '+' + UtilsKitS.NumDigits(this.gameData.localWinScore);
             this.playerPos.children[0].children[0].active = true;
@@ -259,8 +255,4 @@ export class ColorGameMain extends Component {
     update(deltaTime: number) {
 
     }
-
-
 }
-
-

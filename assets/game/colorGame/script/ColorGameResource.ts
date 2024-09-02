@@ -15,4 +15,6 @@ export class ColorGameResource extends Component {
     public roadColorSF: SpriteFrame[] = [];
     @property({ type: [SpriteFrame], tooltip: "勝利倍率貼圖" })
     public winOddSF: SpriteFrame[] = [];
+    @property({ type: Prefab, tooltip: "提示訊息" })
+    public tipMessage: Prefab = null;
 }

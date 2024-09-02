@@ -1,4 +1,4 @@
-import { _decorator, Component, resources, JsonAsset, Vec3, find, Label, Animation, UITransform, Toggle, Sprite } from 'cc';
+import { _decorator, Component, resources, JsonAsset, Vec3, find, Label, Animation, UITransform, Toggle, Sprite, assetManager, SpriteFrame } from 'cc';
 // import { PahtData } from './path/PahtData';
 import { ColorGameMain } from './ColorGameMain';
 
@@ -50,6 +50,7 @@ export class ColorGameData extends Component {
     public localBetTotal: number = 0;//本地玩家下注總分
     public localWinScore: number = 0;//本地玩家贏得分數
     public otherPlayerScore: number[] = [0, 0, 0];//前三名玩家分數
+    public limit: number = 2000;//投注限額
 
     //各下注區總分
     public colorPer: number[] = [0, 0, 0, 0, 0, 0];//100局顏色比例
@@ -86,7 +87,6 @@ export class ColorGameData extends Component {
         //     selectChip.getChildByName('Label').getComponent(Label).string = this.betScoreRange[this.chipSet[i]].toString();
         // }
         // this.gameMain.selectChip.children[checkID].getComponent(Toggle).isChecked = true;
-        // console.log(this.chipSetID.length)
 
     }
 
@@ -116,9 +116,8 @@ export class ColorGameData extends Component {
                 for (let i = 0; i < jsonAsset.json.length; i++) {
                     this.pathData[i] = jsonAsset.json[i];
                 }
-                // console.log("路徑資料讀取完成")
-                for(let i=0;i<this.pathData.length;i++){
-                    for(let j=0;j<this.pathData[i].diceNumber.length;j++){
+                for (let i = 0; i < this.pathData.length; i++) {
+                    for (let j = 0; j < this.pathData[i].diceNumber.length; j++) {
                         this.numberShow[this.pathData[i].diceNumber[j]]++;
                     }
                     // this.pathData[i].diceNumber
@@ -141,10 +140,6 @@ export class ColorGameData extends Component {
         for (let i = 0; i < 6; i++) {
             this.gameMain.betInfo.children[i].getChildByName('Credit').getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.betAreaTotal[i]);
             this.gameMain.betInfo.children[i].getChildByName('BetScore').getComponent(Label).string = UtilsKitS.NumDigits(this.localBetScore[i]);
-            // console.log(i)
-            // console.log(this.gameMain.betInfo.children[i].getChildByName('BetScore').getComponent(Label).string);
-            // console.log(UtilsKitS.FormatNumber(this.localBetScore[i]))
-            
         }
         this.updataBetPercent();//更新下注比例
     }
@@ -189,11 +184,6 @@ export class ColorGameData extends Component {
         this.selectChipID = this.chipSetID[id];
     }
 
-    // public updataColorRoad() {
-    //     this.colorRoad.pop();
-    //     this.colorRoad.unshift(this.roundData.winNumber);
-    // }
-
     public getColorPer() {
         let color = [0, 0, 0, 0, 0, 0];
         for (let i = 0; i < this.colorRoad.length; i++) {
@@ -209,9 +199,9 @@ export class ColorGameData extends Component {
 
     //模擬後端路徑與開獎三顏色之骰子校正旋轉值(路徑id，勝利的三顏色編號)，回傳3個子物件的旋轉值
     private diceRotate(id: number, winNumber: number[]) {
-        console.log('表演的路徑id',id);
-        console.log('表演的路徑id結果編號',this.pathData[id].diceNumber);
-        console.log('希望的結果編號',winNumber);
+        // console.log('表演的路徑id', id);
+        // console.log('表演的路徑id結果編號', this.pathData[id].diceNumber);
+        // console.log('希望的結果編號', winNumber);
         const pathEndColor = this.pathData[id].diceNumber
         const changeEuler = [
             [new Vec3(0, 0, 0), new Vec3(-90, 0, 0), new Vec3(0, 0, 90), new Vec3(0, 0, -90), new Vec3(90, 0, 0), new Vec3(180, 0, 0)],

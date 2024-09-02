@@ -20,17 +20,13 @@ export class ColorGameBetArea extends Component {
     }
 
     private onBetAreaPressed(param: string): void {
-        // console.log('注區', param + '按下')
-        this.gameChipControl.createChipToBetArea(Number(param), 0, this.gameData.selectChipID);
+        this.gameChipControl.createChipToBetArea(Number(param), 0, this.gameData.selectChipID, false);
         // if (this.onBetAreaPressedCallback) {
-        //     console.log("傳按下",param)
         //     this.onBetAreaPressedCallback(param);
         // }
     }
     private onBetAreaPressFailed(param: string): void {
-        // console.log('注區', param + '禁用')
         // if (this.onBetAreaPressFailedCallback) {
-        //     console.log("傳按下取消",param)
         //     this.onBetAreaPressFailedCallback(param);
         // }
     }
