@@ -62,7 +62,11 @@
             },
             "overwriteSettings": {
               "web-desktop": {
-                "isRemote": false,
+                "isRemote": true,
+                "compressionType": "merge_dep"
+              },
+              "web-mobile": {
+                "isRemote": true,
                 "compressionType": "merge_dep"
               }
             }

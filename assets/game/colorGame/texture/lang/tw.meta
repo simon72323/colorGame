@@ -5,5 +5,21 @@
   "uuid": "3e00af1e-d7b4-4c8f-aced-705bb5c1b34f",
   "files": [],
   "subMetas": {},
-  "userData": {}
+  "userData": {
+    "isBundle": true,
+    "bundleName": "ColorGame_tw",
+    "bundleFilterConfig": [
+      {
+        "range": "include",
+        "type": "url",
+        "patchOption": {
+          "patchType": "glob",
+          "value": "db://assets/game/colorGame/texture/lang/tw/**/spriteFrame"
+        },
+        "assets": [
+          ""
+        ]
+      }
+    ]
+  }
 }
