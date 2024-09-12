@@ -20,7 +20,7 @@ export class CGData extends Component {
     public allPathData: PathInfo[] = [];//所有路徑資料
     public selectChipID: number = 1;//紀錄目前選擇的籌碼()
     public pathData: PathInfo = null;//該回合路徑資料
-    public colorPer: number[] = [0, 0, 0, 0, 0, 0];//前100局顏色比例
+    // public colorPer: number[] = [0, 0, 0, 0, 0, 0];//前100局顏色比例
     public betAreaPercent: number[] = [0, 0, 0, 0, 0, 0];//各下注區分數百分比(前端計算)
     public diceEuler: Vec3[] = [];//起始骰子角度(******新局開始前會先跟後端要的資料******)
 
