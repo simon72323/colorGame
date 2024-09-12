@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, CCString, Vec2, Button, PolygonCollider2D, sys, EventTouch, Intersection2D, UITransform, Vec3, Camera, Toggle } from 'cc';
+import { _decorator, Component, Node, CCString, Vec2, Button, PolygonCollider2D, EventTouch, Intersection2D, UITransform, Vec3, Toggle } from 'cc';
 const { ccclass, property, menu } = _decorator;
 
 @ccclass('ButtonEvent')

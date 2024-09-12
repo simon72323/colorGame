@@ -33,22 +33,20 @@ export class PlayAnimOnEnable extends Component {
         if (uiOpacity)
             uiOpacity.opacity = 0;
         const anim = this.getComponent(Animation);
+        if (anim.clips.length === 0) {
+            error(`[ERROR] ${this.node.name} has no clip to play!!!`)
+            return;
+        }
         if (this.isInLoop) {
-            if (anim.clips.length === 0) {
-                error(`[ERROR] ${this.node.name} has no clip to play!!!`)
-                return;
+            const onAnimationFinished = () => {
+                anim.off(Animation.EventType.FINISHED, onAnimationFinished.bind(this));
+                anim.getState(this.loopAnim.name).setTime(0);
+                anim.play(this.loopAnim.name);
             }
             anim.getState(this.inAnim.name).setTime(0);
             anim.play(this.inAnim.name);
-            anim.on(Animation.EventType.FINISHED, () => {
-                anim.getState(this.loopAnim.name).setTime(0);
-                anim.play(this.loopAnim.name);
-            })
+            anim.on(Animation.EventType.FINISHED, onAnimationFinished.bind(this));
         } else {
-            if (anim.clips.length === 0) {
-                error(`[ERROR] ${this.node.name} has no clip to play!!!`)
-                return;
-            }
             let name = '';
             if (anim.defaultClip)
                 name = anim.defaultClip.name;//優先播放默認動態
@@ -56,10 +54,14 @@ export class PlayAnimOnEnable extends Component {
                 name = anim.clips[0].name;
             anim.getState(name).setTime(0);
             anim.play(name);
-            if (this.autoHide)
-                anim.on(Animation.EventType.FINISHED, () => {
+            if (this.autoHide) {
+                const onAnimationFinished = () => {
+                    anim.off(Animation.EventType.FINISHED, onAnimationFinished.bind(this));
+                    anim.stop();
                     this.node.active = false;
-                })
+                }
+                anim.on(Animation.EventType.FINISHED, onAnimationFinished.bind(this));
+            }
         }
     }
 
@@ -68,6 +70,6 @@ export class PlayAnimOnEnable extends Component {
         if (anim.clips.length === 0) {
             return;
         }
-        this.getComponent(Animation).stop();
+        anim.stop();
     }
 }

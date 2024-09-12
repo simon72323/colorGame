@@ -60,7 +60,6 @@ export class UtilsKitS {
     //             }
     //             animationComponent.on(Animation.EventType.FINISHED, onAnimationFinished.bind(this));
     //         } else {
-    //             console.log("PlayAnimation_resolve")
     //             resolve();
     //         }
     //     });
@@ -101,7 +100,7 @@ export class UtilsKitS {
      * @returns 
      */
     public static NumDigits(num: number): string {
-        return num.toLocaleString('zh', { maximumFractionDigits: 2, minimumFractionDigits: 0 });
+        return num.toLocaleString('zh', { maximumFractionDigits: 0, minimumFractionDigits: 0 });
     }
 
     /**
@@ -158,7 +157,6 @@ export class UtilsKitS {
     //         value /= 1000
     //         // value = Math.floor(value * 100) / 100;
     //     }
-    //     // console.log(value);
     //     output = value.toLocaleString('zh', { maximumFractionDigits: 2, minimumFractionDigits: 0 }) + suffix;
     //     return output;
     // }
