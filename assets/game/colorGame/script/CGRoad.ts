@@ -17,7 +17,7 @@ export class CGRoad extends Component {
 
     //更新路紙
     public updataRoadMap(winNumber?: number[]) {
-        const colorPer = this.gameData.getColorPer();//獲得前100局顏色比例
+        const colorPer = this.gameData.onBeginGame.RoadColorPers;//獲得前100局顏色比例
         const colorMap = this.roadMap.getChildByName('ColorMap');
         const popupColorMap = this.roadMapPopup.getChildByName('ColorMap');
         for (let i = 0; i < 6; i++) {
@@ -27,12 +27,12 @@ export class CGRoad extends Component {
         }
         for (let i = 0; i < 3; i++) {
             this.roadMap.getChildByName('LastColor').children[i].getComponent(Sprite).spriteFrame =
-                this.gameResource.roadColorSF[this.gameData.roundData.Road100[0][i]];
+                this.gameResource.roadColorSF[this.gameData.onBeginGame.RoadColors[0][i]];
         }
         for (let i = 0; i < 10; i++) {
             for (let j = 0; j < 3; j++) {
                 this.roadMapPopup.getChildByName('LastColor').children[i].children[j].getComponent(Sprite).spriteFrame =
-                    this.gameResource.roadColorSF[this.gameData.roundData.Road100[i][j]];
+                    this.gameResource.roadColorSF[this.gameData.onBeginGame.RoadColors[i][j]];
             }
         }
 

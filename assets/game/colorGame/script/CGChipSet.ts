@@ -77,7 +77,7 @@ export class CGChipSet extends Component {
 
     //更新選擇的籌碼
     public updataSelectChip() {
-        const chipSetID = this.gameData.localPlayerData.ChipSetID;
+        const chipSetID = this.gameData.userInfo.ChipSetID;
         for (let i = 0; i < this.gameUI.selectChip.children.length; i++) {
             const selectChip = this.gameUI.selectChip.children[i];
             if (chipSetID.length > i) {
@@ -87,7 +87,7 @@ export class CGChipSet extends Component {
                 selectChip.getChildByName('Checkmark').getComponent(Sprite).spriteFrame =
                     this.chipToggle.children[chipSetID[i]].getChildByName('Checkmark').getComponent(Sprite).spriteFrame;
                 selectChip.getChildByName('Label').getComponent(Label).string =
-                    UtilsKitS.NumDigits(this.gameData.gameSet.ChipRange[chipSetID[i]]);
+                    UtilsKitS.NumDigits(this.gameData.gameSetInfo.ChipRange[chipSetID[i]]);
             } else
                 selectChip.active = false;
         }
@@ -97,7 +97,7 @@ export class CGChipSet extends Component {
 
     //設置視窗顯示
     public chipSetPopupShow() {
-        this.chipSetIDing = [...this.gameData.localPlayerData.ChipSetID];
+        this.chipSetIDing = [...this.gameData.userInfo.ChipSetID];
         this.updataChipSet();
         this.chipSetPopup.active = true;
         this.chipSetPopup.getChildByName('Popup').getChildByName('BtnClose').getComponent(Button).interactable = true;
@@ -107,8 +107,8 @@ export class CGChipSet extends Component {
 
     public btnConfirm() {
         console.log("選擇的籌碼", this.chipSetIDing)
-        this.gameData.localPlayerData.ChipSetID = this.chipSetIDing;
-        this.gameData.localPlayerData.ChipSetID.sort((a, b) => a - b);//小到大排列
+        this.gameData.userInfo.ChipSetID = this.chipSetIDing;
+        this.gameData.userInfo.ChipSetID.sort((a, b) => a - b);//小到大排列
         this.chipSetPopupHide();
         this.updataSelectChip();//重新設置籌碼
     }

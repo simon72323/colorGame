@@ -43,8 +43,8 @@ export class CGMain extends Component {
 
     public async start() {
         await this.gameData.loadPathJson();
-        await this.gameData.getGameData();//獲取遊戲資料
-        await this.gameData.getLocalPlayerData();//獲取玩家資料
+        await this.gameData.getGameSetInfo();//獲取遊戲資料
+        await this.gameData.getUserInfo();//獲取玩家資料
         this.gameChipSet.updataSelectChip();//更新選擇籌碼(每局更新)
         // await this.gameData.loadRoundData();//獲取新局資料
         //     // this.marquee.addText('----------這是公告~!這是公告~!這是公告~!');
@@ -54,10 +54,10 @@ export class CGMain extends Component {
 
     //新局開始
     public newRound() {
-        this.gameData.getLocalPlayerData();//獲取本地玩家資料
-        this.gameData.getTopPlayerData();//獲取前三名玩家資料
-        // this.gameData.getRoundData();//獲取本回合資料
-        // this.gameData.getBetInfo();//獲取下注資料
+        this.gameData.getUserInfo();//獲取本地玩家資料
+        this.gameData.getTopUserInfo();//獲取前三名玩家資料
+        this.gameData.getRoundData();//獲取本回合資料
+        this.gameData.getBetInfo();//獲取下注資料
         this.gameRoad.updataRoadMap();//更新路紙(每局更新)
         this.gameUI.updataUIScore();//更新介面分數
         this.gameUI.bgLight.getComponent(Animation).play('BgLightIdle');
@@ -78,16 +78,18 @@ export class CGMain extends Component {
         this.btnState(true);//按鈕啟用
         await UtilsKitS.Delay(1);
         this.gameUI.stageTitle.children[0].active = false;//標題隱藏
+        
         //模擬多人下注
         this.schedule(() => {
             this.otherPlayerBet();
         }, 0.2, 50, 1)
-        let time = this.gameData.gameSet.BetTime;
+
+        let time = this.gameData.gameSetInfo.BetTime;
         this.setBetTime(time);//下注時間倒數
         this.schedule(() => {
             time--;
             this.setBetTime(time);//模擬下注時間倒數
-        }, 1, this.gameData.gameSet.BetTime - 1, 1)
+        }, 1, this.gameData.gameSetInfo.BetTime - 1, 1)
     }
 
     //下注時間倒數(接收後端時間資料)
@@ -115,7 +117,7 @@ export class CGMain extends Component {
         }
         else
             comLabel.color = new Color(0, 90, 80, 255);
-        const betTotalTime = this.gameData.gameSet.BetTime;
+        const betTotalTime = this.gameData.gameSetInfo.BetTime;
         const frameSprite = betTimeNode.getChildByName('Frame').getComponent(Sprite);
         frameSprite.fillRange = timer / betTotalTime;
         if (!betTimeNode.active)
@@ -132,7 +134,7 @@ export class CGMain extends Component {
         for (let i = 1; i < 5; i++) {
             if (Math.random() > 0.5) {
                 const randomBetArea = Math.floor(Math.random() * 6);
-                const randomChipID = Math.floor(Math.random() * this.gameData.gameSet.ChipRange.length);
+                const randomChipID = Math.floor(Math.random() * this.gameData.gameSetInfo.ChipRange.length);
                 this.gameChipControl.createChipToBetArea(randomBetArea, i, randomChipID, false);
                 //判斷本地玩家是否跟注
                 if (i < 4)
@@ -170,7 +172,7 @@ export class CGMain extends Component {
 
     //開骰表演
     private async runDice() {
-        let winNumber = this.gameData.roundData.WinNumber;
+        let winNumber = this.gameData.onBeginGame.WinNumber;
         await this.gameUI.box3D.getComponent(DiceRunSet).diceStart();//骰子表演
         this.gameUI.bgLight.getComponent(Animation).play('BgLightOpen');//背景燈閃爍
         this.gameUI.betWin.active = true;
@@ -185,10 +187,10 @@ export class CGMain extends Component {
         for (let i of winNum) {
             this.gameUI.betWin.children[i].active = true;
             //判斷玩家是否有下注該中獎區
-            if (this.gameData.localPlayerData.BetCredit[i] > 0) {
-                this.gameData.localPlayerData.BetCredit[i] *= betCount[i] === 3 ? 10 : betCount[i] + 1;//注區分數變更(倍率)
-                localWinScore += this.gameData.localPlayerData.BetCredit[i];
-                this.gameUI.betInfo.children[i].getChildByName('BetScore').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.localPlayerData.BetCredit[i]);
+            if (this.gameData.userInfo.BetAreaCredit[i] > 0) {
+                this.gameData.userInfo.BetAreaCredit[i] *= betCount[i] === 3 ? 10 : betCount[i] + 1;//注區分數變更(倍率)
+                localWinScore += this.gameData.userInfo.BetAreaCredit[i];
+                this.gameUI.betInfo.children[i].getChildByName('BetScore').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.userInfo.BetAreaCredit[i]);
                 this.gameUI.mainPlayerWin.children[i].active = true;
                 this.gameUI.mainPlayerWin.children[i].children[0].getComponent(Sprite).spriteFrame = this.gameResource.winOddSF[betCount[i] - 1];
             }
@@ -198,8 +200,8 @@ export class CGMain extends Component {
         const diceNum = [0, 1, 2, 3, 4, 5];
         const loseNum = diceNum.filter(number => !winNumber.includes(number));
         for (let i of loseNum) {
-            this.gameData.localPlayerData.BetCredit[i] = 0;
-            this.gameUI.betInfo.children[i].getChildByName('BetScore').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.localPlayerData.BetCredit[i]);
+            this.gameData.userInfo.BetAreaCredit[i] = 0;
+            this.gameUI.betInfo.children[i].getChildByName('BetScore').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.userInfo.BetAreaCredit[i]);
             this.gameUI.betInfo.children[i].getComponent(UIOpacity).opacity = 100;
         }
         //本地玩家勝利設置

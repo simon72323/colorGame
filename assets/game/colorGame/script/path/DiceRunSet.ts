@@ -19,8 +19,8 @@ export class DiceRunSet extends Component {
     diceIdle() {
         const pathData = this.gameData.pathData;//路徑表演資料
         console.log(pathData)
-        const firstPos = pathData.Pos[0];
-        const firstRotate = pathData.Rotate[0];
+        const firstPos = pathData.pos[0];
+        const firstRotate = pathData.rotate[0];
         //初始化所有骰子位置
         for (let i = 0; i < this.dice.length; i++) {
             this.dice[i].setPosition(new Vec3(firstPos[i * 3 + 0], firstPos[i * 3 + 1], firstPos[i * 3 + 2]));
@@ -35,15 +35,15 @@ export class DiceRunSet extends Component {
         return new Promise<void>((resolve) => {
             // this.diceIdle();//初始化骰子
             const pathData = this.gameData.pathData;//路徑表演資料
-            console.log('表演該回合路徑id', this.gameData.roundData.PathID)
-            console.log('表演該回合開骰結果', this.gameData.roundData.WinNumber)
+            console.log('表演該回合路徑id', this.gameData.onBeginGame.PathID)
+            console.log('表演該回合開骰結果', this.gameData.onBeginGame.WinNumber)
             this.frame.setRotationFromEuler(new Vec3(-90, 180, 0));//初始化翻板動畫
             this.frame.getComponent(Animation).play();//播放翻板動畫
-            const frameLength = pathData.Pos.length;
+            const frameLength = pathData.pos.length;
             this.dataFrame = 0;
             this.schedule(() => {
-                let posPath = pathData.Pos[this.dataFrame];
-                let rotatePath = pathData.Rotate[this.dataFrame];
+                let posPath = pathData.pos[this.dataFrame];
+                let rotatePath = pathData.rotate[this.dataFrame];
                 //移動骰子位置
                 for (let i = 0; i < this.dice.length; i++) {
                     let movePos = new Vec3(posPath[i * 3 + 0], posPath[i * 3 + 1], posPath[i * 3 + 2]);

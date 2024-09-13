@@ -1,6 +1,6 @@
 import { _decorator, Component, RigidBody, Vec3, Quat, Node, Animation, PhysicsSystem } from 'cc';
 import { UtilsKitS } from '../../../../common/script/lib/UtilsKitS';
-import { PathInfo } from '../enum/CGInterface';
+import { PathInfo } from '../CGData';
 const { ccclass, property } = _decorator;
 
 
@@ -77,9 +77,9 @@ export class SaveDiceData extends Component {
                 }
                 let newPos = this.roundVector3(diceNode.children[0].getPosition(), diceNode.children[1].getPosition(), diceNode.children[2].getPosition());
                 let newRotate = this.roundQuat(diceNode.children[0].getRotation(), diceNode.children[1].getRotation(), diceNode.children[2].getRotation());
-                let pathDataMain: PathInfo = { Pos: [], Rotate: [], DiceNumber: [] }
-                pathDataMain.Pos.push(newPos);//寫入初始位置
-                pathDataMain.Rotate.push(newRotate);//寫入初始旋轉
+                let pathDataMain: PathInfo = { pos: [], rotate: [], diceNumber: [] }
+                pathDataMain.pos.push(newPos);//寫入初始位置
+                pathDataMain.rotate.push(newRotate);//寫入初始旋轉
                 this.pathData.push(pathDataMain);
 
                 let boxMove = this.node.children[i].getChildByName('box').getChildByName('lid').children[0];
@@ -122,13 +122,13 @@ export class SaveDiceData extends Component {
                         this.diceNumber(this.node.children[i].children[1], Math.floor(i / 10) * 10),
                         this.diceNumber(this.node.children[i].children[2], Math.floor(i / 10) * 10)
                     ];
-                this.pathData[i + this.idNum].DiceNumber = newNumber;//紀錄結果點數
+                this.pathData[i + this.idNum].diceNumber = newNumber;//紀錄結果點數
                 // console.log(this.idNum,newNumber)
                 for (let j = 0; j < 3; j++) {
                     this.numberShow[newNumber[j]]++;
                 }
-                if (this.pathData[i + this.idNum].Pos.length > 90)
-                    this.length.push(this.pathData[i + this.idNum].Pos.length);
+                if (this.pathData[i + this.idNum].pos.length > 90)
+                    this.length.push(this.pathData[i + this.idNum].pos.length);
             }
             // console.log(this.pathData)
             this.idNum += 100;
@@ -178,13 +178,13 @@ export class SaveDiceData extends Component {
             let diceNode = this.node.children[i];
             let newPos = this.roundVector3(diceNode.children[0].getPosition(), diceNode.children[1].getPosition(), diceNode.children[2].getPosition());
             let newRotate = this.roundQuat(diceNode.children[0].getRotation(), diceNode.children[1].getRotation(), diceNode.children[2].getRotation());
-            const pathDataLength = this.pathData[i + this.idNum].Pos.length;
+            const pathDataLength = this.pathData[i + this.idNum].pos.length;
             // if (pathDataLength > 0) {
-            let firstPos = this.pathData[i + this.idNum].Pos[pathDataLength - 1];
-            let firstRotate = this.pathData[i + this.idNum].Rotate[pathDataLength - 1];
+            let firstPos = this.pathData[i + this.idNum].pos[pathDataLength - 1];
+            let firstRotate = this.pathData[i + this.idNum].rotate[pathDataLength - 1];
             if (!this.compareData(firstPos, firstRotate, newPos, newRotate)) {
-                this.pathData[i + this.idNum].Pos.push(newPos);
-                this.pathData[i + this.idNum].Rotate.push(newRotate);
+                this.pathData[i + this.idNum].pos.push(newPos);
+                this.pathData[i + this.idNum].rotate.push(newRotate);
                 // this.pathData[i + this.idNum].push(pathData);//加到指定路徑資料內
             }
             // } 

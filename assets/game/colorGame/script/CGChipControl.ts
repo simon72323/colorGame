@@ -48,7 +48,7 @@ export class CGChipControl extends Component {
 
     //更新寫入續押資料
     public updataRebetData() {
-        const betTotalScore = this.gameData.localPlayerData.BetTotalCredit;
+        const betTotalScore = this.gameData.userInfo.BetTotalCredit;
         if (betTotalScore <= 0)
             return;
         this.rebetSave = [[], [], [], [], [], []];//清空後重新記錄籌碼
@@ -97,7 +97,7 @@ export class CGChipControl extends Component {
             this.showTipMessage("請先投注", 0);
             return;
         }
-        if (this.gameData.localPlayerData.Credit < this.rebetScore) {
+        if (this.gameData.userInfo.Credit < this.rebetScore) {
             this.setRebet(null, 'init');
             this.showTipMessage("分數不足無法續押", 0);
             return;
@@ -122,13 +122,13 @@ export class CGChipControl extends Component {
         let betChipWidth: number;
         let poolBetChip: Node;//生成的籌碼
         let movePos: Vec3;//籌碼移動位置
-        let chipScore = this.gameData.gameSet.ChipRange[chipID];
+        let chipScore = this.gameData.gameSetInfo.ChipRange[chipID];
         if (playerId === 0) {
-            if (this.gameData.localPlayerData.BetTotalCredit + chipScore > this.gameData.gameSet.Limit) {
+            if (this.gameData.userInfo.BetTotalCredit + chipScore > this.gameData.gameSetInfo.Limit) {
                 this.showTipMessage("投注超過限額", 0);
                 return;
             }
-            if (this.gameData.localPlayerData.Credit < chipScore) {
+            if (this.gameData.userInfo.Credit < chipScore) {
                 this.showTipMessage("餘額不足", 0);
                 for (let i = 0; i < 3; i++) {
                     this.gameUI.stopBetCall(i);//取消跟注
@@ -142,15 +142,16 @@ export class CGChipControl extends Component {
             poolBetChip.getComponent(SetChipID).chipID = chipID;
             poolBetChip.children[0].getComponent(Label).string = UtilsKitS.NumDigits(chipScore);//設置籌碼分數
             poolBetChip.parent = betChip;
-            this.gameData.localPlayerData.BetTotalCredit += chipScore;//本地下注總分增加
-            this.gameData.localPlayerData.Credit -= chipScore;
+            this.gameData.userInfo.BetTotalCredit += chipScore;//本地下注總分增加
+
+            this.gameData.userInfo.Credit -= chipScore;
             //*****注意續押的籌碼編號可能會跟選擇區的籌碼不同，如果執行續押，籌碼會從玩家頭像下注 */
             if (rebet)
                 poolBetChip.position = this.gameUI.playerPos.children[0].getWorldPosition().subtract(betChip.worldPosition);
             else
-                poolBetChip.position = this.gameUI.selectChip.children[this.gameData.localPlayerData.ChipSetID.indexOf(chipID)].getWorldPosition().subtract(betChip.worldPosition);
+                poolBetChip.position = this.gameUI.selectChip.children[this.gameData.userInfo.ChipSetID.indexOf(chipID)].getWorldPosition().subtract(betChip.worldPosition);
 
-            this.rebetScore = this.gameData.localPlayerData.BetTotalCredit;
+            this.rebetScore = this.gameData.userInfo.BetTotalCredit;
             this.gameUI.rebetScoreLable.string = UtilsKitS.NumDigits(this.rebetScore);//續押分數更新
             this.gameUI.comBtnBet.getComponent(Animation).play();
         } else {
@@ -160,7 +161,8 @@ export class CGChipControl extends Component {
             poolBetChip.parent = betChip;
             poolBetChip.position = this.gameUI.playerPos.children[playerId].getWorldPosition().subtract(betChip.worldPosition);
         }
-        this.gameData.betInfo.BetAreaTotal[betId] += chipScore;//注區總分更新
+        // this.gameData.betInfo.BetAreaData[betId].BetCredit += chipScore;//注區分數增加
+        this.gameData.betInfo.BetAreaData[betId].BetCredit += chipScore;//注區總分更新
         poolBetChip.getComponent(SetChipID).playerID = playerId;
         betChipHeight = betChip.getComponent(UITransform).height;
         betChipWidth = betChip.getComponent(UITransform).width;
@@ -168,8 +170,8 @@ export class CGChipControl extends Component {
         tween(poolBetChip).to(0.3, { position: movePos }, { easing: 'sineOut' })
             .call(() => {
                 if (playerId === 0) {
-                    let betChipScore = this.gameData.localPlayerData.BetCredit[betId] += chipScore;//本地玩家下注總分數
-                    this.gameUI.betInfo.children[betId].getChildByName('BetScore').getComponent(Label).string = UtilsKitS.NumDigits(betChipScore);
+                    this.gameData.userInfo.BetAreaCredit[betId] += chipScore;//本地玩家該下注區總分數
+                    this.gameUI.betInfo.children[betId].getChildByName('BetScore').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.userInfo.BetAreaCredit[betId]);
                 }
                 else {
                     poolBetChip.children[0].getComponent(Label).string = UtilsKitS.NumDigits(chipScore);
@@ -180,15 +182,15 @@ export class CGChipControl extends Component {
     }
 
     //更新注區資訊(下注區,下注人,下注分數)
-    public updataBetInfo(betId: number, playerId: number, score: number) {
-        if (playerId === 0) {
-            this.gameData.localPlayerData.BetTotalCredit += score;//本地下注總分增加
-            this.gameData.localPlayerData.Credit -= score;
-            this.gameUI.comBtnBet.getComponent(Animation).play();
-            this.gameData.betInfo.BetAreaTotal[betId] += score;//注區總分更新
-        }
-        this.gameUI.updataUIScore(); //更新介面分數
-    }
+    // public updataBetInfo(betId: number, playerId: number, score: number) {
+    //     if (playerId === 0) {
+    //         this.gameData.userInfo.BetAreaCredit[betId] += score;//本地該下注區總分增加
+    //         this.gameData.userInfo.Credit -= score;
+    //         this.gameUI.comBtnBet.getComponent(Animation).play();
+    //     }
+    //     this.gameData.betInfo.BetAreaData[betId].BetCredit += score;//注區總分更新
+    //     this.gameUI.updataUIScore(); //更新介面分數
+    // }
 
     //籌縮放動態
     private chipScale(chip: Node) {
