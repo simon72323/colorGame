@@ -5,8 +5,8 @@ const { ccclass, property } = _decorator;
 
 //負責處理介面操作與更新
 
-@ccclass('CGUI')
-export class CGUI extends Component {
+@ccclass('CGView')
+export class CGView extends Component {
     @property({ type: Node, tooltip: "背景燈光" })
     public bgLight: Node = null;
     @property({ type: Node, tooltip: "資訊面板" })
@@ -56,10 +56,19 @@ export class CGUI extends Component {
     @property({ type: Node, tooltip: "提示訊息顯示層" })
     public tipMessage: Node = null;
 
+
+    //籌碼設置
+    @property({ type: Node, tooltip: "籌碼設置彈窗" })
+    public chipSetPopup: Node = null;
+    @property({ type: Node, tooltip: "籌碼Toggle" })
+    public chipToggle: Node = null;
+
     @property({ type: Node, tooltip: "下注分數按鈕(公版)" })
     public comBtnBet: Node = null;
     @property({ type: Node, tooltip: "分數兌換按鈕(公版)" })
     public comBtnScores: Node = null;
+
+
 
     @property({ type: CGData, tooltip: "遊戲資料腳本" })
     private gameData: CGData = null;
@@ -126,26 +135,27 @@ export class CGUI extends Component {
 
     //更新分數
     public updataUIScore() {
-        this.comBtnBet.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.loadInfo.BetTotalCredit);
-        this.comBtnScores.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.loadInfo.Credit);
+        
+        this.comBtnBet.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.loadInfo.betTotalCredit);
+        this.comBtnScores.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.loadInfo.credit);
         for (let i = 1; i < 4; i++) {
-            this.playerPos.children[i].children[0].getChildByName('Name').getComponent(Label).string= this.gameData.loadInfo.Rank;
-            this.playerPos.children[i].children[0].getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.topUserInfos[i - 1].Credit);
+            this.playerPos.children[i].children[0].getChildByName('Name').getComponent(Label).string = this.gameData.betInfo.rank[i-1].loginName;
+            this.playerPos.children[i].children[0].getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.betInfo.rank[i-1].credit);
         }
         for (let i = 0; i < 6; i++) {
-            this.betInfo.children[i].getChildByName('TotalScore').getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.betInfo.BetAreaCredit[i]);
-            this.betInfo.children[i].getChildByName('BetScore').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.userInfo.BetAreaCredit[i]);//玩家各區的下注分數
+            this.betInfo.children[i].getChildByName('TotalScore').getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.betInfo.betAreaTotalCredit[i]);
+            this.betInfo.children[i].getChildByName('BetScore').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.loadInfo.betAreaCredit[i]);//玩家各區的下注分數
         }
         //下注區分數比例更新
 
-        const betAreaData = this.gameData.betInfo.BetAreaCredit;
+        const betAreaTotalData = this.gameData.betInfo.betAreaTotalCredit;
         let allScroe = 0;
-        for (let i = 0; i < betAreaData.length; i++) {
-            allScroe += betAreaData[i];
+        for (let i = 0; i < betAreaTotalData.length; i++) {
+            allScroe += betAreaTotalData[i];
         }
         // let allScroe = this.gameData.betInfo.BetAreaData.BetAreaTotal.reduce((a, b) => a + b, 0);
-        for (let i = 0; i < betAreaData.length; i++) {
-            let per = allScroe === 0 ? 0 : Math.trunc(betAreaData[i] / allScroe * 100);
+        for (let i = 0; i < betAreaTotalData.length; i++) {
+            let per = allScroe === 0 ? 0 : Math.trunc(betAreaTotalData[i] / allScroe * 100);
             const percentNode = this.betInfo.children[i].getChildByName('Percent');
             percentNode.getChildByName('Label').getComponent(Label).string = per + '%';
             percentNode.getChildByName('PercentBar').getComponent(UITransform).width = per;

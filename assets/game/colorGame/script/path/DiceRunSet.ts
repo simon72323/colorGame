@@ -15,17 +15,33 @@ export class DiceRunSet extends Component {
     private gameData: CGData = null;//demo回合腳本
 
 
-    //初始化骰子
+    //初始化骰子(隨機顏色)
     diceIdle() {
-        const pathData = this.gameData.pathData;//路徑表演資料
-        console.log(pathData)
-        const firstPos = pathData.pos[0];
-        const firstRotate = pathData.rotate[0];
+        // const pathData = this.gameData.pathData;//路徑表演資料
+        // console.log(pathData)
+        const firstPos = [
+            new Vec3(-1.2, 4.77, -1.83),
+            new Vec3(0, 4.77, -1.83),
+            new Vec3(1.2, 4.77, -1.83)
+        ];
+        const firstRotate = [
+            new Quat(0, 0.574, -0.819, 0),
+            new Quat(0.406, 0.579, 0.406, 0.579),
+            new Quat(0, 0.574, -0.819, 0)
+        ];
         //初始化所有骰子位置
         for (let i = 0; i < this.dice.length; i++) {
-            this.dice[i].setPosition(new Vec3(firstPos[i * 3 + 0], firstPos[i * 3 + 1], firstPos[i * 3 + 2]));
-            this.dice[i].setRotation(new Quat(firstRotate[i * 4 + 0], firstRotate[i * 4 + 1], firstRotate[i * 4 + 2], firstRotate[i * 4 + 3]));
-            this.dice[i].children[0].setRotationFromEuler(this.gameData.diceEuler[i]);
+            this.dice[i].setPosition(firstPos[i]);
+            this.dice[i].setRotation(firstRotate[i]);
+            const changeEuler = [
+                [new Vec3(0, 0, 0), new Vec3(-90, 0, 0), new Vec3(0, 0, 90), new Vec3(0, 0, -90), new Vec3(90, 0, 0), new Vec3(180, 0, 0)],
+                [new Vec3(90, 0, 0), new Vec3(0, 0, 0), new Vec3(0, -90, 0), new Vec3(0, 90, 0), new Vec3(0, 180, 0), new Vec3(-90, 0, 0)],
+                [new Vec3(0, 0, -90), new Vec3(0, 90, 0), new Vec3(0, 0, 0), new Vec3(0, 180, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 90)],
+                [new Vec3(0, 0, 90), new Vec3(0, -90, 0), new Vec3(0, 180, 0), new Vec3(0, 0, 0), new Vec3(0, 90, 0), new Vec3(0, 0, -90)],
+                [new Vec3(-90, 0, 0), new Vec3(0, 180, 0), new Vec3(0, 90, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 0), new Vec3(90, 0, 0)],
+                [new Vec3(180, 0, 0), new Vec3(90, 0, 0), new Vec3(0, 0, -90), new Vec3(0, 0, 90), new Vec3(-90, 0, 0), new Vec3(0, 0, 0)]
+            ];
+            this.dice[i].children[0].setRotationFromEuler(changeEuler[Math.floor(Math.random() * 6)][Math.floor(Math.random() * 6)]);
             this.dice[i].active = true;//顯示骰子
         }
     }
@@ -35,8 +51,8 @@ export class DiceRunSet extends Component {
         return new Promise<void>((resolve) => {
             // this.diceIdle();//初始化骰子
             const pathData = this.gameData.pathData;//路徑表演資料
-            console.log('表演該回合路徑id', this.gameData.onBeginGame.PathID)
-            console.log('表演該回合開骰結果', this.gameData.onBeginGame.WinNumber)
+            console.log('表演該回合路徑id', this.gameData.rewardInfo.pathID)
+            console.log('表演該回合開骰結果', this.gameData.rewardInfo.winNumber)
             this.frame.setRotationFromEuler(new Vec3(-90, 180, 0));//初始化翻板動畫
             this.frame.getComponent(Animation).play();//播放翻板動畫
             const frameLength = pathData.pos.length;

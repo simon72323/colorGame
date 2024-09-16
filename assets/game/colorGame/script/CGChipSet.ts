@@ -1,43 +1,40 @@
 import { _decorator, Component, find, Node, Label, Sprite, Button, Animation, Toggle, UIOpacity, EventHandler } from 'cc';
 import { UtilsKitS } from '../../../common/script/lib/UtilsKitS';
 import { CGData } from './CGData';
-import { CGUI } from './CGUI';
-// import { CGValue } from './CGValue';
-// import { CGResource } from './CGResource';
+import { CGView } from './CGView';
 
 const { ccclass, property } = _decorator;
 @ccclass('CGChipSet')
 export class CGChipSet extends Component {
     @property({ type: CGData, tooltip: "遊戲資料腳本" })
     public gameData: CGData;
-    @property({ type: CGUI, tooltip: "遊戲介面腳本" })
-    private gameUI: CGUI = null;
-    @property({ type: Node, tooltip: "籌碼設置彈窗" })
-    public chipSetPopup: Node = null;
+    @property({ type: CGView, tooltip: "遊戲介面腳本" })
+    private gameView: CGView = null;
 
     private defaultChipSetID: number[] = [0, 1, 2, 3, 4];//預設籌碼
     private chipSetIDing: number[] = [0, 1, 2, 3, 4];//暫存選擇中的籌碼
-    private chipToggle: Node = null;
+
 
     onLoad() {
         //按鈕觸發設置
         const scriptName = this.name.split('<')[1].split('>')[0];
         //選擇設置籌碼按鈕觸發事件設置
-        this.chipToggle = this.chipSetPopup.getChildByName('Popup').getChildByName('ChipToggle');
-        for (let i = 0; i < this.chipToggle.children.length; i++) {
+        const chipToggleChildren = this.gameView.chipToggle.children;
+        for (let i = 0; i < chipToggleChildren.length; i++) {
             const eventHandler = new EventHandler();
             eventHandler.target = this.node;
             eventHandler.component = scriptName;
-            eventHandler.handler = 'selectChipSet';
+            eventHandler.handler = 'chipSet';
             eventHandler.customEventData = i.toString();
-            this.chipToggle.children[i].getComponent(Toggle).clickEvents.push(eventHandler);
+            chipToggleChildren[i].getComponent(Toggle).clickEvents.push(eventHandler);
         }
     }
 
     //選擇籌碼
-    private selectChipSet(event: Event, data: string) {
+    private chipSet(event: Event, data: string) {
         const id = Number(data)
-        if (this.chipToggle.children[id].getComponent(Toggle).isChecked) {
+        const chipToggleChildren = this.gameView.chipToggle.children;
+        if (chipToggleChildren[id].getComponent(Toggle).isChecked) {
             if (this.chipSetIDing.length > 1)
                 this.chipSetIDing.splice(this.chipSetIDing.indexOf(id), 1);//取消掉設置中ID(如果只有一組則不取消)
         }
@@ -50,27 +47,28 @@ export class CGChipSet extends Component {
 
     //更新籌碼選擇(設置頁面)
     public updataChipSet() {
+        const chipToggleChildren = this.gameView.chipToggle.children;
         if (this.chipSetIDing.length > 4) {
-            for (let i = 0; i < this.chipToggle.children.length; i++) {
+            for (let i = 0; i < chipToggleChildren.length; i++) {
                 if (this.chipSetIDing.indexOf(i) === -1) {
-                    this.chipToggle.children[i].getComponent(Toggle).interactable = false;
-                    this.chipToggle.children[i].getComponent(Toggle).isChecked = false;
-                    this.chipToggle.children[i].getComponent(UIOpacity).opacity = 80;
+                    chipToggleChildren[i].getComponent(Toggle).interactable = false;
+                    chipToggleChildren[i].getComponent(Toggle).isChecked = false;
+                    chipToggleChildren[i].getComponent(UIOpacity).opacity = 80;
                 } else {
-                    this.chipToggle.children[i].getComponent(Toggle).interactable = true;
-                    this.chipToggle.children[i].getComponent(Toggle).isChecked = true;
-                    this.chipToggle.children[i].getComponent(UIOpacity).opacity = 255;
+                    chipToggleChildren[i].getComponent(Toggle).interactable = true;
+                    chipToggleChildren[i].getComponent(Toggle).isChecked = true;
+                    chipToggleChildren[i].getComponent(UIOpacity).opacity = 255;
                 }
             }
         } else {
-            for (let i = 0; i < this.chipToggle.children.length; i++) {
+            for (let i = 0; i < chipToggleChildren.length; i++) {
                 if (this.chipSetIDing.indexOf(i) === -1)
-                    this.chipToggle.children[i].getComponent(Toggle).isChecked = false;
+                    chipToggleChildren[i].getComponent(Toggle).isChecked = false;
                 else
-                    this.chipToggle.children[i].getComponent(Toggle).isChecked = true;
-                if (!this.chipToggle.children[i].getComponent(Toggle).interactable) {
-                    this.chipToggle.children[i].getComponent(Toggle).interactable = true;
-                    this.chipToggle.children[i].getComponent(UIOpacity).opacity = 255;
+                    chipToggleChildren[i].getComponent(Toggle).isChecked = true;
+                if (!chipToggleChildren[i].getComponent(Toggle).interactable) {
+                    chipToggleChildren[i].getComponent(Toggle).interactable = true;
+                    chipToggleChildren[i].getComponent(UIOpacity).opacity = 255;
                 }
             }
         }
@@ -78,31 +76,34 @@ export class CGChipSet extends Component {
 
     //更新選擇的籌碼(籌碼選擇區)
     public updataSelectChip() {
+        const chipToggle = this.gameView.chipToggle;
         const chipSetID = this.gameData.chipSetID;
-        for (let i = 0; i < this.gameUI.selectChip.children.length; i++) {
-            const selectChip = this.gameUI.selectChip.children[i];
+        const selectChipChildren = this.gameView.selectChip.children;
+        for (let i = 0; i < selectChipChildren.length; i++) {
+            const selectChip = selectChipChildren[i];
             if (chipSetID.length > i) {
                 selectChip.active = true;
                 selectChip.getChildByName('Sprite').getComponent(Sprite).spriteFrame =
-                    this.chipToggle.children[chipSetID[i]].getChildByName('Sprite').getComponent(Sprite).spriteFrame;
+                    chipToggle.children[chipSetID[i]].getChildByName('Sprite').getComponent(Sprite).spriteFrame;
                 selectChip.getChildByName('Checkmark').getComponent(Sprite).spriteFrame =
-                    this.chipToggle.children[chipSetID[i]].getChildByName('Checkmark').getComponent(Sprite).spriteFrame;
+                    chipToggle.children[chipSetID[i]].getChildByName('Checkmark').getComponent(Sprite).spriteFrame;
                 selectChip.getChildByName('Label').getComponent(Label).string =
-                    UtilsKitS.NumDigits(this.gameData.gameSetInfo.ChipRange[chipSetID[i]]);
+                    UtilsKitS.NumDigits(this.gameData.loadInfo.chipRange[chipSetID[i]]);
             } else
                 selectChip.active = false;
         }
         this.gameData.selectChipID = chipSetID[0];
-        this.gameUI.selectChip.children[0].getComponent(Toggle).isChecked = true;
+        selectChipChildren[0].getComponent(Toggle).isChecked = true;
     }
 
     //設置視窗顯示
     public chipSetPopupShow() {
+        const chipSetPopup = this.gameView.chipSetPopup;
         this.chipSetIDing = [...this.gameData.chipSetID];
         this.updataChipSet();
-        this.chipSetPopup.active = true;
-        this.chipSetPopup.getChildByName('Popup').getChildByName('BtnClose').getComponent(Button).interactable = true;
-        this.chipSetPopup.getComponent(Animation).play('PopupShow');
+        chipSetPopup.active = true;
+        chipSetPopup.getChildByName('Popup').getChildByName('BtnClose').getComponent(Button).interactable = true;
+        chipSetPopup.getComponent(Animation).play('PopupShow');
     }
 
 
@@ -119,10 +120,11 @@ export class CGChipSet extends Component {
     }
 
     public chipSetPopupHide() {
-        this.chipSetPopup.getChildByName('Popup').getChildByName('BtnClose').getComponent(Button).interactable = false;
-        this.chipSetPopup.getComponent(Animation).play('PopupHide');
+        const chipSetPopup = this.gameView.chipSetPopup;
+        chipSetPopup.getChildByName('Popup').getChildByName('BtnClose').getComponent(Button).interactable = false;
+        chipSetPopup.getComponent(Animation).play('PopupHide');
         setTimeout(() => {
-            this.chipSetPopup.active = false;
+            chipSetPopup.active = false;
         }, 200)
     }
 }

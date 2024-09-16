@@ -1,6 +1,6 @@
 import { _decorator, Component, RigidBody, Vec3, Quat, Node, Animation, PhysicsSystem } from 'cc';
 import { UtilsKitS } from '../../../../common/script/lib/UtilsKitS';
-import { PathInfo } from '../CGData';
+import { PathInfo } from '../components/CGPathManager';
 const { ccclass, property } = _decorator;
 
 
@@ -84,9 +84,9 @@ export class SaveDiceData extends Component {
 
                 let boxMove = this.node.children[i].getChildByName('box').getChildByName('lid').children[0];
                 boxMove.setRotationFromEuler(new Vec3(-90, 180, 0));//初始化翻板動畫
-                this.scheduleOnce(()=>{
+                this.scheduleOnce(() => {
                     boxMove.getComponent(Animation).play();//播放翻板動畫
-                },0.2)
+                }, 0.2)
             }
             // this.boxMove.setRotationFromEuler(new Vec3(-90, 180, 0));//初始化翻板動畫
             await UtilsKitS.Delay(0.3);
