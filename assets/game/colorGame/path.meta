@@ -2,11 +2,10 @@
   "ver": "1.2.0",
   "importer": "directory",
   "imported": true,
-  "uuid": "3e00af1e-d7b4-4c8f-aced-705bb5c1b34f",
+  "uuid": "d83a9204-16a9-4b93-910f-da82d4ceb81f",
   "files": [],
   "subMetas": {},
   "userData": {
-    "isBundle": true,
-    "bundleName": "CGLang_tw"
+    "isBundle": true
   }
 }

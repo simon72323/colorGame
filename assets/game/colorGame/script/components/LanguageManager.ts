@@ -1,6 +1,6 @@
 import { AssetManager, Node, Sprite, SpriteFrame, assetManager, director } from "cc";
 import { BaseLanguageFilesDirectory, LanguageFiles, LanguageFilesDirectory } from "./LanguageFiles";
-import { URLParameter, log } from "./include";
+// import { URLParameter, log } from "./include";
 
 export interface ILanguageManager {
     // 設置遊戲語系
@@ -12,9 +12,9 @@ export interface ILanguageManager {
 }
 
 export class LanguageManager implements ILanguageManager {
-    
+
     private static singleton: LanguageManager = null;
-    
+
     protected _isSingleton: boolean = false;
 
     protected bundleName: string;
@@ -45,21 +45,22 @@ export class LanguageManager implements ILanguageManager {
     }
 
     setLang(): void {
-        switch (URLParameter.iplLang) {
-            case "tw":
-                this._lang = "tw";
-                break;
-            case "cn":
-                this._lang = "cn";
-                break;
-            case "vi":
-                this._lang = "vi";
-                break;
-            default:
-                this._lang = "en";
-                break;
-        }
-        this.bundleName = this._lang;
+        // switch (URLParameter.iplLang) {
+        //     case "tw":
+        //         this._lang = "tw";
+        //         break;
+        //     case "cn":
+        //         this._lang = "cn";
+        //         break;
+        //     case "vi":
+        //         this._lang = "vi";
+        //         break;
+        //     default:
+        //         this._lang = "en";
+        //         break;
+        // }
+        // this.bundleName = this._lang;
+        this.bundleName = "CGLang_tw";
     }
 
     // 初始化
@@ -68,7 +69,6 @@ export class LanguageManager implements ILanguageManager {
         this._node = node;
         director.addPersistRootNode(node);
         LanguageManager.singleton = this;
-
         this.loadDirectory(LanguageFiles);
         await this.loadBundleFile(this.bundleName);
         this._node.emit("completed");
@@ -99,11 +99,10 @@ export class LanguageManager implements ILanguageManager {
         });
     }
     // Promise:讀取檔案
-    public async loadBundleFile(boundleName: string) {
-        log(`Loading LanguageManager bundle`);
+    public async loadBundleFile(boundleName: string){
+        // log(`Loading LanguageManager bundle`);
         let bundle = await this.loadBundle(boundleName).catch((err) => null);
         if (!bundle) return console.error(`LanguageManager Bundle not found: ${boundleName}`);
-
         this.bundle = bundle;
 
         let keys = Object.keys(this.directory);
@@ -113,14 +112,15 @@ export class LanguageManager implements ILanguageManager {
             let spriteFrame = await this.loadFile(filePath);
             if (spriteFrame) this.addSource(filePath, spriteFrame);
         }
-        log(`Language load completed.`);
         
+        // log(`Language load completed.`);
+
     }
     // 讀取定義設定檔案
     public loadDirectory(directory: LanguageFilesDirectory) {
         this.directory = directory;
     }
-    addSource<T extends keyof LanguageFilesDirectory & string>(name: T, spriteFrame: SpriteFrame):boolean {
+    addSource<T extends keyof LanguageFilesDirectory & string>(name: T, spriteFrame: SpriteFrame): boolean {
         const { sourcesList, sourcesMap } = this;
         if (!sourcesMap.has(name)) {
             sourcesList.push(spriteFrame);
@@ -133,10 +133,10 @@ export class LanguageManager implements ILanguageManager {
         const { sourcesMap } = this;
         return sourcesMap.has(name);
     }
-    protected getSource<T extends keyof LanguageFilesDirectory & string>(name: T):SpriteFrame {
+    protected getSource<T extends keyof LanguageFilesDirectory & string>(name: T): SpriteFrame {
         return this.sourcesMap.get(name);
     }
-    setSpriteFrame<T extends keyof LanguageFilesDirectory & string>(sprite: Sprite ,name: T) {
+    setSpriteFrame<T extends keyof LanguageFilesDirectory & string>(sprite: Sprite, name: T) {
         if (this.hasSource(name)) {
             sprite.spriteFrame = this.getSource(name);
         } else {
@@ -152,7 +152,7 @@ export class LanguageManager implements ILanguageManager {
         if (!LanguageManager.singleton) {
             LanguageManager.singleton = new LanguageManager();
             LanguageManager.singleton._isSingleton = true;
-        } 
+        }
         return LanguageManager.singleton;
     }
 }

@@ -149,7 +149,7 @@ export class CGChipControl extends Component {
             if (rebet)
                 poolBetChip.position = this.gameUI.playerPos.children[0].getWorldPosition().subtract(betChip.worldPosition);
             else
-                poolBetChip.position = this.gameUI.selectChip.children[this.gameData.userInfo.ChipSetID.indexOf(chipID)].getWorldPosition().subtract(betChip.worldPosition);
+                poolBetChip.position = this.gameUI.selectChip.children[this.gameData.chipSetID.indexOf(chipID)].getWorldPosition().subtract(betChip.worldPosition);
 
             this.rebetScore = this.gameData.userInfo.BetTotalCredit;
             this.gameUI.rebetScoreLable.string = UtilsKitS.NumDigits(this.rebetScore);//續押分數更新
@@ -162,7 +162,7 @@ export class CGChipControl extends Component {
             poolBetChip.position = this.gameUI.playerPos.children[playerId].getWorldPosition().subtract(betChip.worldPosition);
         }
         // this.gameData.betInfo.BetAreaData[betId].BetCredit += chipScore;//注區分數增加
-        this.gameData.betInfo.BetAreaData[betId].BetCredit += chipScore;//注區總分更新
+        this.gameData.betInfo.BetAreaCredit[betId] += chipScore;//注區總分更新
         poolBetChip.getComponent(SetChipID).playerID = playerId;
         betChipHeight = betChip.getComponent(UITransform).height;
         betChipWidth = betChip.getComponent(UITransform).width;

@@ -11,7 +11,7 @@
     "6c48a": {
       "importer": "texture",
       "uuid": "204a3f63-6bcb-4a09-aab9-b67c278633c8@6c48a",
-      "displayName": "tx_start",
+      "displayName": "tx_startBet",
       "id": "6c48a",
       "name": "texture",
       "userData": {
@@ -35,7 +35,7 @@
     "f9941": {
       "importer": "sprite-frame",
       "uuid": "204a3f63-6bcb-4a09-aab9-b67c278633c8@f9941",
-      "displayName": "tx_start",
+      "displayName": "tx_startBet",
       "id": "f9941",
       "name": "spriteFrame",
       "userData": {

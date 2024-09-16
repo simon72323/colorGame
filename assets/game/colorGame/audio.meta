@@ -13,7 +13,7 @@
         "type": "url",
         "patchOption": {
           "patchType": "glob",
-          "value": "db://assets/game/mahjong/audio/**/*"
+          "value": "db://assets/game/colorGame/audio/**/*"
         },
         "assets": [
           ""

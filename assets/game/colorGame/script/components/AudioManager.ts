@@ -1,11 +1,11 @@
 import { _decorator, AudioSource, AudioClip, Component, Node, assetManager, AssetManager, logID, Tween, director, game, Game } from 'cc';
 import { BaseSoundFilesDirectory, SoundFiles, SoundFilesDirectory } from './SoundFiles';
-import { log } from '../include';
+// import { log } from '../include';
 export interface IAudioManager {
     // 建立物件
     initAudioSource(): void;
     // 讀取定義設定檔案
-    loadDirectory(directory: BaseSoundFilesDirectory);
+    // loadDirectory(directory: BaseSoundFilesDirectory);
     // 讀取boundle
     loadBundleFile(filePath: string);
     // 播放背景音樂
@@ -77,7 +77,8 @@ export class AudioManager implements IAudioManager {
         this._node = node;
         director.addPersistRootNode(node);
         this.initAudioSource();
-        this.loadDirectory(SoundFiles);
+        this.directory = SoundFiles;// 讀取定義設定檔案
+        // this.loadDirectory(SoundFiles);
 
         game.on(Game.EVENT_HIDE, ()=>{
             this.isMutedBeforeHiding = this.isMuted;
@@ -143,7 +144,7 @@ export class AudioManager implements IAudioManager {
     }
     // Promise:讀取檔案
     public async loadBundleFile(boundleName: string) {
-        log(`Loading AudioManager bundle`);
+        // log(`Loading AudioManager bundle`);
         let bundle = await this.loadBundle(boundleName).catch((err) => null);
         if (!bundle) return console.error(`AudioManager Bundle not found: ${boundleName}`);
 
@@ -156,13 +157,13 @@ export class AudioManager implements IAudioManager {
             let clip = await this.loadFile(filePath);
             if (clip) this.addSource(filePath, clip);
         }
-        log(`Audio load completed.`);
+        // log(`Audio load completed.`);
         
     }
     // 讀取定義設定檔案
-    public loadDirectory(directory: SoundFilesDirectory) {
-        this.directory = directory;
-    }
+    // public loadDirectory(directory: SoundFilesDirectory) {
+    //     this.directory = directory;
+    // }
     // 播放音樂
     playMusic<T extends keyof SoundFilesDirectory & string>(sound: T, loop: boolean = true): void {
         const { music } = this;

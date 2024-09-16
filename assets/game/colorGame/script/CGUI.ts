@@ -97,7 +97,7 @@ export class CGUI extends Component {
 
     //籌碼選擇設置
     private setSelectChipID(event: Event, id: number) {
-        this.gameData.selectChipID = this.gameData.userInfo.ChipSetID[id];
+        this.gameData.selectChipID = this.gameData.chipSetID[id];
     }
 
     //跟注按鈕按下
@@ -126,25 +126,26 @@ export class CGUI extends Component {
 
     //更新分數
     public updataUIScore() {
-        this.comBtnBet.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.userInfo.BetTotalCredit);
-        this.comBtnScores.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.userInfo.Credit);
+        this.comBtnBet.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.loadInfo.BetTotalCredit);
+        this.comBtnScores.getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.loadInfo.Credit);
         for (let i = 1; i < 4; i++) {
+            this.playerPos.children[i].children[0].getChildByName('Name').getComponent(Label).string= this.gameData.loadInfo.Rank;
             this.playerPos.children[i].children[0].getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.topUserInfos[i - 1].Credit);
         }
         for (let i = 0; i < 6; i++) {
-            this.betInfo.children[i].getChildByName('TotalScore').getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.betInfo.BetAreaData[i].BetCredit);
+            this.betInfo.children[i].getChildByName('TotalScore').getChildByName('Label').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.betInfo.BetAreaCredit[i]);
             this.betInfo.children[i].getChildByName('BetScore').getComponent(Label).string = UtilsKitS.NumDigits(this.gameData.userInfo.BetAreaCredit[i]);//玩家各區的下注分數
         }
         //下注區分數比例更新
 
-        const betAreaData = this.gameData.betInfo.BetAreaData;
+        const betAreaData = this.gameData.betInfo.BetAreaCredit;
         let allScroe = 0;
         for (let i = 0; i < betAreaData.length; i++) {
-            allScroe += betAreaData[i].BetCredit;
+            allScroe += betAreaData[i];
         }
         // let allScroe = this.gameData.betInfo.BetAreaData.BetAreaTotal.reduce((a, b) => a + b, 0);
         for (let i = 0; i < betAreaData.length; i++) {
-            let per = allScroe === 0 ? 0 : Math.trunc(betAreaData[i].BetCredit / allScroe * 100);
+            let per = allScroe === 0 ? 0 : Math.trunc(betAreaData[i] / allScroe * 100);
             const percentNode = this.betInfo.children[i].getChildByName('Percent');
             percentNode.getChildByName('Label').getComponent(Label).string = per + '%';
             percentNode.getChildByName('PercentBar').getComponent(UITransform).width = per;
