@@ -1,129 +1,79 @@
-import { _decorator, Component, Vec3, Quat, find, Animation, Node } from 'cc';
+import { _decorator, Component, Vec3, Quat, Animation, Node } from 'cc';
 import { CGModel } from '../CGModel';
 const { ccclass, property } = _decorator;
 
 @ccclass('DiceRunSet')
 export class DiceRunSet extends Component {
     @property([Node])
-    dice: Node[] = [];
+    private dice: Node[] = [];
     @property(Node)
-    frame: Node = null;
+    private frame: Node = null;
+    private readonly FIRST_POSITIONS = [
+        new Vec3(-1.25, 4.77, -1.83),
+        new Vec3(0, 4.77, -1.83),
+        new Vec3(1.25, 4.77, -1.83)
+    ];
+    private readonly CHANGE_EULER = [
+        [new Vec3(0, 0, 0), new Vec3(-90, 0, 0), new Vec3(0, 0, 90), new Vec3(0, 0, -90), new Vec3(90, 0, 0), new Vec3(180, 0, 0)],
+        [new Vec3(90, 0, 0), new Vec3(0, 0, 0), new Vec3(0, -90, 0), new Vec3(0, 90, 0), new Vec3(0, 180, 0), new Vec3(-90, 0, 0)],
+        [new Vec3(0, 0, -90), new Vec3(0, 90, 0), new Vec3(0, 0, 0), new Vec3(0, 180, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 90)],
+        [new Vec3(0, 0, 90), new Vec3(0, -90, 0), new Vec3(0, 180, 0), new Vec3(0, 0, 0), new Vec3(0, 90, 0), new Vec3(0, 0, -90)],
+        [new Vec3(-90, 0, 0), new Vec3(0, 180, 0), new Vec3(0, 90, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 0), new Vec3(90, 0, 0)],
+        [new Vec3(180, 0, 0), new Vec3(90, 0, 0), new Vec3(0, 0, -90), new Vec3(0, 0, 90), new Vec3(-90, 0, 0), new Vec3(0, 0, 0)]
+    ];
     private dataFrame = 0;//播放中的路徑影格
-    private saveFrameTime = 0.033;
-    // private winNumber = [1, 1, 1];
-    @property(CGModel)
     private model: CGModel = null;//demo回合腳本
 
     public onLoad(): void {
         this.model = CGModel.getInstance();
     }
 
-    //初始化骰子(隨機顏色)
-    diceIdle() {
-        // const pathData = this.gameData.pathData;//路徑表演資料
-        // console.log(pathData)
-        console.log("初始化骰子")
-        const firstPos = [
-            new Vec3(-1.2, 4.77, -1.83),
-            new Vec3(0, 4.77, -1.83),
-            new Vec3(1.2, 4.77, -1.83)
-        ];
-        // const firstRotate = [
-        //     new Quat(0, 0.574, -0.819, 0),
-        //     new Quat(0.406, 0.579, 0.406, 0.579),
-        //     new Quat(0, 0.574, -0.819, 0)
-        // ];
-        //初始化所有骰子位置
-        for (let i = 0; i < this.dice.length; i++) {
-            this.dice[i].setPosition(firstPos[i]);
-            // this.dice[i].setRotation(firstRotate[i]);
-            this.dice[i].setRotationFromEuler(new Vec3(-20, 0, 0));
-            const changeEuler = [
-                [new Vec3(0, 0, 0), new Vec3(-90, 0, 0), new Vec3(0, 0, 90), new Vec3(0, 0, -90), new Vec3(90, 0, 0), new Vec3(180, 0, 0)],
-                [new Vec3(90, 0, 0), new Vec3(0, 0, 0), new Vec3(0, -90, 0), new Vec3(0, 90, 0), new Vec3(0, 180, 0), new Vec3(-90, 0, 0)],
-                [new Vec3(0, 0, -90), new Vec3(0, 90, 0), new Vec3(0, 0, 0), new Vec3(0, 180, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 90)],
-                [new Vec3(0, 0, 90), new Vec3(0, -90, 0), new Vec3(0, 180, 0), new Vec3(0, 0, 0), new Vec3(0, 90, 0), new Vec3(0, 0, -90)],
-                [new Vec3(-90, 0, 0), new Vec3(0, 180, 0), new Vec3(0, 90, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 0), new Vec3(90, 0, 0)],
-                [new Vec3(180, 0, 0), new Vec3(90, 0, 0), new Vec3(0, 0, -90), new Vec3(0, 0, 90), new Vec3(-90, 0, 0), new Vec3(0, 0, 0)]
-            ];
-            this.dice[i].children[0].setRotationFromEuler(changeEuler[Math.floor(Math.random() * 6)][Math.floor(Math.random() * 6)]);
-            this.dice[i].active = true;//顯示骰子
-        }
+    //初始化骰子(隨機角度)
+    public diceIdle() {
+        this.dice.forEach((dice, i) => {
+            dice.setPosition(this.FIRST_POSITIONS[i]);
+            dice.setRotationFromEuler(new Vec3(-20, 0, 0));
+            const [randomRow, randomCol] = [Math.floor(Math.random() * 6), Math.floor(Math.random() * 6)];
+            dice.children[0].setRotationFromEuler(this.CHANGE_EULER[randomRow][randomCol]);
+            dice.active = true; // 顯示骰子
+        });
     }
 
     //開骰表演(回傳表演結束)
-    public diceStart(): Promise<void> {
+    public async diceStart(): Promise<void> {
         return new Promise<void>((resolve) => {
-            // this.diceIdle();//初始化骰子
-            console.log("執行骰子表演")
-            //設置轉換目標
-            let targetRotations = [
-                new Quat(),
-                new Quat(),
-                new Quat()
-            ];
-            for (let i = 0; i < 3; i++) {
-                Quat.fromEuler(targetRotations[i],
-                    this.model.diceEuler[i].x,
-                    this.model.diceEuler[i].y,
-                    this.model.diceEuler[i].z
-                );
-            }
-            let currentRotations = [
-                this.dice[0].children[0].rotation,
-                this.dice[1].children[0].rotation,
-                this.dice[2].children[0].rotation
-            ];
-            const pathData = this.model.pathData;//路徑表演資料
+            const diceEuler = this.diceRotate(this.model.rewardInfo.winNumber, this.model.pathData.diceNumber);//起始骰子角度
+            // 四元數插值轉換(慢慢校正骰子方向)
+            const targetRotations = diceEuler.map(euler => {
+                const quat = new Quat();
+                Quat.fromEuler(quat, euler.x, euler.y, euler.z);
+                return quat;
+            });
+            const currentRotations = this.dice.map(dice => dice.children[0].rotation);
 
-            //設置父結點轉換
-            let r = pathData.rotate[0];
-            let targetParentRotations = [
-                new Quat(r[0], r[1], r[2], r[3]),
-                new Quat(r[4], r[5], r[6], r[7]),
-                new Quat(r[8], r[9], r[10], r[11])
-            ];
-            let currentParentRotations = [
-                this.dice[0].rotation,
-                this.dice[1].rotation,
-                this.dice[2].rotation
-            ];
-
-            console.log('表演該回合路徑id', this.model.rewardInfo.pathID)
-            console.log('表演該回合開骰結果', this.model.rewardInfo.winNumber)
             this.frame.setRotationFromEuler(new Vec3(-90, 180, 0));//初始化翻板動畫
             this.frame.getComponent(Animation).play();//播放翻板動畫
+
+            const pathData = this.model.pathData;//路徑表演資料
             const frameLength = pathData.pos.length;
             this.dataFrame = 0;
             this.schedule(() => {
-                let posPath = pathData.pos[this.dataFrame];
-                let rotatePath = pathData.rotate[this.dataFrame];
-                //移動骰子位置
-                for (let i = 0; i < this.dice.length; i++) {
+                const posPath = pathData.pos[this.dataFrame];
+                const rotatePath = pathData.rotate[this.dataFrame];
+                const t = Math.min(this.dataFrame / 100, 1);//前100格校正角度
+
+                this.dice.forEach((dice, i) => {
                     //慢慢地修正角度
-                    let t = this.dataFrame / 60;
-                    if (t > 1)
-                        t = 1;
                     let newRotation = new Quat();
                     Quat.slerp(newRotation, currentRotations[i], targetRotations[i], t);
-                    this.dice[i].children[0].setRotation(newRotation);
-
-                    let movePos = new Vec3(posPath[i * 3 + 0], posPath[i * 3 + 1], posPath[i * 3 + 2]);
-                    let rotate = new Quat(rotatePath[i * 4 + 0], rotatePath[i * 4 + 1], rotatePath[i * 4 + 2], rotatePath[i * 4 + 3])
-                    let newParentRotation = new Quat();
-                    Quat.slerp(newParentRotation, currentParentRotations[i], targetParentRotations[i], t);
-                    let newRotate = new Quat();
-                    Quat.slerp(newRotate, new Quat(0, 0, 0, 1), rotate, t);
-                    let moveRotate = this.ensureQuaternionConsistency(newParentRotation, newRotate);
-
-                    // moveRotate.x += newParentRotation.x;
-                    // moveRotate.y += newParentRotation.y;
-                    // moveRotate.z += newParentRotation.z;
-                    // moveRotate.w += newParentRotation.w;
-                    // tween(this.dice[i]).to(this.saveFrameTime, { position: movePos, rotation: moveRotate }).start();
-                    this.dice[i].position = movePos;
-                    this.dice[i].rotation = moveRotate;
-                }
+                    dice.children[0].setRotation(newRotation);
+                    // 移動骰子位置
+                    const movePos = new Vec3(posPath[i * 3 + 0], posPath[i * 3 + 1], posPath[i * 3 + 2]);
+                    const rotate = new Quat(rotatePath[i * 4 + 0], rotatePath[i * 4 + 1], rotatePath[i * 4 + 2], rotatePath[i * 4 + 3]);
+                    const moveRotate = this.ensureQuaternionConsistency(dice.rotation, rotate);
+                    dice.position = movePos;
+                    dice.rotation = moveRotate;
+                });
                 this.dataFrame++;
                 if (this.dataFrame >= frameLength) {
                     resolve();
@@ -134,9 +84,15 @@ export class DiceRunSet extends Component {
 
     // 確保四元數一致性
     ensureQuaternionConsistency(q1: Quat, q2: Quat): Quat {
-        if (Quat.dot(q1, q2) < 0) {
-            q2 = new Quat(-q2.x, -q2.y, -q2.z, -q2.w);
-        }
-        return q2;
+        return Quat.dot(q1, q2) < 0 ? new Quat(-q2.x, -q2.y, -q2.z, -q2.w) : q2;
+    }
+
+    //路徑與開獎三顏色之骰子校正旋轉值(路徑id，勝利的三顏色編號)，回傳3個子物件的旋轉值
+    private diceRotate(winNumber: number[], diceNumber: number[]): Vec3[] {
+        return [
+            this.CHANGE_EULER[diceNumber[0]][winNumber[0]],
+            this.CHANGE_EULER[diceNumber[1]][winNumber[1]],
+            this.CHANGE_EULER[diceNumber[2]][winNumber[2]]
+        ];
     }
 }

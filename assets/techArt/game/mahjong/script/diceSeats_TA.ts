@@ -1,9 +1,9 @@
 import { _decorator, Component, Node, AudioSource, UIOpacity, Sprite, Animation, SpriteFrame, BlockInputEvents } from 'cc';
 import { UtilsKit } from '../../../../game/mahjong/script/lib/UtilsKit';
-import { AudioManager } from '../../../../game/mahjong/script/components/AudioManager';
-import { SoundFiles } from '../../../../game/mahjong/script/components/SoundFiles';
-import { LanguageManager } from '../../../../game/mahjong/script/LanguageManager';
-import { LanguageFiles } from '../../../../game/mahjong/script/LanguageFiles';
+import { AudioManager } from '../../../../game/colorGame/script/components/AudioManager';
+import { SoundFiles } from '../../../../game/colorGame/script/components/SoundFiles';
+import { LanguageManager } from '../../../../game/colorGame/script/components/LanguageManager';
+import { LanguageFiles } from '../../../../game/colorGame/script/components/LanguageFiles';
 import { symbolResource_TA } from './symbolResource_TA';
 import { log } from '../../../../game/mahjong/script/include';
 const { ccclass, property } = _decorator;

@@ -99,7 +99,7 @@ export class CGMain extends Component {
         //模擬多人下注
         this.schedule(() => {
             this.otherPlayerBet();
-        }, 0.2, 50, 1)
+        }, 0.2, 1, 1)
 
         let time = this.model.loadInfo.betTime;
         this.setBetTime(time);//下注時間倒數

@@ -33,11 +33,8 @@ export class CGModel {
     public touchChipID: number = 1;//紀錄目前點選的籌碼()
     public pathData: PathInfo;//該回合路徑資料
     public betAreaPercent: number[] = [0, 0, 0, 0, 0, 0];//各下注區分數百分比(前端計算)
-    public diceEuler: Vec3[] = [];//起始骰子角度(******新局開始前會先跟後端要的資料******)
-
     public defaultChipSetID: number[] = [0, 1, 2, 3, 4];//預設籌碼
     public chipSetIDing: number[] = [0, 1, 2, 3, 4];//暫存選擇中的籌碼
-
 
     //設置點選的籌碼位置
     public setTouchChipID(touchPos: number) {
@@ -133,7 +130,7 @@ export class CGModel {
                     betAreaCredit: [0, 0, 0, 0, 0, 0],
                     betTotalCredit: 0,
                     limit: 30000,//限額
-                    betTime: 12,//單局下注時間
+                    betTime: 1,//單局下注時間
                     chipRange: [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],
                     gameState: GameState.Betting,
                 }
@@ -222,7 +219,6 @@ export class CGModel {
                 }
                 this.rewardInfo = rewardData;
                 this.pathData = CGPathManager.getInstance().allPathData[this.rewardInfo.pathID];//該回合路徑資料
-                this.diceEuler = this.diceRotate(this.rewardInfo.winNumber);//起始骰子角度
                 resolve();
             } catch (error) {
                 console.error('獲取目前下注資料時出錯:', error);
@@ -248,23 +244,5 @@ export class CGModel {
                 reject(error);
             }
         });
-    }
-
-    //路徑與開獎三顏色之骰子校正旋轉值(路徑id，勝利的三顏色編號)，回傳3個子物件的旋轉值
-    private diceRotate(winNumber: number[]) {
-        const pathEndColor = this.pathData.diceNumber;
-        const changeEuler = [
-            [new Vec3(0, 0, 0), new Vec3(-90, 0, 0), new Vec3(0, 0, 90), new Vec3(0, 0, -90), new Vec3(90, 0, 0), new Vec3(180, 0, 0)],
-            [new Vec3(90, 0, 0), new Vec3(0, 0, 0), new Vec3(0, -90, 0), new Vec3(0, 90, 0), new Vec3(0, 180, 0), new Vec3(-90, 0, 0)],
-            [new Vec3(0, 0, -90), new Vec3(0, 90, 0), new Vec3(0, 0, 0), new Vec3(0, 180, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 90)],
-            [new Vec3(0, 0, 90), new Vec3(0, -90, 0), new Vec3(0, 180, 0), new Vec3(0, 0, 0), new Vec3(0, 90, 0), new Vec3(0, 0, -90)],
-            [new Vec3(-90, 0, 0), new Vec3(0, 180, 0), new Vec3(0, 90, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 0), new Vec3(90, 0, 0)],
-            [new Vec3(180, 0, 0), new Vec3(90, 0, 0), new Vec3(0, 0, -90), new Vec3(0, 0, 90), new Vec3(-90, 0, 0), new Vec3(0, 0, 0)]
-        ];
-        return [
-            changeEuler[pathEndColor[0]][winNumber[0]],
-            changeEuler[pathEndColor[1]][winNumber[1]],
-            changeEuler[pathEndColor[2]][winNumber[2]]
-        ]
     }
 }

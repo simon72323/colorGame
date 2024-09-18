@@ -44,36 +44,37 @@ export class SaveDiceData extends Component {
                 let diceNode = this.node.children[i];
                 for (let j = 0; j < 3; j++) {
                     this.node.children[i].children[j].getComponent(RigidBody).type = RigidBody.Type.KINEMATIC; // 停止物理模拟
-                    diceNode.children[j].setPosition(new Vec3(j * 1.2 - 1.2, 4.77, -1.83));
+                    diceNode.children[j].setPosition(new Vec3(j * 1.25 - 1.25, 4.77, -1.83));
                     // console.log("位置" + diceNode.children[j].position);
-                    let random = Math.floor(Math.random() * 6);
-                    this.point[random]++;
-                    switch (random) {
-                        case 0:
-                            diceNode.children[j].setRotationFromEuler(new Vec3(-20, 0, 0));
-                            // diceNode.children[j].setRotation(new Quat(0, 0, 0, 1));
-                            break;
-                        case 1:
-                            diceNode.children[j].setRotationFromEuler(new Vec3(270, 270, 20));
-                            // diceNode.children[j].setRotation(new Quat(-0.5, -0.5, 0.5, 0.5));
-                            break;
-                        case 2:
-                            diceNode.children[j].setRotationFromEuler(new Vec3(0, 90, 70));
-                            // diceNode.children[j].setRotation(new Quat(0.5, 0.5, 0.5, 0.5));
-                            break;
-                        case 3:
-                            diceNode.children[j].setRotationFromEuler(new Vec3(90, -90, -70));
-                            // diceNode.children[j].setRotation(new Quat(-0.707, 0.707, 0, 0));
-                            break;
-                        case 4:
-                            diceNode.children[j].setRotationFromEuler(new Vec3(110, 180, 0));
-                            // diceNode.children[j].setRotation(new Quat(0, 0.707, 0.707, 0));
-                            break;
-                        case 5:
-                            diceNode.children[j].setRotationFromEuler(new Vec3(180, 90, -20));
-                            // diceNode.children[j].setRotation(new Quat(0.707, 0, 0.707, 0));
-                            break;
-                    }
+                    diceNode.children[j].setRotationFromEuler(new Vec3(-20, 0, 0));//固定起始為0,0,0
+                    // let random = Math.floor(Math.random() * 6);
+                    // this.point[random]++;
+                    // switch (random) {
+                    //     case 0:
+                    //         diceNode.children[j].setRotationFromEuler(new Vec3(-20, 0, 0));
+                    //         // diceNode.children[j].setRotation(new Quat(0, 0, 0, 1));
+                    //         break;
+                    //     case 1:
+                    //         diceNode.children[j].setRotationFromEuler(new Vec3(270, 270, 20));
+                    //         // diceNode.children[j].setRotation(new Quat(-0.5, -0.5, 0.5, 0.5));
+                    //         break;
+                    //     case 2:
+                    //         diceNode.children[j].setRotationFromEuler(new Vec3(0, 90, 70));
+                    //         // diceNode.children[j].setRotation(new Quat(0.5, 0.5, 0.5, 0.5));
+                    //         break;
+                    //     case 3:
+                    //         diceNode.children[j].setRotationFromEuler(new Vec3(90, -90, -70));
+                    //         // diceNode.children[j].setRotation(new Quat(-0.707, 0.707, 0, 0));
+                    //         break;
+                    //     case 4:
+                    //         diceNode.children[j].setRotationFromEuler(new Vec3(110, 180, 0));
+                    //         // diceNode.children[j].setRotation(new Quat(0, 0.707, 0.707, 0));
+                    //         break;
+                    //     case 5:
+                    //         diceNode.children[j].setRotationFromEuler(new Vec3(180, 90, -20));
+                    //         // diceNode.children[j].setRotation(new Quat(0.707, 0, 0.707, 0));
+                    //         break;
+                    // }
                 }
                 let newPos = this.roundVector3(diceNode.children[0].getPosition(), diceNode.children[1].getPosition(), diceNode.children[2].getPosition());
                 let newRotate = this.roundQuat(diceNode.children[0].getRotation(), diceNode.children[1].getRotation(), diceNode.children[2].getRotation());
