@@ -5,8 +5,8 @@ import { SlotWheelEvent } from './SlotWheel';
 import { SymbolItem } from './SymbolItem';
 import { MahjongSymbol } from './MahjongSymbol';
 import { FreeGameData } from '../mock/MockData';
-import { AudioManager } from '../components/AudioManager';
-import { SoundFiles } from '../components/SoundFiles';
+import { AudioManager } from '../../../colorGame/script/components/AudioManager';
+import { SoundFiles } from '../../../colorGame/script/components/SoundFiles';
 import { MahjongCardsPool } from './MahjongCardsPool';
 const { ccclass, property } = _decorator;
 

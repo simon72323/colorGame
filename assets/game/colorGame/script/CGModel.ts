@@ -4,72 +4,115 @@ import { CGPathManager } from './components/CGPathManager';
 import { PathInfo } from './components/CGPathManager';
 const { ccclass, property } = _decorator;
 
+
 //模擬後端給的資料
-@ccclass('CGData')
-export class CGData extends Component {
-    // private numberShow = [0, 0, 0, 0, 0, 0];//開獎點數
+@ccclass('CGModel')
+export class CGModel {
+    private static singleton: CGModel = null;
+    public static getInstance(): CGModel {
+        if (!CGModel.singleton) {
+            CGModel.singleton = new CGModel();
+        }
+        return CGModel.singleton;
+    }
+
+    // 私有構造函數，防止直接實例化
+    private constructor() {
+        // 初始化代碼
+    }
 
     //跟後端要的資料
-    // public gameSetInfo: GameSetInfo;//遊戲配置資料
-    // public topUserInfos: onLoadInfo[] = [];//前三名玩家資料
     public loadInfo: onLoadInfo;//本地玩家資料
     public roundInfo: RoundInfo;//新局資料
     public betInfo: BetInfo;//每秒下注資料
     public rewardInfo: RewardInfo;//開獎資料
     public beginGameInfo: onBeginGameInfo;
 
-    // private bet:BetAreaInfo
     //本地端資料
     public chipSetID: number[];//玩家針對此遊戲設置的籌碼ID
-    public selectChipID: number = 1;//紀錄目前選擇的籌碼()
+    public touchChipID: number = 1;//紀錄目前點選的籌碼()
     public pathData: PathInfo;//該回合路徑資料
     public betAreaPercent: number[] = [0, 0, 0, 0, 0, 0];//各下注區分數百分比(前端計算)
     public diceEuler: Vec3[] = [];//起始骰子角度(******新局開始前會先跟後端要的資料******)
 
+    public defaultChipSetID: number[] = [0, 1, 2, 3, 4];//預設籌碼
+    public chipSetIDing: number[] = [0, 1, 2, 3, 4];//暫存選擇中的籌碼
+
+
+    //設置點選的籌碼位置
+    public setTouchChipID(touchPos: number) {
+        console.log("目前的籌碼設置參數", this.chipSetID, "選擇的籌碼位置", touchPos)
+        this.touchChipID = this.chipSetID[touchPos];
+    }
+
     // 存儲 chipSetID
-    public saveChipSetID(saveData?: number[]): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            if (saveData)
-                this.chipSetID = saveData;
-            this.chipSetID.sort((a, b) => a - b);//小到大排列
-            const chipSetIDString = JSON.stringify(this.chipSetID);
-            sys.localStorage.setItem('chipSetID', chipSetIDString);
-            resolve();
-        });
+    public saveChipSetID() {
+        this.chipSetID = [...this.chipSetIDing];
+        this.chipSetID.sort((a, b) => a - b);//小到大排列
+        const chipSetIDString = JSON.stringify(this.chipSetID);
+        sys.localStorage.setItem('chipSetID', chipSetIDString);
     }
 
     // 讀取 chipSetID
-    public loadChipSetID(): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            const chipSetIDString = sys.localStorage.getItem('chipSetID');
-            if (chipSetIDString) {
-                this.chipSetID = JSON.parse(chipSetIDString);
-            } else {
-                // 如果本地沒有存檔資料，使用默認值
-                this.chipSetID = [0, 1, 2, 3, 4];
-                this.saveChipSetID();
-            }
-            resolve();
-        });
+    public loadChipSetID() {
+        const chipSetIDString = sys.localStorage.getItem('chipSetID');
+        if (chipSetIDString)
+            this.chipSetID = JSON.parse(chipSetIDString);
+        else {
+            this.chipSetIDing = [...this.defaultChipSetID];
+            this.saveChipSetID();
+        }
+        console.log("讀取籌碼值", this.chipSetID)
     }
 
-    // //獲取(sever)遊戲資料
-    // public getGameSetInfo(): Promise<void> {
-    //     return new Promise<void>((resolve, reject) => {
-    //         try {
-    //             const gameSetInfoData: GameSetInfo = {
-    //                 Limit: 30000,//限額
-    //                 BetTime: 12,//單局下注時間
-    //                 ChipRange: [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],
-    //             }
-    //             this.gameSetInfo = gameSetInfoData;
-    //             resolve();
-    //         } catch (error) {
-    //             console.error('獲取遊戲資料時出錯:', error);
-    //             reject(error);
-    //         }
-    //     });
-    // }
+    //更新籌碼設置
+    public updateChipSetID(id: number, isChecked: boolean): number[] {
+        if (isChecked && this.chipSetIDing.length > 1) {
+            this.chipSetIDing.splice(this.chipSetIDing.indexOf(id), 1);
+        } else if (!isChecked) {
+            this.chipSetIDing.push(id);
+        }
+        return this.chipSetIDing;
+    }
+
+    //設置預設籌碼配置
+    public setDefaultChipSet() {
+        this.chipSetIDing = [...this.defaultChipSetID];
+        this.saveChipSetID();
+        return this.chipSetIDing;
+    }
+
+    public getCurrentChipSet() {
+        this.chipSetIDing = [...this.chipSetID];
+        return this.chipSetIDing;
+    }
+
+    public getTouchChipData() {
+        this.setTouchChipID(0);
+        return {
+            chipSetID: this.chipSetID,
+            chipRange: this.loadInfo.chipRange
+        };
+    }
+
+    //獲得數值更新資料
+    public getScoreData() {
+        return {
+            betTotalCredit: this.loadInfo.betTotalCredit,
+            credit: this.loadInfo.credit,
+            rank: this.betInfo.rank,
+            betAreaTotalCredit: this.betInfo.betAreaTotalCredit,
+            betAreaCredit: this.loadInfo.betAreaCredit
+        };
+    }
+
+    //獲取路紙資料
+    public getRoadMapData() {
+        return {
+            roadColorPers: this.roundInfo.roadColorPers,
+            roadColors: this.roundInfo.roadColors
+        };
+    }
 
     //獲取遊戲資料onLoadInfo
     public getOnLoadInfo(): Promise<void> {

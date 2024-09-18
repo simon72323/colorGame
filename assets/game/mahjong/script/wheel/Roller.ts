@@ -3,8 +3,8 @@ import { SlotWheel, SlotWheelEvent } from './SlotWheel';
 import { EliminationSlotWheel, EliminationSlotWheelEvent } from './EliminationSlotWheel';
 import { UtilsKit } from '../lib/UtilsKit';
 import { SymbolItem } from './SymbolItem';
-import { AudioManager } from '../components/AudioManager';
-import { SoundFiles } from '../components/SoundFiles';
+import { AudioManager } from '../../../colorGame/script/components/AudioManager';
+import { SoundFiles } from '../../../colorGame/script/components/SoundFiles';
 const { ccclass, property } = _decorator;
 
 export class RollerEvent {

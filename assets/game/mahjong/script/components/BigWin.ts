@@ -1,7 +1,7 @@
 import { _decorator, Animation, Button, Component, EventHandler, js, Label, Node, sp, Tween, tween } from 'cc';
 import { UtilsKit } from '../lib/UtilsKit';
-import { AudioManager } from './AudioManager';
-import { SoundFiles } from './SoundFiles';
+import { AudioManager } from '../../../colorGame/script/components/AudioManager';
+import { SoundFiles } from '../../../colorGame/script/components/SoundFiles';
 const { ccclass, property } = _decorator;
 
 @ccclass('BigWin')

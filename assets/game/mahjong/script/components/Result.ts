@@ -3,10 +3,10 @@ import { symbolResource_TA } from '../../../../techArt/game/mahjong/script/symbo
 import { PayTypeData } from '../mock/MockData';
 import { CalculationCupboard } from './CalculationCupboard';
 import { symbolSet_TA } from '../../../../techArt/game/mahjong/script/symbolSet_TA';
-import { LanguageFiles } from '../LanguageFiles';
-import { LanguageManager } from '../LanguageManager';
-import { AudioManager } from './AudioManager';
-import { SoundFiles } from './SoundFiles';
+import { LanguageFiles } from '../../../colorGame/script/components/LanguageFiles';
+import { LanguageManager } from '../../../colorGame/script/components/LanguageManager';
+import { AudioManager } from "../../../colorGame/script/components/AudioManager";
+import { SoundFiles } from "../../../colorGame/script/components/SoundFiles";
 import { PlayTilesSound } from './PlayTilesSound';
 import { UtilsKit } from '../lib/UtilsKit';
 import { PrefabInstancePoolManager } from '../tools/PrefabInstancePoolManager';

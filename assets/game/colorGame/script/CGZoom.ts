@@ -18,7 +18,6 @@ export class CGZoom extends Component {
         new Vec3(-10, -40, 10),
         new Vec3(-10, 40, -10),
     ]
-
     @property({ type: Node, tooltip: "zoom按鈕" })
     private btnZoom: Node = null;
     @property({ type: Node, tooltip: "zoom視窗" })
@@ -30,6 +29,7 @@ export class CGZoom extends Component {
 
     private openBool: boolean = false;
 
+    //ZOOM顯示
     public zoomPopupShow() {
         this.openBool = true;
         this.zoomCamera.setPosition(this.cameraPos[0]);

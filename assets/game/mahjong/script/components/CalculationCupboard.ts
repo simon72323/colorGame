@@ -3,8 +3,8 @@ import { symbolSet_TA } from '../../../../techArt/game/mahjong/script/symbolSet_
 import { PrefabInstancePoolManager } from '../tools/PrefabInstancePoolManager';
 import { MahjongSymbol } from '../wheel/MahjongSymbol';
 import { UtilsKit } from '../lib/UtilsKit';
-import { AudioManager } from './AudioManager';
-import { SoundFiles } from './SoundFiles';
+import { AudioManager } from '../../../colorGame/script/components/AudioManager';
+import { SoundFiles } from '../../../colorGame/script/components/SoundFiles';
 const { ccclass, property } = _decorator;
 
 export enum WinLineType {

@@ -4,8 +4,8 @@ import { MahjongSymbol } from './MahjongSymbol';
 import { SymbolItem } from './SymbolItem';
 import { UtilsKit } from '../lib/UtilsKit';
 import { PrefabInstancePoolManager } from '../tools/PrefabInstancePoolManager';
-import { AudioManager } from '../components/AudioManager';
-import { SoundFiles } from '../components/SoundFiles';
+import { AudioManager } from '../../../colorGame/script/components/AudioManager';
+import { SoundFiles } from '../../../colorGame/script/components/SoundFiles';
 import { MahjongCardsPool } from './MahjongCardsPool';
 const { ccclass, property } = _decorator;
 

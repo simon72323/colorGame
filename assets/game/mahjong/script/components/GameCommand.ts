@@ -3,8 +3,8 @@ import { Animation, Button, Component, EventHandler, KeyCode, Label, Node, _deco
 import { AutoSetPanel } from "./AutoSetPanel"
 import { BetSetPanel } from "./BetSetPanel"
 import { AlertPanel, DialogEventTypes, MahjongAlertEvent } from "./AlertPanel";
-import { AudioManager } from "./AudioManager";
-import { SoundFiles } from "./SoundFiles";
+import { AudioManager } from "../../../colorGame/script/components/AudioManager";
+import { SoundFiles } from "../../../colorGame/script/components/SoundFiles";
 import { userAnalysis } from "../include";
 import { Localization, LocalizedStrKeys } from "../lib/Localization";
 import { UserPrefs } from "../lib/UserPrefs";

@@ -1,7 +1,7 @@
 import { _decorator, Button, CCString, Component, Event, EventHandler, js, Label, log, Node, Toggle } from 'cc';
 import { Localization, LocalizedStrKeys } from '../lib/Localization';
-import { AudioManager } from './AudioManager';
-import { SoundFiles } from './SoundFiles';
+import { AudioManager } from '../../../colorGame/script/components/AudioManager';
+import { SoundFiles } from '../../../colorGame/script/components/SoundFiles';
 import { CommandEventName } from '../include';
 const { ccclass, property } = _decorator;
 

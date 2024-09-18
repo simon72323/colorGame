@@ -23,16 +23,16 @@ import { Marquee } from "../../../../common/script/components/Marquee";
 import { BUILD } from "cc/env";
 import { UserAnalysis } from "../lib/analytics/UserAnalysis";
 import { Application } from "../Applicaiton";
-import { LanguageFiles } from "../LanguageFiles";
-import { LanguageManager } from "../LanguageManager";
-import { AudioManager } from "./AudioManager";
-import { SoundFiles } from "./SoundFiles";
+import { LanguageFiles } from "../../../colorGame/script/components/LanguageFiles";
+import { LanguageManager } from "../../../colorGame/script/components/LanguageManager";
+import { AudioManager } from "../../../colorGame/script/components/AudioManager";
+import { SoundFiles } from "../../../colorGame/script/components/SoundFiles";
 import { Multiple } from "./Multiple";
 import { MahjongCardsPool } from "../wheel/MahjongCardsPool";
 import { AlertPanel } from "./AlertPanel";
 import { diceSeats_TA } from "../../../../techArt/game/mahjong/script/diceSeats_TA";
 import { WorkerTimeout } from "../lib/WorkerTimeout";
-import { selectChipData } from "../../../colorGame/script/ColorGameInterfaceData";
+// import { selectChipData } from "../../../colorGame/script/ColorGameInterfaceData";
 export enum TransitionType {
     MAIN = "main", // main game
     FREE = "free", // free game

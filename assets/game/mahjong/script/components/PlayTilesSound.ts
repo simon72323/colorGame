@@ -1,6 +1,6 @@
 import { _decorator, Animation, AnimationClip, Component, Node } from 'cc';
-import { SoundFiles } from './SoundFiles';
-import { AudioManager } from './AudioManager';
+import { SoundFiles } from "../../../colorGame/script/components/SoundFiles";
+import { AudioManager } from "../../../colorGame/script/components/AudioManager";
 const { ccclass, property } = _decorator;
 
 @ccclass('PlayTilesSound')

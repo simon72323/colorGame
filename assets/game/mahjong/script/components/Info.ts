@@ -1,10 +1,10 @@
 import { _decorator, Animation, assetManager, Component, Label, Node, Sprite, SpriteFrame, Tween, tween } from 'cc';
 import { UtilsKit } from '../lib/UtilsKit';
 import { URLParameter } from '../include';
-import { LanguageManager } from '../LanguageManager';
-import { LanguageFiles } from '../LanguageFiles';
-import { AudioManager } from './AudioManager';
-import { SoundFiles } from './SoundFiles';
+import { LanguageManager } from '../../../colorGame/script/components/LanguageManager';
+import { LanguageFiles } from '../../../colorGame/script/components/LanguageFiles';
+import { AudioManager } from "../../../colorGame/script/components/AudioManager";
+import { SoundFiles } from "../../../colorGame/script/components/SoundFiles";
 const { ccclass, property } = _decorator;
 
 @ccclass('Info')

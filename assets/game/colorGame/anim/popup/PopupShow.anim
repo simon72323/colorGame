@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.AnimationClip",
-    "_name": "popupShow",
+    "_name": "PopupShow",
     "_objFlags": 0,
     "__editorExtras__": {
       "embeddedPlayerGroups": []

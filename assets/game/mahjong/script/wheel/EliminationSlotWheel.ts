@@ -2,8 +2,8 @@ import { Vec3, _decorator, tween } from 'cc';
 import { SlotWheel } from './SlotWheel';
 import { SymbolItem } from './SymbolItem';
 import { UtilsKit } from '../lib/UtilsKit';
-import { AudioManager } from '../components/AudioManager';
-import { SoundFiles } from '../components/SoundFiles';
+import { AudioManager } from '../../../colorGame/script/components/AudioManager';
+import { SoundFiles } from '../../../colorGame/script/components/SoundFiles';
 const { ccclass, property } = _decorator;
 
 export class EliminationSlotWheelEvent {
