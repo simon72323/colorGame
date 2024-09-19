@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, instantiate, tween, Vec3, Tween, Animation, UIOpacity, Label, SpriteFrame, Sprite, Vec2, UITransform, Layers } from 'cc';
-import { UtilsKitS } from '../../../common/script/lib/UtilsKitS';
+import { UtilsKitS } from '../../../../common/script/lib/UtilsKitS';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGBonus')

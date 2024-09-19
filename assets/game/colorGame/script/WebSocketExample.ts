@@ -1,12 +1,12 @@
 import { _decorator, Component, Node } from 'cc';
-import { CGMain } from './CGMain';
+// import { CGMain } from './CGMain';
 const { ccclass, property } = _decorator;
 
 @ccclass('WebSocketExample')
 export class WebSocketExample extends Component {
     private ws: WebSocket | null = null;
-    @property({ type: CGMain, tooltip: "遊戲主腳本" })
-    private gameMain: CGMain = null;
+    // @property({ type: CGMain, tooltip: "遊戲主腳本" })
+    // private gameMain: CGMain = null;
 
     start() {
         // 創建 WebSocket 連接
@@ -25,7 +25,7 @@ export class WebSocketExample extends Component {
             // 嘗試解析收到的消息為 JSON 對象
             try {
                 const message = JSON.parse(event.data);
-                this.gameMain.setBetTime(12);
+                // this.gameMain.setBetTime(12);
                 //接收到消息，傳送到遊戲腳本
                 // this.handleServerMessage(message);
             } catch (e) {

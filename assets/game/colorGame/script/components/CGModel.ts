@@ -1,7 +1,7 @@
 import { _decorator, Component, sys, JsonAsset, Vec3 } from 'cc';
-import { onLoadInfo, onBeginGameInfo, BetInfo, RankInfo, GameState, RewardInfo, RoundInfo } from './connector/receive/CGReceive';
-import { CGPathManager } from './components/CGPathManager';
-import { PathInfo } from './components/CGPathManager';
+import { onLoadInfo, onBeginGameInfo, BetInfo, RankInfo, GameState, RewardInfo, RoundInfo } from '../connector/receive/CGReceive';
+import { CGPathManager } from './CGPathManager';
+import { PathInfo } from '../components/CGPathManager';
 const { ccclass, property } = _decorator;
 
 
@@ -29,68 +29,8 @@ export class CGModel {
     public beginGameInfo: onBeginGameInfo;
 
     //本地端資料
-    public chipSetID: number[];//玩家針對此遊戲設置的籌碼ID
-    public touchChipID: number = 1;//紀錄目前點選的籌碼()
     public pathData: PathInfo;//該回合路徑資料
     public betAreaPercent: number[] = [0, 0, 0, 0, 0, 0];//各下注區分數百分比(前端計算)
-    public defaultChipSetID: number[] = [0, 1, 2, 3, 4];//預設籌碼
-    public chipSetIDing: number[] = [0, 1, 2, 3, 4];//暫存選擇中的籌碼
-
-    //設置點選的籌碼位置
-    public setTouchChipID(touchPos: number) {
-        console.log("目前的籌碼設置參數", this.chipSetID, "選擇的籌碼位置", touchPos)
-        this.touchChipID = this.chipSetID[touchPos];
-    }
-
-    // 存儲 chipSetID
-    public saveChipSetID() {
-        this.chipSetID = [...this.chipSetIDing];
-        this.chipSetID.sort((a, b) => a - b);//小到大排列
-        const chipSetIDString = JSON.stringify(this.chipSetID);
-        sys.localStorage.setItem('chipSetID', chipSetIDString);
-    }
-
-    // 讀取 chipSetID
-    public loadChipSetID() {
-        const chipSetIDString = sys.localStorage.getItem('chipSetID');
-        if (chipSetIDString)
-            this.chipSetID = JSON.parse(chipSetIDString);
-        else {
-            this.chipSetIDing = [...this.defaultChipSetID];
-            this.saveChipSetID();
-        }
-        console.log("讀取籌碼值", this.chipSetID)
-    }
-
-    //更新籌碼設置
-    public updateChipSetID(id: number, isChecked: boolean): number[] {
-        if (isChecked && this.chipSetIDing.length > 1) {
-            this.chipSetIDing.splice(this.chipSetIDing.indexOf(id), 1);
-        } else if (!isChecked) {
-            this.chipSetIDing.push(id);
-        }
-        return this.chipSetIDing;
-    }
-
-    //設置預設籌碼配置
-    public setDefaultChipSet() {
-        this.chipSetIDing = [...this.defaultChipSetID];
-        this.saveChipSetID();
-        return this.chipSetIDing;
-    }
-
-    public getCurrentChipSet() {
-        this.chipSetIDing = [...this.chipSetID];
-        return this.chipSetIDing;
-    }
-
-    public getTouchChipData() {
-        this.setTouchChipID(0);
-        return {
-            chipSetID: this.chipSetID,
-            chipRange: this.loadInfo.chipRange
-        };
-    }
 
     //獲得數值更新資料
     public getScoreData() {

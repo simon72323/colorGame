@@ -1,9 +1,9 @@
 import { _decorator, Component, Vec3, Quat, Animation, Node } from 'cc';
-import { CGModel } from '../CGModel';
+import { PathInfo } from '../components/CGPathManager';
 const { ccclass, property } = _decorator;
 
-@ccclass('DiceRunSet')
-export class DiceRunSet extends Component {
+@ccclass('CGDiceRunSet')
+export class CGDiceRunSet extends Component {
     @property([Node])
     private dice: Node[] = [];
     @property(Node)
@@ -22,11 +22,6 @@ export class DiceRunSet extends Component {
         [new Vec3(180, 0, 0), new Vec3(90, 0, 0), new Vec3(0, 0, -90), new Vec3(0, 0, 90), new Vec3(-90, 0, 0), new Vec3(0, 0, 0)]
     ];
     private dataFrame = 0;//播放中的路徑影格
-    private model: CGModel = null;//demo回合腳本
-
-    public onLoad(): void {
-        this.model = CGModel.getInstance();
-    }
 
     //初始化骰子(隨機角度)
     public diceIdle() {
@@ -40,9 +35,9 @@ export class DiceRunSet extends Component {
     }
 
     //開骰表演(回傳表演結束)
-    public async diceStart(): Promise<void> {
+    public async diceStart(pathData: PathInfo, winNumber: number[]): Promise<void> {
         return new Promise<void>((resolve) => {
-            const diceEuler = this.diceRotate(this.model.rewardInfo.winNumber, this.model.pathData.diceNumber);//起始骰子角度
+            const diceEuler = this.diceRotate(winNumber, pathData.diceNumber);//起始骰子角度
             // 四元數插值轉換(慢慢校正骰子方向)
             const targetRotations = diceEuler.map(euler => {
                 const quat = new Quat();
@@ -54,7 +49,6 @@ export class DiceRunSet extends Component {
             this.frame.setRotationFromEuler(new Vec3(-90, 180, 0));//初始化翻板動畫
             this.frame.getComponent(Animation).play();//播放翻板動畫
 
-            const pathData = this.model.pathData;//路徑表演資料
             const frameLength = pathData.pos.length;
             this.dataFrame = 0;
             this.schedule(() => {
