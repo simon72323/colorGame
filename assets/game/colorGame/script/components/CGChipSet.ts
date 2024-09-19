@@ -1,7 +1,7 @@
 import { _decorator, Component, Node, Label, Sprite, Toggle, UIOpacity, EventHandler, sys } from 'cc';
 import { UtilsKitS } from '../../../../common/script/lib/UtilsKitS';
 import { CGUtils } from '../utils/CGUtils';
-import { CGMainInit } from './CGMainInit';
+import { CGGameManager } from './CGGameManager';
 
 const { ccclass, property } = _decorator;
 @ccclass('CGChipSet')
@@ -19,10 +19,10 @@ export class CGChipSet extends Component {
     private chipSetIDing: number[] = [0, 1, 2, 3, 4];//暫存選擇中的籌碼
 
 
-    private Main: CGMainInit = null;
+    private GM: CGGameManager = null;
 
-    public init(Main: CGMainInit) {
-        this.Main = Main;
+    public init(GM: CGGameManager) {
+        this.GM = GM;
         this.setupEventHandlers();
     }
 
@@ -135,7 +135,7 @@ export class CGChipSet extends Component {
 
     //更新點選的籌碼(籌碼選擇區)
     public updateTouchChip() {
-        const chipRange = this.Main.Model.loadInfo.chipRange;
+        const chipRange = this.GM.Model.loadInfo.chipRange;
         const chipSetID = this.chipSetID;
         const touchChipChildren = this.touchChip.children;
         for (let i = 0; i < touchChipChildren.length; i++) {

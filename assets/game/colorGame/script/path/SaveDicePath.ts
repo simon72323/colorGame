@@ -4,8 +4,8 @@ import { PathInfo } from '../components/CGPathManager';
 const { ccclass, property } = _decorator;
 
 
-@ccclass('SaveDiceData')
-export class SaveDiceData extends Component {
+@ccclass('SaveDicePath')
+export class SaveDicePath extends Component {
     private pathData: PathInfo[] = [];
     private isRecording = false;
     // private timer = 0;

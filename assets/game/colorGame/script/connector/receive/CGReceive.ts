@@ -12,6 +12,7 @@ export interface onLogin {
 //獲取遊戲資料
 export interface onLoadInfo {
     event: boolean;//操作是否成功的標誌
+    gameState: GameState;//遊戲目前狀態，等待中，新局開始下注，開獎中
     userID: number | string;//用戶ID
     avatar: number;//頭像ID
     base: string;
@@ -22,12 +23,12 @@ export interface onLoadInfo {
     credit: number;//換分餘額
     // wagersID: number;//注單
     // roundSerial: number;//局號
-    betAreaCredit: number[];//該用戶各注區目前下注Credit
-    betTotalCredit: number;//該用戶目前總下注Credit
+    betAreaCredit: number[];//該用戶各注區目前下注額(需要中途出現籌碼)
+    betTotalCredit: number;//該用戶目前總下注額
     limit: number; // 遊戲限額
     betTime: number; // 單局下注時間
-    chipRange: number[]; // 籌碼分數範圍
-    gameState: GameState;//遊戲目前狀態，等待中，新局開始下注，開獎中
+    chipRange: number[]; // 籌碼額度範圍
+    betAreaTotalCredit: number[];//目前各注區的下注額(需要中途出現籌碼)
     userSetting?: any;//玩家配置
     // exchangeRate: number;//兌換率
     // hallID: number;
@@ -35,12 +36,14 @@ export interface onLoadInfo {
 
 export enum GameState {
     Waiting = "Waiting",//等待階段
+    NewRound = "NewRound",//新局開始
     Betting = "Betting",//遊戲中(下注階段)
     Rewarding = "Rewarding"//遊戲結束(派獎階段)
 }
 
 //回合資料開始
 export interface RoundInfo {
+    gameState: GameState;//遊戲目前狀態
     roundSerial: number;//局號
     roadColors: number[][];//前10局開獎顏色紀錄(顯示下注紀錄顏色)[局數][顏色]
     roadColorPers: number[];//前100局開獎百分比[顏色id]
@@ -51,17 +54,21 @@ export interface onBeginGameInfo {
     isSuccess: boolean; // 操作是否成功的標誌
     betAreaID: number; // 下注區id
     betCredit: number; // 下注額度
-    remainingCredit: number; // 剩餘額度
+    credit: number; // 剩餘額度
+    betAreaCredit: number[];//用戶目前各注區下注額
+    betTotalCredit: number;//用戶目前總下注額
+    betAreaTotalCredit: number[];//目前各下注區總額
 }
 
 //下注資訊，伺服器每秒傳送
 export interface BetInfo {
+    gameState: GameState;//遊戲目前狀態
     countdown: number;//下注倒數時間(每秒更新)
     rank: RankInfo[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
     betAreaTotalCredit: number[];//各注區目前下注總分
     otherUserBetAreaCredit: number[][];//前三名玩家+其他玩家新增的下注資訊[玩家][下注金額]
     otherUserCount: number;//目前其他玩家人數
-    // UserBetCredit:number[];//本地玩家各注區分數資料
+    // UserBetCredit:number[];//本地玩家各注區額度資料
 }
 export interface RankInfo {
     userID: number | string;//用戶ID
@@ -82,5 +89,5 @@ export interface RewardInfo {
 
 export interface WinBetCredit {
     winBetArea: number[];//勝利注區[0,2,4]
-    winCredit: number;//贏得分數
+    winCredit: number;//贏得額度
 }

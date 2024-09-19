@@ -15,14 +15,14 @@ export class CGBigWin extends Component {
             this.chips.push(chip);
     }
 
-    public runScore(winScore: number): Promise<void> {
+    public runCredit(winCredit: number): Promise<void> {
         this.bigWin.active = true;
         return new Promise<void>(async (resolve) => {
             this.bigWin.getComponent(UIOpacity).opacity = 0;
             this.bigWin.getComponent(Animation).play('BigWinShow');
-            const label = this.bigWin.getChildByName('WinScore').getChildByName('Label').getComponent(Label);
+            const label = this.bigWin.getChildByName('WinCredit').getChildByName('Label').getComponent(Label);
             label.string = '0';
-            UtilsKitS.runScore(1.2, winScore, label);
+            UtilsKitS.runCredit(1.2, winCredit, label);
             this.chipRunAndDistroy(30, new Vec2(500, 300));//噴籌碼
             await UtilsKitS.Delay(1.1);
             this.bigWin.getComponent(Animation).play('BigWinHide');

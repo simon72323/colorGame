@@ -8,8 +8,8 @@ export class CGBonus extends Component {
     private coin: Node[] = [];
     @property({ type: Node, tooltip: "要噴的父階層" })
     private coinParent: Node = null;
-    @property({ type: Node, tooltip: "分數" })
-    private bonusScore: Node = null;
+    @property({ type: Node, tooltip: "額度" })
+    private bonusCredit: Node = null;
     @property({ type: Node, tooltip: "亮燈" })
     private bulbLight: Node = null;
     @property({ type: Node, tooltip: "slot節點" })
@@ -26,7 +26,7 @@ export class CGBonus extends Component {
     }
 
     //顯示彩金(贏分，彩金結果id)callback
-    public async showBonus(winScore: number, id: number, callback: any) {
+    public async showBonus(winCredit: number, id: number, callback: any) {
         this.creatBonusTx(id);//生成彩金節點(結果編號)
         this.node.getComponent(UIOpacity).opacity = 0;
         this.node.getComponent(Animation).play('BonusShow');
@@ -45,10 +45,10 @@ export class CGBonus extends Component {
             this.chipRunAndDistroy(60, new Vec2(1000, 400));//噴金幣(每次噴發生成60顆金幣，xy噴發區間，噴發持續時間)
         }, 1.2, 1, 0.01)
         this.node.getComponent(Animation).play('BonusHide');
-        const label = this.bonusScore.getChildByName('Label').getComponent(Label);
+        const label = this.bonusCredit.getChildByName('Label').getComponent(Label);
         label.string = '0';
-        this.bonusScore.active = true;
-        UtilsKitS.runScore(1.7, winScore, label);//跑分
+        this.bonusCredit.active = true;
+        UtilsKitS.runCredit(1.7, winCredit, label);//跑分
         await UtilsKitS.Delay(3);
         //bonus退場
         tween(this.node.getComponent(UIOpacity)).to(0.2, { opacity: 0 }).call(() => {

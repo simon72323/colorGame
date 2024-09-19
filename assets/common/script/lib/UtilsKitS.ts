@@ -106,18 +106,18 @@ export class UtilsKitS {
     /**
     * 跑分
     * @param runTime 跑分時間
-    * @param endScore 最終分數
+    * @param endCredit 最終分數
     * @param label 分數節點(Label)
     * @returns 
     */
-    public static runScore(runTime: number, endScore: number, label: Label) {
-        const runScore = { score: Number(label.string.replace(/,/gi, '')) };//設置起始分
-        tween(runScore).to(runTime, { score: endScore }, {
+    public static runCredit(runTime: number, endCredit: number, label: Label) {
+        const runCredit = { Credit: Number(label.string.replace(/,/gi, '')) };//設置起始分
+        tween(runCredit).to(runTime, { Credit: endCredit }, {
             onUpdate: () => {
-                label.string = this.NumDigits(runScore.score);//更新分數
+                label.string = this.NumDigits(runCredit.Credit);//更新分數
             }
         }).call(() => {
-            label.string = this.NumDigits(endScore);//更新分數
+            label.string = this.NumDigits(endCredit);//更新分數
         }).start();
     }
 

@@ -1,6 +1,6 @@
 // import { _decorator, Component, Node, Label, Sprite, Button, Animation, SpriteFrame } from 'cc';
 // import { CGUtils } from '../utils/CGUtils';
-// import { CGMainInit } from './CGMainInit';
+// import { CGGameManager } from './CGGameManager';
 // const { ccclass, property } = _decorator;
 
 // @ccclass('CGRoad')
@@ -12,10 +12,10 @@
 //     @property({ type: [SpriteFrame], tooltip: "路紙區骰子顏色" })
 //     public roadColorSF: SpriteFrame[] = [];
 
-//     private main: CGMainInit = null;
+//     private GM: CGGameManager = null;
 
-//     public init(main: CGMainInit) {
-//         this.main = main;
+//     public init(GM: CGGameManager) {
+//         this.GM = main;
 //     }
 //     //更新路紙
 //     public updateRoadMap(data: any, winNumber?: number[]) {

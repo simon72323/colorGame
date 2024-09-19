@@ -1,17 +1,7 @@
 import { _decorator, Component, Node, Label, UITransform, EventHandler, Sprite, Button, Color } from 'cc';
-import { CGMainInit } from './CGMainInit';
+import { CGGameManager } from './CGGameManager';
 import { UtilsKitS } from '../../../../common/script/lib/UtilsKitS';
-import { RankInfo } from '../connector/receive/CGReceive';
-import PoolHandler from '../../../../common/script/tools/PoolHandler';
 import { CGUtils } from '../utils/CGUtils';
-
-export interface ScoreUpdateData {
-    betTotalCredit: number;
-    credit: number;
-    rank: RankInfo[];
-    betAreaTotalCredit: number[];
-    betAreaCredit: number[];
-}
 
 const { ccclass, property } = _decorator;
 //負責處理介面操作與更新
@@ -55,8 +45,8 @@ export class CGView extends Component {
     public btnAuto: Node = null;
     @property({ type: Node, tooltip: "停止自動投注按鈕", group: { name: '注區相關', id: '3' } })
     public btnAutoStop: Node = null;
-    @property({ type: Label, tooltip: "續押分數", group: { name: '注區相關', id: '3' } })
-    public rebetScoreLable: Label = null;
+    @property({ type: Label, tooltip: "續押額度", group: { name: '注區相關', id: '3' } })
+    public rebetCreditLable: Label = null;
     @property({ type: Node, tooltip: "提示訊息顯示層", group: { name: '注區相關', id: '3' } })
     public tipMessage: Node = null;
 
@@ -67,21 +57,20 @@ export class CGView extends Component {
     public mainPlayerWin: Node = null;
 
 
-    @property({ type: Node, tooltip: "下注分數按鈕(公版)", group: { name: '公版', id: '5' } })
+    @property({ type: Node, tooltip: "下注額度按鈕(公版)", group: { name: '公版', id: '5' } })
     public comBtnBet: Node = null;
-    @property({ type: Node, tooltip: "分數兌換按鈕(公版)", group: { name: '公版', id: '5' } })
-    public comBtnScores: Node = null;
+    @property({ type: Node, tooltip: "額度兌換按鈕(公版)", group: { name: '公版', id: '5' } })
+    public comBtnCredits: Node = null;
 
-    private Main: CGMainInit = null;
-    private pool: PoolHandler = new PoolHandler;
+    private GM: CGGameManager = null;
 
-    public init(Main: CGMainInit) {
-        this.Main = Main;
+    public init(GM: CGGameManager) {
+        this.GM = GM;
         this.setupEventHandlers();
     }
 
     private setupEventHandlers() {
-        const View = this.Main.View;
+        const View = this.GM.View;
         const scriptName = 'CGView';
         //btnCall按鈕觸發事件設置
         for (let i = 0; i < View.btnCall.length; i++) {
@@ -124,38 +113,44 @@ export class CGView extends Component {
         this.callFx[id].active = isActive;
     }
 
-    //更新分數
-    public updateUIScore() {
-        const { betTotalCredit, credit, rank, betAreaTotalCredit, betAreaCredit } = this.Main.Model.getScoreData();
-        const setDigitLabel = (node: Node, path: string, value: number) => {
-            node.getChildByName(path).getComponent(Label).string = UtilsKitS.NumDigits(value);
-        };
-        setDigitLabel(this.comBtnBet, 'Label', betTotalCredit);
-        setDigitLabel(this.comBtnScores, 'Label', credit);
-        for (let i = 1; i < 4; i++) {
-            const node = this.playerPos.children[i].children[0];
-            node.getChildByName('Name').getComponent(Label).string = rank[i - 1].loginName;
-            setDigitLabel(node, 'Label', rank[i - 1].credit);
-        }
+    //設置子物件("名稱")的Label數值
+    private setChildNameLabel(node: Node, name: string, value: number) {
+        node.getChildByName(name).getComponent(Label).string = UtilsKitS.NumDigits(value);
+    }
+
+    //更新額度(籌碼下注完才更新)
+    public updateUICredit() {
+        const { betTotalCredit, credit, betAreaTotalCredit, betAreaCredit } = this.GM.Model.getCreditData();//取得資料
+        this.setChildNameLabel(this.comBtnBet, 'Label', betTotalCredit);//更新本地用戶總額
+        this.setChildNameLabel(this.comBtnCredits, 'Label', credit);//更新本地用戶下注額度
         for (let i = 0; i < 6; i++) {
             const node = this.betInfo.children[i];
-            setDigitLabel(node.getChildByName('TotalScore'), 'Label', betAreaTotalCredit[i]);
-            setDigitLabel(node, 'BetScore', betAreaCredit[i]);//玩家各區的下注分數
+            this.setChildNameLabel(node.getChildByName('TotalCredit'), 'Label', betAreaTotalCredit[i]);//更新所有注區下注額度
+            this.setChildNameLabel(node, 'BetCredit', betAreaCredit[i]);//更新本地用戶各注區的下注額度
         }
-
-        //下注區分數比例更新
-        const allScore = betAreaTotalCredit.reduce((sum, credit) => sum + credit, 0);
+        //下注區額度比例更新
+        const allCredit = betAreaTotalCredit.reduce((sum, credit) => sum + credit, 0);
         betAreaTotalCredit.forEach((credit, i) => {
-            const per = allScore === 0 ? 0 : Math.trunc(credit / allScore * 100);
+            const per = allCredit === 0 ? 0 : Math.trunc(credit / allCredit * 100);
             const percentNode = this.betInfo.children[i].getChildByName('Percent');
             percentNode.getChildByName('Label').getComponent(Label).string = per + '%';
             percentNode.getChildByName('PercentBar').getComponent(UITransform).width = per;
         });
     }
 
-    //更新路紙
+    //更新用戶排名(接收server更新)
+    public updateUserRanks() {
+        const rank = this.GM.Model.getRanksData();//取得資料
+        for (let i = 1; i < 4; i++) {
+            const node = this.playerPos.children[i].children[0];
+            node.getChildByName('Name').getComponent(Label).string = rank[i - 1].loginName;
+            this.setChildNameLabel(node, 'Label', rank[i - 1].credit);
+        }
+    }
+
+    //更新路紙(接收server更新)
     public updateRoadMap() {
-        const { roadColorPers, roadColors } = this.Main.Model.getRoadMapData();
+        const { roadColorPers, roadColors } = this.GM.Model.getRoadMapData();
         const colorMap = this.roadMap.getChildByName('ColorMap');
         const popupColorMap = this.roadMapPopup.getChildByName('ColorMap');
         for (let i = 0; i < 6; i++) {
@@ -172,11 +167,11 @@ export class CGView extends Component {
         const lastColor = this.roadMap.getChildByName('LastColor');
         const popupLastColor = this.roadMapPopup.getChildByName('LastColor');
         for (let i = 0; i < 3; i++) {
-            lastColor.children[i].getComponent(Sprite).spriteFrame = this.Main.roadColorSF[roadColors[0][i]];
+            lastColor.children[i].getComponent(Sprite).spriteFrame = this.GM.roadColorSF[roadColors[0][i]];
         }
         for (let i = 0; i < 10; i++) {
             for (let j = 0; j < 3; j++) {
-                popupLastColor.children[i].children[j].getComponent(Sprite).spriteFrame = this.Main.roadColorSF[roadColors[i][j]];
+                popupLastColor.children[i].children[j].getComponent(Sprite).spriteFrame = this.GM.roadColorSF[roadColors[i][j]];
             }
         }
     }
@@ -199,22 +194,22 @@ export class CGView extends Component {
 
     //路紙視窗顯示(節點觸發)
     public roadMapPopupShow() {
-        CGUtils.popupShow(this.Main.View.roadMapPopup);
+        CGUtils.popupShow(this.GM.View.roadMapPopup);
     }
 
     //路紙視窗關閉(節點觸發)
     public roadMapPopupHide() {
-        CGUtils.popupHide(this.Main.View.roadMapPopup);
+        CGUtils.popupHide(this.GM.View.roadMapPopup);
     }
 
     //提示訊息顯示
     public async showTipMessage(tx: string, setColor?: Color) {
-        const tip = this.pool.get(this.Main.tipPrefab);
+        const tip = this.GM.pool.get(this.GM.tipPrefab);
         const tipLabel = tip.children[0].getComponent(Label);
         tip.parent = this.tipMessage;
         tipLabel.color = setColor ?? new Color(220, 220, 220, 255);
         tipLabel.string = tx;
         await UtilsKitS.Delay(1);
-        this.pool.put(tip);
+        this.GM.pool.put(tip);
     }
 }

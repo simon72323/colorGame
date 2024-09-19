@@ -1,17 +1,21 @@
 import { _decorator, Component, Node } from 'cc';
+import { CGGameManager } from './components/CGGameManager';
 // import { CGMain } from './CGMain';
 const { ccclass, property } = _decorator;
 
-@ccclass('WebSocketExample')
-export class WebSocketExample extends Component {
+@ccclass('WebSocketManager')
+export class WebSocketManager {
     private ws: WebSocket | null = null;
-    // @property({ type: CGMain, tooltip: "遊戲主腳本" })
-    // private gameMain: CGMain = null;
+    private GM: CGGameManager;
 
-    start() {
+    constructor(GM: CGGameManager) {
+        this.GM = GM;
+    }
+
+    public connect(url: string) {
         // 創建 WebSocket 連接
         // this.ws = new WebSocket('wss://ws.postman-echo.com/raw');
-        this.ws = new WebSocket('ws://localhost:8080');
+        this.ws = new WebSocket(url);
         // 監聽連接事件打開
         this.ws.onopen = () => {
             console.log('WebSocket 連接開啟');
@@ -25,22 +29,22 @@ export class WebSocketExample extends Component {
             // 嘗試解析收到的消息為 JSON 對象
             try {
                 const message = JSON.parse(event.data);
-                // this.gameMain.setBetTime(12);
+                this.GM.handleServerMessage(message);
                 //接收到消息，傳送到遊戲腳本
                 // this.handleServerMessage(message);
             } catch (e) {
-                console.error('Failed to parse server message:', event.data);
+                console.error('解析服務器消息失敗:', event.data);
             }
         };
 
         // 監聽錯誤事件
         this.ws.onerror = (error) => {
-            console.error('WebSocket error: ', error);
+            console.error('WebSocket 錯誤: ', error);
         };
 
         // 監聽連接關閉事件
         this.ws.onclose = () => {
-            console.log('WebSocket connection closed');
+            console.log('WebSocket 連接關閉');
         };
     }
 
@@ -51,22 +55,9 @@ export class WebSocketExample extends Component {
             this.ws.send(messageStr);
             console.log('傳送訊息: ', messageStr);
         } else {
-            console.warn('WebSocket is not open. Cannot send message:', message);
+            console.warn('WebSocket 為連接，無法發送消息:', message);
         }
     }
-
-    //模擬後端傳送接收資料
-
-    // 接收服務器消息
-    // public handleServerMessage(message: any) {
-        // if (message.type === 'greeting') {
-        //     console.log('接收 greeting:', message.content);
-        // } else if (message.type === 'heartbeat') {
-        //     console.log('接收心跳');
-        // } else {
-        //     console.log('Unknown message type:', message);
-        // }
-    // }
 
     onDestroy() {
         if (this.ws) {
