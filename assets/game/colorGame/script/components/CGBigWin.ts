@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, instantiate, tween, Vec3, Tween, Animation, UIOpacity, Label, Vec2 } from 'cc';
-import { UtilsKitS } from '../../../../common/script/lib/UtilsKitS';
+import { UtilsKits } from '../tools/UtilsKits';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGBigWin')
@@ -22,11 +22,11 @@ export class CGBigWin extends Component {
             this.bigWin.getComponent(Animation).play('BigWinShow');
             const label = this.bigWin.getChildByName('WinCredit').getChildByName('Label').getComponent(Label);
             label.string = '0';
-            UtilsKitS.runCredit(1.2, winCredit, label);
+            UtilsKits.runCredit(1.2, winCredit, label);
             this.chipRunAndDistroy(30, new Vec2(500, 300));//噴籌碼
-            await UtilsKitS.Delay(1.1);
+            await UtilsKits.Delay(1.1);
             this.bigWin.getComponent(Animation).play('BigWinHide');
-            await UtilsKitS.Delay(0.6);
+            await UtilsKits.Delay(0.6);
             this.scheduleOnce(() => {
                 this.bigWin.active = false;
             }, 0.2)

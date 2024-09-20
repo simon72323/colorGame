@@ -12,13 +12,13 @@
 //     @property({ type: [SpriteFrame], tooltip: "路紙區骰子顏色" })
 //     public roadColorSF: SpriteFrame[] = [];
 
-//     private GM: CGGameManager = null;
+//     private gameManager: CGGameManager = null;
 
-//     public init(GM: CGGameManager) {
-//         this.GM = main;
+//     public init(gameManager: CGGameManager) {
+//         this.gameManager = main;
 //     }
 //     //更新路紙
-//     public updateRoadMap(data: any, winNumber?: number[]) {
+//     public updateRoadMap(data: any, winColor?: number[]) {
 //         const colorPer = data.roadColorPers;//獲得前100局顏色比例
 //         const colorMap = this.roadMap.getChildByName('ColorMap');
 //         const popupColorMap = this.roadMapPopup.getChildByName('ColorMap');

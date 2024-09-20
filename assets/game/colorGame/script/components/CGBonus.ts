@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, instantiate, tween, Vec3, Tween, Animation, UIOpacity, Label, SpriteFrame, Sprite, Vec2, UITransform, Layers } from 'cc';
-import { UtilsKitS } from '../../../../common/script/lib/UtilsKitS';
+import { UtilsKits } from '../tools/UtilsKits';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGBonus')
@@ -30,14 +30,14 @@ export class CGBonus extends Component {
         this.creatBonusTx(id);//生成彩金節點(結果編號)
         this.node.getComponent(UIOpacity).opacity = 0;
         this.node.getComponent(Animation).play('BonusShow');
-        await UtilsKitS.Delay(0.8);
+        await UtilsKits.Delay(0.8);
         //開始轉動
         this.spinBool = true;
         tween(this.node).to(4, { scale: new Vec3(1.15, 1.15, 1) }, { easing: 'sineIn' }).start();
         this.boxShark(this.node.getChildByName('Box'));//Box抖動
         tween(this.slotNode.children[0]).to(4.2, { position: new Vec3(0, -110 * (this.txCount - 1), 0) }, { easing: 'cubicInOut' }).start();//執行slot轉動
         this.lightBlink();//燈光閃爍
-        await UtilsKitS.Delay(4);
+        await UtilsKits.Delay(4);
         //停止轉動
         this.spinBool = false;
         tween(this.node).to(0.2, { scale: new Vec3(1, 1, 1) }).start();
@@ -48,8 +48,8 @@ export class CGBonus extends Component {
         const label = this.bonusCredit.getChildByName('Label').getComponent(Label);
         label.string = '0';
         this.bonusCredit.active = true;
-        UtilsKitS.runCredit(1.7, winCredit, label);//跑分
-        await UtilsKitS.Delay(3);
+        UtilsKits.runCredit(1.7, winCredit, label);//跑分
+        await UtilsKits.Delay(3);
         //bonus退場
         tween(this.node.getComponent(UIOpacity)).to(0.2, { opacity: 0 }).call(() => {
             this.slotNode.children[0].destroyAllChildren();
@@ -88,9 +88,9 @@ export class CGBonus extends Component {
     //燈泡閃爍
     private async lightBlink() {
         this.bulbLight.getComponent(UIOpacity).opacity = 0;
-        await UtilsKitS.Delay(0.08);
+        await UtilsKits.Delay(0.08);
         this.bulbLight.getComponent(UIOpacity).opacity = 255;
-        await UtilsKitS.Delay(0.08);
+        await UtilsKits.Delay(0.08);
         if (this.spinBool)
             this.lightBlink();
     }

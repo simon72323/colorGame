@@ -1,5 +1,5 @@
 import { _decorator, Component, Node, Vec3, tween, Tween } from 'cc';
-import { CGUtils } from '../utils/CGUtils';
+import { CGUtils } from '../tools/CGUtils';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGZoom')

@@ -6,10 +6,10 @@ const { ccclass, property } = _decorator;
 @ccclass('WebSocketManager')
 export class WebSocketManager {
     private ws: WebSocket | null = null;
-    private GM: CGGameManager;
+    private gameManager: CGGameManager;
 
-    constructor(GM: CGGameManager) {
-        this.GM = GM;
+    constructor(gameManager: CGGameManager) {
+        this.gameManager = gameManager;
     }
 
     public connect(url: string) {
@@ -29,7 +29,7 @@ export class WebSocketManager {
             // 嘗試解析收到的消息為 JSON 對象
             try {
                 const message = JSON.parse(event.data);
-                this.GM.handleServerMessage(message);
+                this.gameManager.handleServerMessage(message);
                 //接收到消息，傳送到遊戲腳本
                 // this.handleServerMessage(message);
             } catch (e) {

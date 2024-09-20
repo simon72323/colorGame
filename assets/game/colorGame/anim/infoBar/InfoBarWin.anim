@@ -518,7 +518,7 @@
   },
   {
     "__type__": "cc.animation.HierarchyPath",
-    "path": "Win/WinScore"
+    "path": "Win/WinCredit"
   },
   {
     "__type__": "cc.animation.ComponentPath",
@@ -605,7 +605,7 @@
   },
   {
     "__type__": "cc.animation.HierarchyPath",
-    "path": "Win/WinScore"
+    "path": "Win/WinCredit"
   },
   {
     "__type__": "cc.animation.Channel",

@@ -1,12 +1,12 @@
 import { _decorator, Component, Node, Label, Sprite, Toggle, UIOpacity, EventHandler, sys } from 'cc';
-import { UtilsKitS } from '../../../../common/script/lib/UtilsKitS';
-import { CGUtils } from '../utils/CGUtils';
+import { UtilsKits } from '../tools/UtilsKits';
+import { CGUtils } from '../tools/CGUtils';
 import { CGGameManager } from './CGGameManager';
 
 const { ccclass, property } = _decorator;
 @ccclass('CGChipSet')
 export class CGChipSet extends Component {
-    @property({ type: Node, tooltip: "籌碼選擇區"})
+    @property({ type: Node, tooltip: "籌碼選擇區" })
     public touchChip: Node = null;
     @property({ type: Node, tooltip: "籌碼設置彈窗" })
     public chipSetPopup: Node = null;
@@ -19,10 +19,10 @@ export class CGChipSet extends Component {
     private chipSetIDing: number[] = [0, 1, 2, 3, 4];//暫存選擇中的籌碼
 
 
-    private GM: CGGameManager = null;
+    private gameManager: CGGameManager = null;
 
-    public init(GM: CGGameManager) {
-        this.GM = GM;
+    public init(gameManager: CGGameManager) {
+        this.gameManager = gameManager;
         this.setupEventHandlers();
     }
 
@@ -93,7 +93,7 @@ export class CGChipSet extends Component {
     public updateChipSet() {
         const chipToggleChildren = this.chipToggle.children;
         chipToggleChildren.forEach((child, i) => {
-            const isSelected = this.chipSetIDing.includes(i);
+            const isSelected = this.chipSetIDing.indexOf(i) > -1 as boolean;
             const toggle = child.getComponent(Toggle);
             const opacity = child.getComponent(UIOpacity);
             toggle.isChecked = isSelected;
@@ -108,7 +108,7 @@ export class CGChipSet extends Component {
     }
 
     //設置點選的籌碼位置
-    public setTouchChipID(touchPos: number) {
+    private setTouchChipID(event: Event, touchPos: number) {
         this.touchChipID = this.chipSetID[touchPos];
     }
 
@@ -129,13 +129,13 @@ export class CGChipSet extends Component {
             this.chipSetIDing = [...this.defaultChipSetID];
             this.saveChipSetID();
         }
-        console.log("讀取籌碼值", this.chipSetID)
+        // console.log("讀取籌碼值", this.chipSetID)
     }
 
 
     //更新點選的籌碼(籌碼選擇區)
     public updateTouchChip() {
-        const chipRange = this.GM.Model.loadInfo.chipRange;
+        const chipRange = this.gameManager.dataModel.chipRange;
         const chipSetID = this.chipSetID;
         const touchChipChildren = this.touchChip.children;
         for (let i = 0; i < touchChipChildren.length; i++) {
@@ -149,7 +149,7 @@ export class CGChipSet extends Component {
                 touchChip.getChildByName('Checkmark').getComponent(Sprite).spriteFrame =
                     chipToggleChild.getChildByName('Checkmark').getComponent(Sprite).spriteFrame;
                 touchChip.getChildByName('Label').getComponent(Label).string =
-                    UtilsKitS.NumDigits(chipRange[chipSetID[i]]);
+                    UtilsKits.NumDigits(chipRange[chipSetID[i]]);
             }
         }
         this.touchChipID = chipSetID[0];

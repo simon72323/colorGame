@@ -35,9 +35,9 @@ export class CGDiceRunSet extends Component {
     }
 
     //開骰表演(回傳表演結束)
-    public async diceStart(pathData: PathInfo, winNumber: number[]): Promise<void> {
+    public async diceStart(pathData: PathInfo, winColor: number[]): Promise<void> {
         return new Promise<void>((resolve) => {
-            const diceEuler = this.diceRotate(winNumber, pathData.diceNumber);//起始骰子角度
+            const diceEuler = this.diceRotate(winColor, pathData.diceNumber);//起始骰子角度
             // 四元數插值轉換(慢慢校正骰子方向)
             const targetRotations = diceEuler.map(euler => {
                 const quat = new Quat();
@@ -82,11 +82,11 @@ export class CGDiceRunSet extends Component {
     }
 
     //路徑與開獎三顏色之骰子校正旋轉值(路徑id，勝利的三顏色編號)，回傳3個子物件的旋轉值
-    private diceRotate(winNumber: number[], diceNumber: number[]): Vec3[] {
+    private diceRotate(winColor: number[], diceNumber: number[]): Vec3[] {
         return [
-            this.CHANGE_EULER[diceNumber[0]][winNumber[0]],
-            this.CHANGE_EULER[diceNumber[1]][winNumber[1]],
-            this.CHANGE_EULER[diceNumber[2]][winNumber[2]]
+            this.CHANGE_EULER[diceNumber[0]][winColor[0]],
+            this.CHANGE_EULER[diceNumber[1]][winColor[1]],
+            this.CHANGE_EULER[diceNumber[2]][winColor[2]]
         ];
     }
 }

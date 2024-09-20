@@ -6,32 +6,32 @@
 
 // @ccclass('CGController')
 // export class CGController extends Component {
-//     private GM: CGGameManager = null;
+//     private gameManager: CGGameManager = null;
 
-//     public init(GM: CGGameManager) {
-//         this.GM = main;
+//     public init(gameManager: CGGameManager) {
+//         this.gameManager = main;
 //         this.setupEventHandlers();
 //     }
 
     // private setupEventHandlers() {
     //     const scriptName = 'CGController'; // 改为 Controller 的脚本名
     //     //btnCall按鈕觸發事件設置
-    //     for (let i = 0; i < this.GM.view.btnCall.length; i++) {
+    //     for (let i = 0; i < this.gameManager.view.btnCall.length; i++) {
     //         const eventHandler = new EventHandler();
     //         eventHandler.target = this.node;
     //         eventHandler.component = scriptName;
     //         eventHandler.handler = 'btnCallDown';
     //         eventHandler.customEventData = i.toString();
-    //         this.GM.view.btnCall[i].getComponent(Button).clickEvents.push(eventHandler);
+    //         this.gameManager.view.btnCall[i].getComponent(Button).clickEvents.push(eventHandler);
     //     }
     //     //btnStopCall按鈕觸發事件設置
-    //     for (let i = 0; i < this.GM.view.btnStopCall.length; i++) {
+    //     for (let i = 0; i < this.gameManager.view.btnStopCall.length; i++) {
     //         const eventHandler = new EventHandler();
     //         eventHandler.target = this.node;
     //         eventHandler.component = scriptName;
     //         eventHandler.handler = 'btnStopCallDown';
     //         eventHandler.customEventData = i.toString();
-    //         this.GM.view.btnStopCall[i].getComponent(Button).clickEvents.push(eventHandler);
+    //         this.gameManager.view.btnStopCall[i].getComponent(Button).clickEvents.push(eventHandler);
     //     }
     // }
 
@@ -40,7 +40,7 @@
     //     const id = parseInt(customEventData);
     //     // 在这里添加跟注逻辑
     //     // 例如：更新游戏状态，发送网络请求等
-    //     this.GM.view.updateBetCallUI(id, true);//啟用跟注
+    //     this.gameManager.view.updateBetCallUI(id, true);//啟用跟注
     // }
 
     // //取消跟注按鈕按下
@@ -48,16 +48,16 @@
     //     const id = parseInt(customEventData);
     //     // 在这里添加取消跟注逻辑
     //     // 例如：更新游戏状态，发送网络请求等
-    //     this.GM.view.updateBetCallUI(id, false);//停用跟注
+    //     this.gameManager.view.updateBetCallUI(id, false);//停用跟注
     // }
 
     // //路紙視窗顯示(節點觸發)
     // public roadMapPopupShow() {
-    //     CGUtils.popupShow(this.GM.view.roadMapPopup);
+    //     CGUtils.popupShow(this.gameManager.view.roadMapPopup);
     // }
 
     // //路紙視窗關閉(節點觸發)
     // public roadMapPopupHide() {
-    //     CGUtils.popupHide(this.GM.view.roadMapPopup);
+    //     CGUtils.popupHide(this.gameManager.view.roadMapPopup);
     // }
 // }

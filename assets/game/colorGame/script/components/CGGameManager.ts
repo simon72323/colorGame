@@ -1,43 +1,44 @@
 import { _decorator, Component, SpriteFrame, Prefab } from 'cc';
 import { CGView } from './CGView';
-import { CGModel } from './CGModel';
+import { CGDataModel } from './CGDataModel';
 import { CGZoom } from './CGZoom';
 import { CGChipController } from './CGChipController';
-import { CGManager } from './CGManager';
+import { CGRoundManager } from './CGRoundManager';
 import { CGChipSet } from './CGChipSet';
 import { CGBigWin } from './CGBigWin';
 import { CGDiceRunSet } from './CGDiceRunSet';
-import { WorkOnBlur_Simon } from '../../../../common/script/tools/WorkOnBlur_Simon';
-import { WorkerTimeout_Simon } from '../../../../common/script/lib/WorkerTimeout_Simon';
-import { Marquee } from '../../../../common/script/components/Marquee';
-import PoolHandler from '../../../../common/script/tools/PoolHandler';
+import { WorkOnBlur } from '../tools/WorkOnBlur';
+import { WorkerTimeout } from '../tools/WorkerTimeout';
+import { Marquee } from './Marquee';
+import PoolHandler from '../tools/PoolHandler';
 import { WebSocketManager } from '../WebSocketManager';
-import { UtilsKitS } from '../../../../common/script/lib/UtilsKitS';
+import { UtilsKits } from '../tools/UtilsKits';
 import { GameState } from '../connector/receive/CGReceive';
+
 
 const { ccclass, property } = _decorator;
 
 @ccclass('CGGameManager')
 export class CGGameManager extends Component {
     //組件腳本
-    @property({ type: CGView, tooltip: "遊戲介面腳本", group: { name: '遊戲腳本', id: '1' } })
-    public View: CGView = null;
-    @property({ type: CGZoom, tooltip: "縮放腳本", group: { name: '遊戲腳本', id: '1' } })
-    public Zoom: CGZoom = null;
-    @property({ type: CGChipController, tooltip: "籌碼控制腳本", group: { name: '遊戲腳本', id: '1' } })
-    public ChipController: CGChipController = null;
-    @property({ type: CGManager, tooltip: "遊戲流程腳本", group: { name: '遊戲腳本', id: '1' } })
-    public Manager: CGManager = null;
-    @property({ type: CGChipSet, tooltip: "遊戲流程腳本", group: { name: '遊戲腳本', id: '1' } })
-    public ChipSet: CGChipSet = null;
+    @property({ type: CGView, tooltip: "介面腳本", group: { name: '遊戲腳本', id: '1' } })
+    public view: CGView = null;
+    @property({ type: CGZoom, tooltip: "骰子視角腳本", group: { name: '遊戲腳本', id: '1' } })
+    public zoom: CGZoom = null;
+    @property({ type: CGChipController, tooltip: "籌碼表演腳本", group: { name: '遊戲腳本', id: '1' } })
+    public chipController: CGChipController = null;
+    @property({ type: CGRoundManager, tooltip: "回合腳本", group: { name: '遊戲腳本', id: '1' } })
+    public roundManager: CGRoundManager = null;
+    @property({ type: CGChipSet, tooltip: "籌碼設置腳本", group: { name: '遊戲腳本', id: '1' } })
+    public chipSet: CGChipSet = null;
     @property({ type: CGBigWin, tooltip: "大獎表演", group: { name: '遊戲腳本', id: '1' } })
-    public BigWin: CGBigWin = null;
+    public bigWin: CGBigWin = null;
     @property({ type: CGDiceRunSet, tooltip: "開骰表演", group: { name: '遊戲腳本', id: '1' } })
-    public DiceRunSet: CGDiceRunSet = null;
-    // @property({ type: Marquee, tooltip: "跑馬燈腳本" })
-    // private Marquee: Marquee = null;
+    public diceRunSet: CGDiceRunSet = null;
+    @property({ type: Marquee, tooltip: "跑馬燈腳本" })
+    private Marquee: Marquee = null;
 
-    public Model: CGModel = null;
+    public dataModel: CGDataModel = null;
 
     //遊戲資源
     @property({ type: [SpriteFrame], tooltip: "下注籌碼貼圖", group: { name: '貼圖資源', id: '2' } })
@@ -60,22 +61,22 @@ export class CGGameManager extends Component {
 
     async onLoad() {
         //啟用後台運行(針對動畫、tween、schedule、spine等動畫)
-        WorkOnBlur_Simon.getInstance();
-        WorkerTimeout_Simon.getInstance().enable();
+        WorkOnBlur.getInstance();
+        WorkerTimeout.getInstance().enable();
         // 初始化所有组件
         this.initComponents();
-        this.initWebSocket();
+        // this.initWebSocket();
 
         //開始模擬server發送消息
-        this.startSimulatingServerMessages();
+        // this.startSimulatingServerMessages();
     }
     private initComponents() {
         // 初始化各个组件,并传入必要的引用
-        this.Model = CGModel.getInstance();
-        this.View.init(this);
-        this.ChipController.init(this);
-        this.Manager.init(this);
-        this.ChipSet.init(this);
+        this.dataModel = CGDataModel.getInstance();
+        this.view.init(this);
+        this.chipController.init(this);
+        this.roundManager.init(this);
+        this.chipSet.init(this);
         // this.zoom.init(this);
     }
 
@@ -88,35 +89,35 @@ export class CGGameManager extends Component {
     public async handleServerMessage(message: any) {
         switch (message.type) {
             case 'onLoadInfo':
-                this.Model.setOnLoadInfo(message.data);//獲得玩家資料
-                //判斷目前遊戲狀態，表演相應畫面
+                this.dataModel.setOnLoadInfo(message.data);//獲得玩家資料
                 break;
-            case 'roundData':
-                this.Model.setRoundData(message.data);//接收回合資料
-                //如果目前狀態是NewRound，需要觸發新局流程
-                if (this.Model.roundInfo.gameState === GameState.NewRound)
-                    this.Manager.newRound();
-                else
-                    this.View.updateRoadMap();//更新路紙
-                if (this.Model.roundInfo.gameState === GameState.Betting)
-                    this.Manager.betStart();//開始下注(顯示標題)
+            case 'onJoinGame':
+                this.dataModel.setOnLoadInfo(message.data);//獲得玩家資料
+                this.onJoinGame();//進入遊戲
                 break;
-            case 'betData':
-                //有接收到這個消息代表是下注階段
-                this.Model.setBetData(message.data);//接收下注資料
-                this.Manager.setBetTime(this.Model.betInfo.countdown);//更新下注時間
-                this.View.updateUserRanks();//更新排名資料
-                await UtilsKitS.Delay(0.3);
-                this.View.updateUICredit();//更新介面額度(等籌碼移動，等待0.3秒後更新)
+            case 'update':
+                if (message.gameType === '5270')
+                    this.handleUpdateMessage(message.data);
                 break;
-            case 'rewardInfo':
-                this.Model.setRewardInfo(message.data);//接收開獎資料
-                this.Manager.runDice(); // 表演開骰流程
-                break;
+            // case 'roundData':
+                // this.dataModel.setRoundData(message.data);//接收回合資料
+                // break;
+            // case 'betData':
+            //     //有接收到這個消息代表是下注階段
+            //     // this.dataModel.setBetData(message.data);//接收下注資料
+            //     this.roundManager.setBetTime(this.dataModel.countdown);//直接更新下注時間?
+            //     this.view.updateUserRanks();//更新排名資料
+            //     await UtilsKitS.Delay(0.3);
+            //     this.view.updateUICredit();//更新介面額度(等籌碼移動，等待0.3秒後更新)
+            //     break;
+            // case 'rewardInfo':
+            //     // this.dataModel.setRewardInfo(message.data);//接收開獎資料
+            //     this.roundManager.runReward();//表演開獎流程
+            //     break;
             case 'onBeginGameInfo':
-                this.Model.setBeginGameInfo(message.data);//接收下注成功資料
-                await UtilsKitS.Delay(0.3);
-                this.View.updateUICredit();//更新介面額度(等籌碼移動，等待0.3秒後更新)
+                this.dataModel.setBeginGameInfo(message.data);//接收下注成功資料
+                await UtilsKits.Delay(0.3);
+                this.view.updateUICredit();//更新介面額度(等籌碼移動，等待0.3秒後更新)
                 // 表演本地用戶下注
                 break;
             // ... 其他消息類型 ...
@@ -125,106 +126,194 @@ export class CGGameManager extends Component {
         }
     }
 
+    public handleUpdateMessage(data: any) {
+        const { state, odds, time, sec, countdown, totalsBet, liveCount, roundSerial, arrCoefficient, arrOddsPartition, startTime, escape } = data;
+        switch (state) {
+            case 'gameReady':
+                this.handleReady(roundSerial);
+                break;
+            case 'gameNewRound':
+                this.handleNewRound(startTime, arrCoefficient, arrOddsPartition, totalsBet, liveCount);
+                break;
+            case 'gameBetting':
+                this.handleBetting(odds, time, sec);
+                break;
+            case 'gameReward':
+                this.handleReward(odds, data.rankings, data.exchangeRate);
+                break;
+            default:
+                console.log('Unknown game state:', state);
+        }
+        if (escape) {
+            this.handleEscape(escape);
+        }
+    }
+
+    private handleReady(roundSerial?: number) {
+        console.log('游戏准备中', roundSerial ? `局号: ${roundSerial}` : '');
+        // 更新UI显示准备状态
+        // this.view.showReadyState(roundSerial);
+    }
+
+    private handleWaiting(countdown: number, totalsBet: string, liveCount: number) {
+        console.log(`等待中，倒计时: ${countdown}秒，总下注: ${totalsBet}，在线人数: ${liveCount}`);
+        // 更新倒计时、总下注额和在线人数
+        // this.view.updateWaitingInfo(countdown, totalsBet, liveCount);
+    }
+
+    private handleNewRound(startTime: number, arrCoefficient: number[], arrOddsPartition: number[], totalsBet: string, liveCount: number) {
+        console.log(`新局开始，开始时间: ${startTime}，总下注: ${totalsBet}，在线人数: ${liveCount}`);
+        console.log('系数数组:', arrCoefficient);
+        console.log('赔率分区:', arrOddsPartition);
+        // 初始化新一轮游戏
+        // this.roundManager.startNewRound(startTime, arrCoefficient, arrOddsPartition);
+        // this.view.updateBetInfo(totalsBet, liveCount);
+    }
+
+    private handleBetting(odds: number, time: number, sec: number) {
+        console.log(`下注中: ${odds}，时间: ${time}，已进行: ${sec}秒`);
+        // 更新游戏进行状态
+        // this.view.updateGameProgress(odds, sec);
+    }
+
+    private handleReward(odds: number, rankings?: any[], exchangeRate?: number) {
+        console.log(`遊戲派彩: ${odds}`);
+        if (rankings) {
+            console.log('排行榜:', rankings);
+            // 更新排行榜
+            // this.view.updateRankings(rankings);
+        }
+        if (exchangeRate !== undefined) {
+            console.log('汇率:', exchangeRate);
+            // 处理汇率
+            // this.dataModel.setExchangeRate(exchangeRate);
+        }
+        // 结束游戏，显示结果
+        // this.roundManager.endGame(odds);
+    }
+
+    private handleEscape(escapeData: Array<{ displayName: string, payoff: number, odds: number }>) {
+        console.log('玩家逃脱:', escapeData);
+        // 处理玩家逃脱的逻辑
+        // this.view.showEscapedPlayers(escapeData);
+    }
+
     // 發送訊息到伺服器
     public sendToServer(message: any) {
         this.webSocketManager.sendMessage(message);
     }
 
+
+    //進入遊戲後執行的流程
+    private onJoinGame() {
+        this.view.updateRoadMap();//更新路紙
+        this.chipSet.loadChipSetID();//讀取籌碼設置資料(本地)
+        this.chipSet.updateTouchChip();//更新點選的籌碼(每局更新)
+        if (this.dataModel.gameState === GameState.GameNewRound)
+            this.roundManager.newRound();
+        else if (this.dataModel.gameState === GameState.GameBetting)
+            this.roundManager.betStart();//下注流程
+        else if (this.dataModel.gameState === GameState.GameReward)
+            this.roundManager.runReward();//表演開獎流程
+    }
+
     // -------------模拟服务器发送消息的方法-----------------------
-    public simulateServerMessage(type: string, data: any) {
-        const message = { type, data };
-        this.handleServerMessage(message);
-    }
 
-    // 开始模拟服务器消息
-    private startSimulatingServerMessages() {
-        this.schedule(this.sendSimulatedMessages, 1); // 每秒发送一次模拟消息
-    }
 
-    private sendSimulatedMessages() {
-        // 模拟发送 onLoadInfo 消息
-        this.simulateServerMessage('onLoadInfo', {
-            event: true,
-            gameState: "Betting",
-            userID: 123,
-            avatar: 2,
-            base: '',
-            defaultBase: '',
-            balance: 0,
-            loginName: 'simon',
-            autoExchange: false,
-            credit: 5000,//用戶餘額
-            betAreaCredit: [0, 0, 0, 0, 0, 0],//用戶目前各注區下注額(需要中途出現籌碼)
-            betTotalCredit: 0,//用戶目前總下注額
-            limit: 30000,
-            betTime: 1,//遊戲的下注時間設置
-            chipRange: [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],
-            betAreaTotalCredit: [0, 0, 0, 0, 0, 0],//目前各注區的下注額(需要中途出現籌碼)
-        });
+    // public simulateServerMessage(type: string, data: any) {
+    //     const message = { type, data };
+    //     this.handleServerMessage(message);
+    // }
 
-        // 模拟发送 roundData 消息(每次登入都會接收一次，新局時也會接收)
-        this.simulateServerMessage('roundData', {
-            gameState: "Betting",//如果狀態是NewRound，需要觸發新局流程
-            roundSerial: 12415214,
-            roadColors: Array.from({ length: 10 }, () => [
-                Math.floor(Math.random() * 6),
-                Math.floor(Math.random() * 6),
-                Math.floor(Math.random() * 6)
-            ]),
-            roadColorPers: [10, 20, 20, 20, 20, 10],
-        });
+    // // 开始模拟服务器消息
+    // private startSimulatingServerMessages() {
+    //     this.schedule(this.sendSimulatedMessages, 1); // 每秒发送一次模拟消息
+    // }
 
-        // 模拟发送 betData 消息
-        this.simulateServerMessage('betData', {
-            gameState: "Betting",
-            countdown: 10,
-            //目前的排名玩家
-            rank: [
-                { userID: 11111111, loginName: 'john', avatar: 10, credit: 70000 },
-                { userID: 22222222, loginName: 'kenny', avatar: 11, credit: 60000 },
-                { userID: 33333333, loginName: 'simon', avatar: 12, credit: 50000 }
-            ],
-            betAreaTotalCredit: [0, 0, 0, 0, 0, 0],
-            //前三名跟其他玩家此次的下注分布
-            otherUserBetAreaCredit: [
-                [200, 100, 0, 300, 400, 0],
-                [0, 100, 50, 50, 100, 200],
-                [100, 100, 100, 300, 200, 100],
-                [0, 0, 200, 500, 0, 400]
-            ],
-            otherUserCount: 50,
-        });
+    // private sendSimulatedMessages() {
+    //     // 模拟发送 onLoadInfo 消息
+    //     this.simulateServerMessage('onLoadInfo', {
+    //         event: true,
+    //         GameState: "Betting",
+    //         UserID: 123,
+    //         Avatar: 2,
+    //         Base: '',
+    //         DefaultBase: '',
+    //         Balance: 0,
+    //         LoginName: 'simon',
+    //         AutoExchange: false,
+    //         Credit: 5000,//用戶餘額
+    //         userBets: [0, 0, 0, 0, 0, 0],//用戶目前各注區下注額(需要中途出現籌碼)
+    //         usetTotalBet: 0,//用戶目前總下注額
+    //         Limit: 30000,
+    //         BetTime: 1,//遊戲的下注時間設置
+    //         ChipRange: [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],
+    //         BetAreaTotalCredit: [0, 0, 0, 0, 0, 0],//目前各注區的下注額(需要中途出現籌碼)
+    //     });
 
-        // 模拟发送 rewardInfo 消息
-        this.simulateServerMessage('rewardInfo', {
-            roundSerial: 12415214,
-            wagersID: 21547815,
-            pathID: Math.floor(Math.random() * 1000),
-            winNumber: [
-                Math.floor(Math.random() * 6),
-                Math.floor(Math.random() * 6),
-                Math.floor(Math.random() * 6)
-            ],
-            userWinCredit: { winBetArea: [0, 2, 4], winCredit: 200 },
-            otherUserWinCredit: [
-                { winBetArea: [0, 2, 4], winCredit: 200 },
-                { winBetArea: [0, 2, 4], winCredit: 200 },
-                { winBetArea: [0, 2, 4], winCredit: 200 },
-                { winBetArea: [0, 2, 4], winCredit: 200 }
-            ],
-        });
+    //     // 模拟发送 roundData 消息(每次登入都會接收一次，新局時也會接收)
+    //     this.simulateServerMessage('roundData', {
+    //         GameState: "Betting",//如果狀態是NewRound，需要觸發新局流程
+    //         RoundSerial: 12415214,
+    //         RoadColors: Array.from({ length: 10 }, () => [
+    //             Math.floor(Math.random() * 6),
+    //             Math.floor(Math.random() * 6),
+    //             Math.floor(Math.random() * 6)
+    //         ]),
+    //         RoadColorPers: [10, 20, 20, 20, 20, 10],
+    //     });
 
-        //回傳下注成功資料
-        this.simulateServerMessage('onBeginGameInfo', {
-            isSuccess: true,
-            betAreaID: 2,//用戶下注區id
-            betCredit: 20,//用戶下注額
-            credit: 2500,//用戶餘額
-            betAreaCredit: [0, 0, 0, 0, 0, 0],//用戶目前各注區下注額
-            betTotalCredit: 0,//用戶目前總下注額
-            betAreaTotalCredit: [0, 0, 0, 0, 0, 0],//目前各下注區總額
-        });
-    }
+    //     // 模拟发送 betData 消息
+    //     this.simulateServerMessage('betData', {
+    //         GameState: "Betting",
+    //         Countdown: 10,
+    //         //目前的排名玩家
+    //         Rank: [
+    //             { userID: 11111111, loginName: 'john', avatar: 10, credit: 70000 },
+    //             { userID: 22222222, loginName: 'kenny', avatar: 11, credit: 60000 },
+    //             { userID: 33333333, loginName: 'simon', avatar: 12, credit: 50000 }
+    //         ],
+    //         BetAreaTotalCredit: [0, 0, 0, 0, 0, 0],
+    //         //前三名跟其他玩家此次的下注分布
+    //         OtherUserBetAreaCredit: [
+    //             [200, 100, 0, 300, 400, 0],
+    //             [0, 100, 50, 50, 100, 200],
+    //             [100, 100, 100, 300, 200, 100],
+    //             [0, 0, 200, 500, 0, 400]
+    //         ],
+    //         OtherUserCount: 50,
+    //     });
+
+    //     // 模拟发送 rewardInfo 消息
+    //     this.simulateServerMessage('rewardInfo', {
+    //         RoundSerial: 12415214,
+    //         WagersID: 21547815,
+    //         PathID: Math.floor(Math.random() * 1000),
+    //         WinNumber: [
+    //             Math.floor(Math.random() * 6),
+    //             Math.floor(Math.random() * 6),
+    //             Math.floor(Math.random() * 6)
+    //         ],
+    //         UserWinCredit: { winBetArea: [0, 2, 4], winCredit: 200 },
+    //         OtherUserWinCredit: [
+    //             { winBetArea: [0, 2, 4], winCredit: 200 },
+    //             { winBetArea: [0, 2, 4], winCredit: 200 },
+    //             { winBetArea: [0, 2, 4], winCredit: 200 },
+    //             { winBetArea: [0, 2, 4], winCredit: 200 }
+    //         ],
+    //     });
+
+    //     //回傳下注成功資料
+    //     this.simulateServerMessage('onBeginGameInfo', {
+    //         isSuccess: true,
+    //         BetAreaID: 2,//用戶下注區id
+    //         BetCredit: 20,//用戶下注額
+    //         Credit: 2500,//用戶餘額
+    //         BetAreaCredit: [0, 0, 0, 0, 0, 0],//用戶目前各注區下注額
+    //         BetTotalCredit: 0,//用戶目前總下注額
+    //         BetAreaTotalCredit: [0, 0, 0, 0, 0, 0],//目前各下注區總額
+    //     });
+    // }
 
 
 

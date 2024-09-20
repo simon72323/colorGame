@@ -1,5 +1,5 @@
 import { _decorator, Component, RigidBody, Vec3, Quat, Node, Animation, PhysicsSystem } from 'cc';
-import { UtilsKitS } from '../../../../common/script/lib/UtilsKitS';
+import { UtilsKits } from '../tools/UtilsKits';
 import { PathInfo } from '../components/CGPathManager';
 const { ccclass, property } = _decorator;
 
@@ -32,7 +32,7 @@ export class SaveDicePath extends Component {
         // this.scheduleOnce(()=>{
         //     this.startRun();
         // },7)
-        await UtilsKitS.Delay(7);
+        await UtilsKits.Delay(7);
         this.startRun();
     }
 
@@ -90,7 +90,7 @@ export class SaveDicePath extends Component {
                 }, 0.2)
             }
             // this.boxMove.setRotationFromEuler(new Vec3(-90, 180, 0));//初始化翻板動畫
-            await UtilsKitS.Delay(0.3);
+            await UtilsKits.Delay(0.3);
             // this.boxMove.getComponent(Animation).play();//播放翻板動畫
             this.isRecording = true;
             this.saveNum = 0;
@@ -114,7 +114,7 @@ export class SaveDicePath extends Component {
                     this.node.children[i].children[j].getComponent(RigidBody).setAngularVelocity(randomAngular);
                 }
             }
-            await UtilsKitS.Delay(4.7);
+            await UtilsKits.Delay(4.7);
             this.stopRecording();
             for (let i = 0; i < this.node.children.length; i++) {
                 let newNumber =
