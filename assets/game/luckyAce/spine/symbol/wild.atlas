@@ -1,0 +1,636 @@
+
+wild.png
+size: 1968,1541
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+BaseShadow
+  rotate: false
+  xy: 1114, 753
+  size: 126, 64
+  orig: 126, 64
+  offset: 0, 0
+  index: -1
+BellCShadow
+  rotate: false
+  xy: 1292, 701
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+BellLShadow
+  rotate: false
+  xy: 1745, 21
+  size: 66, 67
+  orig: 66, 67
+  offset: 0, 0
+  index: -1
+BellRShadow
+  rotate: false
+  xy: 1813, 2
+  size: 66, 67
+  orig: 66, 67
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0043
+  rotate: false
+  xy: 1829, 825
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0044
+  rotate: true
+  xy: 1518, 838
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0045
+  rotate: false
+  xy: 1688, 800
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0046
+  rotate: true
+  xy: 1518, 699
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0047
+  rotate: false
+  xy: 1349, 649
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0048
+  rotate: false
+  xy: 1827, 655
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0049
+  rotate: false
+  xy: 1688, 630
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0050
+  rotate: true
+  xy: 1488, 560
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0051
+  rotate: true
+  xy: 1292, 510
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0052
+  rotate: false
+  xy: 1827, 485
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0053
+  rotate: false
+  xy: 1658, 460
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0054
+  rotate: true
+  xy: 1462, 421
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0055
+  rotate: true
+  xy: 1292, 371
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0056
+  rotate: true
+  xy: 1797, 346
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0057
+  rotate: false
+  xy: 1462, 251
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0058
+  rotate: false
+  xy: 1632, 290
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+EXpoint/EXpoint_0059
+  rotate: true
+  xy: 1771, 207
+  size: 137, 168
+  orig: 137, 168
+  offset: 0, 0
+  index: -1
+HatCShadow
+  rotate: false
+  xy: 1863, 71
+  size: 95, 134
+  orig: 95, 134
+  offset: 0, 0
+  index: -1
+HatLShadow
+  rotate: false
+  xy: 1560, 977
+  size: 153, 193
+  orig: 153, 193
+  offset: 0, 0
+  index: -1
+HatRShadow
+  rotate: false
+  xy: 1601, 144
+  size: 144, 144
+  orig: 144, 144
+  offset: 0, 0
+  index: -1
+WildGold
+  rotate: true
+  xy: 1874, 1327
+  size: 212, 91
+  orig: 212, 91
+  offset: 0, 0
+  index: -1
+WildGoldGlow
+  rotate: false
+  xy: 460, 980
+  size: 115, 55
+  orig: 115, 55
+  offset: 0, 0
+  index: -1
+backLight/backLight_0019
+  rotate: false
+  xy: 2, 465
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0020
+  rotate: false
+  xy: 2, 213
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0021
+  rotate: false
+  xy: 217, 465
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0022
+  rotate: false
+  xy: 217, 213
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0023
+  rotate: false
+  xy: 254, 726
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0024
+  rotate: false
+  xy: 432, 474
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0025
+  rotate: false
+  xy: 432, 222
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0026
+  rotate: true
+  xy: 524, 7
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0027
+  rotate: false
+  xy: 449, 1289
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0028
+  rotate: false
+  xy: 449, 1037
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0029
+  rotate: false
+  xy: 469, 728
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0030
+  rotate: false
+  xy: 664, 1289
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0031
+  rotate: false
+  xy: 664, 1037
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0032
+  rotate: false
+  xy: 647, 476
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0033
+  rotate: false
+  xy: 684, 736
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0034
+  rotate: false
+  xy: 647, 224
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0035
+  rotate: true
+  xy: 776, 9
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0036
+  rotate: false
+  xy: 879, 1289
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0037
+  rotate: false
+  xy: 879, 1037
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0038
+  rotate: false
+  xy: 862, 484
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0039
+  rotate: false
+  xy: 899, 744
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0040
+  rotate: false
+  xy: 862, 232
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0041
+  rotate: true
+  xy: 1028, 17
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0042
+  rotate: false
+  xy: 1077, 492
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0043
+  rotate: false
+  xy: 1077, 240
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+backLight/backLight_0044
+  rotate: true
+  xy: 1280, 25
+  size: 213, 250
+  orig: 213, 250
+  offset: 0, 0
+  index: -1
+cardBack
+  rotate: true
+  xy: 2, 7
+  size: 204, 259
+  orig: 204, 259
+  offset: 0, 0
+  index: -1
+cardGreenWild
+  rotate: false
+  xy: 2, 1255
+  size: 238, 284
+  orig: 238, 284
+  offset: 0, 0
+  index: -1
+cardRedGlow
+  rotate: true
+  xy: 1292, 241
+  size: 128, 155
+  orig: 128, 155
+  offset: 0, 0
+  index: -1
+cardRedWild
+  rotate: false
+  xy: 2, 969
+  size: 238, 284
+  orig: 238, 284
+  offset: 0, 0
+  index: -1
+cold card
+  rotate: true
+  xy: 263, 7
+  size: 204, 259
+  orig: 204, 259
+  offset: 0, 0
+  index: -1
+frameLight
+  rotate: false
+  xy: 1715, 970
+  size: 112, 140
+  orig: 112, 140
+  offset: 0, 0
+  index: -1
+glowLight
+  rotate: false
+  xy: 1648, 47
+  size: 95, 95
+  orig: 95, 95
+  offset: 0, 0
+  index: -1
+greenFrame
+  rotate: false
+  xy: 242, 1277
+  size: 205, 262
+  orig: 205, 262
+  offset: 0, 0
+  index: -1
+greenHatBase
+  rotate: false
+  xy: 577, 988
+  size: 109, 47
+  orig: 109, 47
+  offset: 0, 0
+  index: -1
+greenHatBellC
+  rotate: true
+  xy: 963, 1003
+  size: 32, 31
+  orig: 32, 31
+  offset: 0, 0
+  index: -1
+greenHatBellL
+  rotate: false
+  xy: 799, 996
+  size: 39, 39
+  orig: 39, 39
+  offset: 0, 0
+  index: -1
+greenHatBellR
+  rotate: false
+  xy: 840, 996
+  size: 39, 39
+  orig: 39, 39
+  offset: 0, 0
+  index: -1
+greenHatHatC
+  rotate: true
+  xy: 1242, 751
+  size: 66, 105
+  orig: 66, 105
+  offset: 0, 0
+  index: -1
+greenHatHatL
+  rotate: false
+  xy: 1834, 1161
+  size: 123, 164
+  orig: 123, 164
+  offset: 0, 0
+  index: -1
+greenHatHatR
+  rotate: true
+  xy: 1747, 90
+  size: 115, 114
+  orig: 115, 114
+  offset: 0, 0
+  index: -1
+greenWildFrame
+  rotate: false
+  xy: 1328, 1021
+  size: 230, 114
+  orig: 230, 114
+  offset: 0, 0
+  index: -1
+radialCircleLight
+  rotate: false
+  xy: 2, 717
+  size: 250, 250
+  orig: 250, 250
+  offset: 0, 0
+  index: -1
+radialLight
+  rotate: true
+  xy: 1498, 1172
+  size: 165, 224
+  orig: 165, 224
+  offset: 0, 0
+  index: -1
+redFrame
+  rotate: false
+  xy: 242, 1013
+  size: 205, 262
+  orig: 205, 262
+  offset: 0, 0
+  index: -1
+redHatBase
+  rotate: false
+  xy: 688, 988
+  size: 109, 47
+  orig: 109, 47
+  offset: 0, 0
+  index: -1
+redHatBellC
+  rotate: true
+  xy: 996, 1003
+  size: 32, 31
+  orig: 32, 31
+  offset: 0, 0
+  index: -1
+redHatBellL
+  rotate: false
+  xy: 881, 996
+  size: 39, 39
+  orig: 39, 39
+  offset: 0, 0
+  index: -1
+redHatBellR
+  rotate: false
+  xy: 922, 996
+  size: 39, 39
+  orig: 39, 39
+  offset: 0, 0
+  index: -1
+redHatHatC
+  rotate: false
+  xy: 1532, 144
+  size: 66, 105
+  orig: 66, 105
+  offset: 0, 0
+  index: -1
+redHatHatL
+  rotate: false
+  xy: 1834, 995
+  size: 123, 164
+  orig: 123, 164
+  offset: 0, 0
+  index: -1
+redHatHatR
+  rotate: true
+  xy: 1532, 27
+  size: 115, 114
+  orig: 115, 114
+  offset: 0, 0
+  index: -1
+redWildFrame
+  rotate: false
+  xy: 1094, 1021
+  size: 232, 114
+  orig: 232, 114
+  offset: 0, 0
+  index: -1
+shadow
+  rotate: true
+  xy: 358, 981
+  size: 30, 100
+  orig: 30, 100
+  offset: 0, 0
+  index: -1
+speedLight/speedLight_0001
+  rotate: false
+  xy: 1094, 1339
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+speedLight/speedLight_0002
+  rotate: false
+  xy: 1094, 1137
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+speedLight/speedLight_0003
+  rotate: false
+  xy: 1114, 819
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+speedLight/speedLight_0004
+  rotate: false
+  xy: 1316, 819
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+speedLight/speedLight_0005
+  rotate: false
+  xy: 1296, 1339
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+speedLight/speedLight_0006
+  rotate: false
+  xy: 1296, 1137
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+speedLight/speedLight_0007
+  rotate: false
+  xy: 1498, 1339
+  size: 200, 200
+  orig: 200, 200
+  offset: 0, 0
+  index: -1
+squareLight
+  rotate: false
+  xy: 1700, 1342
+  size: 172, 197
+  orig: 172, 197
+  offset: 0, 0
+  index: -1
+sweepLight
+  rotate: false
+  xy: 242, 978
+  size: 114, 33
+  orig: 114, 33
+  offset: 0, 0
+  index: -1
+wildShadow
+  rotate: true
+  xy: 1724, 1112
+  size: 228, 108
+  orig: 228, 108
+  offset: 0, 0
+  index: -1

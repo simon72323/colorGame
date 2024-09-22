@@ -1,5 +1,5 @@
 import { _decorator, Component, find, Node, Label, Sprite, Button, Animation, color, Toggle, UIOpacity } from 'cc';
-// import { UtilsKits } from '../../../common/script/lib/UtilsKits';
+// import { CGUtils } from '../../../common/script/lib/CGUtils';
 // import { ColorGameData } from './ColorGameData';
 // import { ColorGameMain } from './ColorGameMain';
 // import { ColorGameValue } from './ColorGameValue';

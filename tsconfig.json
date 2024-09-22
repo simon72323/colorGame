@@ -4,16 +4,6 @@
 
   /* Add your custom configuration here. */
   "compilerOptions": {
-    "module": "ES2015",
-    "strict": false,
-    /* 允許對不包含默認匯出的模組使用默認匯入。這個選項不會影響生成的程式碼，只會影響類型檢查。 */
-    "allowSyntheticDefaultImports": true,
-    "skipLibCheck": false,
-    "resolveJsonModule": true,
-    "paths": {
-      "@casino-mono/mvc": ["./assets/game/mahjong/script/framework/mvc/index.ts"],
-      "@casino-mono/share-tools": ["./assets/game/mahjong/script/framework/share-tools/index.ts"]
-    },
-    "lib": ["ES2015","ES2017","dom"]
+    "strict": false
   }
 }

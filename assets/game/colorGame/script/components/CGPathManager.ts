@@ -1,10 +1,7 @@
 import { Node, assetManager, director, JsonAsset } from "cc";
+import { PathInfo } from "../enum/CGInterface";
 
-export interface PathInfo {
-    pos: number[][];//座標參數[第幾個frame][三顆骰子的座標]
-    rotate: number[][];//旋轉參數[第幾個frame][三顆骰子的座標]
-    diceNumber: number[];//開獎點數[三顆骰子的點數]
-}
+
 
 export class CGPathManager {
 

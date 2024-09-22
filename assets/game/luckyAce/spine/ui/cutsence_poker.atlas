@@ -1,0 +1,132 @@
+
+cutsence_poker.png
+size: 1924,800
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+ace
+  rotate: true
+  xy: 524, 459
+  size: 339, 375
+  orig: 339, 375
+  offset: 0, 0
+  index: -1
+ace_shine
+  rotate: true
+  xy: 1163, 38
+  size: 119, 265
+  orig: 138, 288
+  offset: 9, 1
+  index: -1
+backCL
+  rotate: true
+  xy: 839, 198
+  size: 152, 344
+  orig: 152, 344
+  offset: 0, 0
+  index: -1
+backLD
+  rotate: false
+  xy: 1526, 93
+  size: 208, 167
+  orig: 208, 167
+  offset: 0, 0
+  index: -1
+backRD
+  rotate: false
+  xy: 1301, 340
+  size: 343, 176
+  orig: 343, 176
+  offset: 0, 0
+  index: -1
+backRU
+  rotate: true
+  xy: 456, 13
+  size: 222, 282
+  orig: 222, 282
+  offset: 0, 0
+  index: -1
+club
+  rotate: true
+  xy: 456, 237
+  size: 220, 381
+  orig: 220, 381
+  offset: 0, 0
+  index: -1
+diamonds
+  rotate: false
+  xy: 901, 518
+  size: 333, 280
+  orig: 333, 280
+  offset: 0, 0
+  index: -1
+diamonds_shadow
+  rotate: false
+  xy: 1236, 518
+  size: 333, 280
+  orig: 333, 280
+  offset: 0, 0
+  index: -1
+heartsLC
+  rotate: true
+  xy: 2, 2
+  size: 212, 411
+  orig: 213, 411
+  offset: 1, 0
+  index: -1
+heartsLU
+  rotate: false
+  xy: 1646, 262
+  size: 276, 270
+  orig: 276, 270
+  offset: 0, 0
+  index: -1
+jack
+  rotate: true
+  xy: 1571, 534
+  size: 264, 348
+  orig: 264, 348
+  offset: 0, 0
+  index: -1
+king
+  rotate: false
+  xy: 2, 513
+  size: 520, 285
+  orig: 520, 285
+  offset: 0, 0
+  index: -1
+king_shine
+  rotate: false
+  xy: 740, 3
+  size: 212, 193
+  orig: 229, 210
+  offset: 15, 2
+  index: -1
+qeen
+  rotate: false
+  xy: 2, 216
+  size: 452, 295
+  orig: 452, 295
+  offset: 0, 0
+  index: -1
+qeen_shine
+  rotate: false
+  xy: 954, 7
+  size: 207, 189
+  orig: 224, 208
+  offset: 15, 14
+  index: -1
+spadesLD
+  rotate: true
+  xy: 1185, 159
+  size: 179, 339
+  orig: 179, 339
+  offset: 0, 0
+  index: -1
+spadesRC
+  rotate: false
+  xy: 901, 352
+  size: 398, 164
+  orig: 398, 164
+  offset: 0, 0
+  index: -1

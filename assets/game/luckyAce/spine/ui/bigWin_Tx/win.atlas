@@ -1,0 +1,160 @@
+
+win.png
+size: 2048,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+02_fx/lineLight1
+  rotate: false
+  xy: 498, 56
+  size: 401, 181
+  orig: 401, 181
+  offset: 0, 0
+  index: -1
+02_fx/lineLight2
+  rotate: false
+  xy: 498, 238
+  size: 401, 267
+  orig: 401, 267
+  offset: 0, 0
+  index: -1
+02_fx/lineLight3
+  rotate: false
+  xy: 1415, 366
+  size: 139, 139
+  orig: 139, 139
+  offset: 0, 0
+  index: -1
+02_fx/lineLight4
+  rotate: false
+  xy: 900, 65
+  size: 160, 55
+  orig: 160, 55
+  offset: 0, 0
+  index: -1
+02_fx/star1
+  rotate: false
+  xy: 900, 121
+  size: 219, 239
+  orig: 220, 239
+  offset: 0, 0
+  index: -1
+blue
+  rotate: true
+  xy: 900, 361
+  size: 144, 514
+  orig: 144, 514
+  offset: 0, 0
+  index: -1
+coins_b.0001
+  rotate: false
+  xy: 1120, 157
+  size: 102, 98
+  orig: 128, 128
+  offset: 11, 15
+  index: -1
+coins_b.0002
+  rotate: false
+  xy: 1660, 344
+  size: 96, 78
+  orig: 128, 128
+  offset: 14, 25
+  index: -1
+coins_b.0003
+  rotate: false
+  xy: 1120, 90
+  size: 101, 66
+  orig: 128, 128
+  offset: 13, 27
+  index: -1
+coins_b.0004
+  rotate: false
+  xy: 1870, 428
+  size: 103, 77
+  orig: 128, 128
+  offset: 12, 20
+  index: -1
+coins_b.0005
+  rotate: false
+  xy: 1322, 272
+  size: 91, 88
+  orig: 128, 128
+  offset: 16, 16
+  index: -1
+coins_b.0006
+  rotate: true
+  xy: 900, 1
+  size: 63, 99
+  orig: 128, 128
+  offset: 32, 13
+  index: -1
+coins_b.0007
+  rotate: true
+  xy: 1555, 339
+  size: 65, 104
+  orig: 128, 128
+  offset: 34, 10
+  index: -1
+coins_b.0008
+  rotate: true
+  xy: 1660, 423
+  size: 82, 104
+  orig: 128, 128
+  offset: 26, 10
+  index: -1
+coins_b.0009
+  rotate: false
+  xy: 1225, 266
+  size: 96, 94
+  orig: 128, 128
+  offset: 17, 13
+  index: -1
+coins_b.0010
+  rotate: true
+  xy: 1974, 402
+  size: 103, 68
+  orig: 128, 128
+  offset: 12, 25
+  index: -1
+coins_b.0011
+  rotate: false
+  xy: 603, 23
+  size: 104, 32
+  orig: 128, 128
+  offset: 11, 44
+  index: -1
+coins_b.0012
+  rotate: false
+  xy: 498, 9
+  size: 104, 46
+  orig: 128, 128
+  offset: 11, 42
+  index: -1
+coins_b.0013
+  rotate: false
+  xy: 1765, 425
+  size: 104, 80
+  orig: 128, 128
+  offset: 11, 26
+  index: -1
+coins_b.0014
+  rotate: false
+  xy: 1555, 405
+  size: 104, 100
+  orig: 128, 128
+  offset: 11, 14
+  index: -1
+coins_b.0015
+  rotate: false
+  xy: 1120, 256
+  size: 104, 104
+  orig: 128, 128
+  offset: 11, 10
+  index: -1
+shine_point_02
+  rotate: false
+  xy: 1, 9
+  size: 496, 496
+  orig: 512, 512
+  offset: 16, 0
+  index: -1

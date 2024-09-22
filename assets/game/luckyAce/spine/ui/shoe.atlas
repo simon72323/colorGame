@@ -1,0 +1,55 @@
+
+shoe.png
+size: 1922,223
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+cardOut
+  rotate: true
+  xy: 954, 19
+  size: 202, 298
+  orig: 202, 298
+  offset: 0, 0
+  index: -1
+cardback
+  rotate: true
+  xy: 1254, 17
+  size: 204, 259
+  orig: 204, 259
+  offset: 0, 0
+  index: -1
+cards1
+  rotate: true
+  xy: 327, 5
+  size: 216, 314
+  orig: 216, 314
+  offset: 0, 0
+  index: -1
+cards2
+  rotate: true
+  xy: 643, 5
+  size: 216, 309
+  orig: 216, 309
+  offset: 0, 0
+  index: -1
+edgeLight
+  rotate: true
+  xy: 1780, 2
+  size: 219, 140
+  orig: 219, 140
+  offset: 0, 0
+  index: -1
+shoe
+  rotate: true
+  xy: 2, 2
+  size: 219, 323
+  orig: 219, 323
+  offset: 0, 0
+  index: -1
+tableLight
+  rotate: false
+  xy: 1515, 78
+  size: 263, 143
+  orig: 263, 143
+  offset: 0, 0
+  index: -1

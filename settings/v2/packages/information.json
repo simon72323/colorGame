@@ -7,7 +7,7 @@
       "enable": true,
       "customSplash": {
         "complete": false,
-        "form": "https://creator-api.cocos.com/api/form/show?sid=9463ad6e45589ccfb1071255267c96c1"
+        "form": "https://creator-api.cocos.com/api/form/show?sid=262dd036b2bc958df3d27a9e68c9cf46"
       }
     },
     "removeSplash": {
@@ -16,7 +16,7 @@
       "enable": true,
       "removeSplash": {
         "complete": false,
-        "form": "https://creator-api.cocos.com/api/form/show?sid=9463ad6e45589ccfb1071255267c96c1"
+        "form": "https://creator-api.cocos.com/api/form/show?sid=262dd036b2bc958df3d27a9e68c9cf46"
       }
     }
   }
