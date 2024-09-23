@@ -1,5 +1,5 @@
 import { _decorator, Component, sys, JsonAsset, Vec3 } from 'cc';
-import { onLoadInfo, RankingInfo, GameState, onJoinGame, PayoffInfo, BeginGameData } from '../connector/CGReceive';
+import { onLoadInfo, Ranking, GameState, onJoinGame, Payoff, BetData } from '../enum/CGInterface';
 import { CGPathManager } from '../components/CGPathManager';
 import { PathInfo } from '../enum/CGInterface';
 const { ccclass, property } = _decorator;
@@ -29,12 +29,12 @@ export class CGModel extends Component {
     public userTotalBet: number;//該用戶目前總下注額
     public userBets: number[];//該用戶各注區目前下注額(需要中途出現籌碼)
     public totalBets: number[];//目前各注區的下注額(需要中途出現籌碼)
-    public rankings: RankingInfo[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
+    public rankings: Ranking[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
 
     public pathID: number;//該局表演路徑ID
     public winColor: number[];//該局勝利3顏色編號
-    public userPayoff: PayoffInfo;//該用戶贏得分數
-    public otherPayoffs?: PayoffInfo[];//前三名玩家+其他玩家贏分資訊[玩家][注區贏分]
+    public userPayoff: Payoff;//該用戶贏得分數
+    public otherPayoffs?: Payoff[];//前三名玩家+其他玩家贏分資訊[玩家][注區贏分]
 
     public countdown: number;//下注倒數時間
     public newBets: number[][];//前三名玩家+其他玩家新增的下注資訊[玩家][下注金額]
@@ -133,7 +133,6 @@ export class CGModel extends Component {
             [0, 0, 200, 500, 0, 400]
         ];//前三名玩家+其他玩家新增的下注資訊[玩家][下注金額]
         this.userCount = 50;//目前其他玩家人數
-
     }
 
     public setPathData() {

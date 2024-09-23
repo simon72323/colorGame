@@ -47,7 +47,7 @@ export class CGController extends Component {
     public avatarPhoto: SpriteFrame[] = [];
 
     protected onLoad() {
-        this.node.on('OnButtonEventPressed', this.onBetAreaPressed, this);
+        // this.node.on('OnButtonEventPressed', this.onBet, this);
         // 初始化所有组件
         this.initComponents();
         // this.initWebSocket();
@@ -55,11 +55,11 @@ export class CGController extends Component {
         //開始模擬server發送消息
         // this.startSimulatingServerMessages();
     }
-
-    //注區按下
-    private onBetAreaPressed(param: string): void {
-        this.chipDispatcher.createChipToBetArea(Number(param), 0, this.model.touchChipID, false);
+    private initComponents() {
+        this.chipSetView.init(this);
     }
+
+   
 
     //設置點選中的籌碼ID
     setTouchChipID(chipID: number) {
@@ -76,15 +76,7 @@ export class CGController extends Component {
         this.chipSetView.setChipRange(chipRange);
     }
 
-    private initComponents() {
-        // 初始化各个组件,并传入必要的引用
-        // this.model.init(this);
-        // this.view.init(this);
-        // this.chipDispatcher.init(this);
-        // this.roundManager.init(this);
-        this.chipSetView.init(this);
-        // this.zoom.init(this);
-    }
+
 
 
 }

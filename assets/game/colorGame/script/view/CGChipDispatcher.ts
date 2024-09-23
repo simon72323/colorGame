@@ -1,8 +1,8 @@
 import { _decorator, Component, Node, tween, Vec3, Label, Sprite, Animation, UITransform, Button, Color, Prefab, SpriteFrame, EventHandler, instantiate } from 'cc';
-import { CGController } from '../control/CGController';
+import { CGController } from '../controller/CGController';
 import PoolHandler from '../tools/PoolHandler';
 import { CGUtils } from '../tools/CGUtils';
-import { CGSetChipID } from './prefab/CGSetChipID';
+import { CGChipID } from './prefab/CGChipID';
 const { ccclass, property } = _decorator;
 
 enum RebetState {
@@ -109,6 +109,68 @@ export class CGChipDispatcher extends Component {
         tempPool.forEach(chip => this.pool.put(chip));
     }
 
+    /**
+     * 本地用戶下注
+     * @param betID 注區ID
+     * @param chipID 籌碼ID
+     */
+    //本地用戶下注
+    public betLocally(betID: number, chipID: number) {
+        const view = this.controller.view;
+        const model = this.controller.model;
+        let betChip: Node;
+        let betChipHeight: number;
+        let betChipWidth: number;
+        let poolBetChip: Node;//生成的籌碼
+        let movePos: Vec3;//籌碼移動位置
+        let chipCredit = model.chipRange[chipID];
+
+        if (model.userTotalBet + chipCredit > model.limit) {
+            this.showTipMessage("投注超過限額");
+            return;
+        }
+        if (model.credit < chipCredit) {
+            this.showTipMessage("餘額不足");
+            for (let i = 0; i < 3; i++) {
+                this.updateBetCallUI(i, false);//取消跟注
+            }
+            return;
+        }
+        this.btnRebet.getComponent(Button).interactable = false;
+        betChip = this.chipDispatcher.getChildByName('MainPlayer').children[betId];//下注區節點
+        poolBetChip = this.pool.get(this.betChipColor);
+        poolBetChip.getComponent(Sprite).spriteFrame = this.chipSF[chipID];//設置籌碼貼圖
+        poolBetChip.getComponent(CGChipID).chipID = chipID;
+        console.log("籌碼額度", chipCredit)
+        poolBetChip.children[0].getComponent(Label).string = CGUtils.NumDigits(chipCredit);//設置籌碼額度
+        poolBetChip.parent = betChip;
+        model.userTotalBet += chipCredit;//本地下注總分增加
+
+        model.credit -= chipCredit;
+        //*****注意續押的籌碼編號可能會跟選擇區的籌碼不同，如果執行續押，籌碼會從玩家頭像下注 */
+        if (rebet)
+            poolBetChip.position = view.playerPos.children[0].getWorldPosition().subtract(betChip.worldPosition);
+        else
+            poolBetChip.position = this.controller.chipSetView.touchChip.children[this.controller.chipSetView.chipSetID.indexOf(chipID)].getWorldPosition().subtract(betChip.worldPosition);
+
+        this.rebetCredit = model.userTotalBet;
+        this.rebetCreditLable.string = CGUtils.NumDigits(this.rebetCredit);//續押額度更新
+        view.comBtnBet.getComponent(Animation).play();
+        // model.betInfo.BetAreaData[betId].BetCredit += chipCredit;//注區額度增加
+        model.totalBets[betID] += chipCredit;//各注區總分更新
+        betChipHeight = betChip.getComponent(UITransform).height;
+        betChipWidth = betChip.getComponent(UITransform).width;
+        movePos = new Vec3(betChipWidth / 2 - Math.random() * betChipWidth, betChipHeight / 2 - Math.random() * betChipHeight, 0);
+        tween(poolBetChip).to(0.3, { position: movePos }, { easing: 'sineOut' })
+            .call(() => {
+                model.userBets[betID] += chipCredit;//本地玩家該下注區總額度
+                view.betInfo.children[betID].getChildByName('BetCredit').getComponent(Label).string = CGUtils.NumDigits(model.userBets[betId]);
+
+                view.updateUICredit(); //更新介面額度
+                this.chipScale(poolBetChip);//籌碼縮放動態
+            }).start();
+    }
+
     //生成籌碼到注區(注區id，下注人，籌碼分ID，是否為續押)
     public createChipToBetArea(betId: number, playerId: number, chipID: number, rebet: boolean) {
         const view = this.controller.view;
@@ -135,7 +197,7 @@ export class CGChipDispatcher extends Component {
             betChip = this.chipDispatcher.getChildByName('MainPlayer').children[betId];//下注區節點
             poolBetChip = this.pool.get(this.betChipColor);
             poolBetChip.getComponent(Sprite).spriteFrame = this.chipSF[chipID];//設置籌碼貼圖
-            poolBetChip.getComponent(CGSetChipID).chipID = chipID;
+            poolBetChip.getComponent(CGChipID).chipID = chipID;
             console.log("籌碼額度", chipCredit)
             poolBetChip.children[0].getComponent(Label).string = CGUtils.NumDigits(chipCredit);//設置籌碼額度
             poolBetChip.parent = betChip;
@@ -160,7 +222,7 @@ export class CGChipDispatcher extends Component {
         }
         // model.betInfo.BetAreaData[betId].BetCredit += chipCredit;//注區額度增加
         model.totalBets[betId] += chipCredit;//各注區總分更新
-        poolBetChip.getComponent(CGSetChipID).playerID = playerId;
+        // poolBetChip.getComponent(CGChipID).playerID = playerId;
         betChipHeight = betChip.getComponent(UITransform).height;
         betChipWidth = betChip.getComponent(UITransform).width;
         movePos = new Vec3(betChipWidth / 2 - Math.random() * betChipWidth, betChipHeight / 2 - Math.random() * betChipHeight, 0);
@@ -205,6 +267,7 @@ export class CGChipDispatcher extends Component {
     //生成派獎籌碼到注區(勝利注區id，倍率)
     public async createPayChipToBetArea(betId: number, multiply: number) {
         let poolBetChip: Node;//生成的籌碼
+        //0=其他玩家，1=本地玩家
         for (let i = 0; i < 2; i++) {
             const betChip = this.chipDispatcher.children[i].children[betId];//下注區節點
             if (betChip.children.length > 0) {
@@ -215,8 +278,8 @@ export class CGChipDispatcher extends Component {
                         poolBetChip = this.pool.get(i === 0 ? this.betChipBlack : this.betChipColor);
                         poolBetChip.parent = payNode;
                         poolBetChip.getComponent(Sprite).spriteFrame = betChip.children[k].getComponent(Sprite).spriteFrame;
-                        poolBetChip.getComponent(CGSetChipID).playerID = betChip.children[k].getComponent(CGSetChipID).playerID;
-                        poolBetChip.getComponent(CGSetChipID).chipID = betChip.children[k].getComponent(CGSetChipID).chipID;
+                        // poolBetChip.getComponent(CGSetChipID).playerID = betChip.children[k].getComponent(CGSetChipID).playerID;
+                        poolBetChip.getComponent(CGChipID).chipID = betChip.children[k].getComponent(CGChipID).chipID;
                         poolBetChip.children[0].getComponent(Label).string = betChip.children[k].children[0].getComponent(Label).string;
                         const chipPos = betChip.children[k].position;
                         poolBetChip.setPosition(new Vec3(chipPos.x, chipPos.y + (j + 1) * (i === 0 ? 5 : 6), chipPos.z));
@@ -247,9 +310,9 @@ export class CGChipDispatcher extends Component {
     private chipPayToPlayer(betId: number) {
         for (let i = 0; i < 2; i++) {
             const betChip = this.chipDispatcher.children[i].children[betId];
-            for (let j = 0; j < betChip.children.length; j++) {
+            for (let j = 0; j < betChip.children.length; j++) {//判斷籌碼數量
                 let chip = betChip.children[j];
-                const chipPlayerID = chip.getComponent(CGSetChipID).playerID;
+                // const chipPlayerID = chip.getComponent(CGSetChipID).playerID;
                 const movePos = this.controller.view.playerPos.children[chipPlayerID].getWorldPosition().subtract(betChip.getWorldPosition());
                 tween(chip).to(0.5, { position: movePos }, { easing: 'sineOut' }).call(() => {
                     this.pool.put(chip);
@@ -266,7 +329,7 @@ export class CGChipDispatcher extends Component {
         this.rebetSave = [[], [], [], [], [], []];//清空後重新記錄籌碼
         for (let i = 0; i < this.rebetSave.length; i++) {
             for (let chip of this.chipDispatcher.getChildByName('MainPlayer').children[i].children) {
-                this.rebetSave[i].push(chip.getComponent(CGSetChipID).chipID);//添加籌碼id到續押資料內
+                // this.rebetSave[i].push(chip.getComponent(CGSetChipID).chipID);//添加籌碼id到續押資料內
             }
         }
         this.rebetCredit = userTotalBet;

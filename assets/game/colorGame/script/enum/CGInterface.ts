@@ -21,103 +21,100 @@ export interface onLoadInfo {
   event: boolean;//操作是否成功的標誌
   data: {
     UserID: number;//用戶ID
-    Avatar: number;//頭像ID
+    // Avatar: number;//頭像ID
     Balance: number, // 玩家擁有金額
     Base: string, // 目前換分比
     DefaultBase: string,  // default 換分比
     BetCreditList: number[], // 下注credit選項
-    DefaultBetCredit: number, // default 下注credit選項
-    Rates: { [key: string]: number[] }, // symbol 賠率表(顯示在symbol hint)
+    // DefaultBetCredit: number, // default 下注credit選項
     // UserAutoExchange: UserAutoExchange,
     Currency: string, // 幣別
-    LoginName: "Player", // 玩家暱稱
+    LoginName: string, // 玩家暱稱
     AutoExchange: boolean, // 是否自動換分
     Credit: number,  // 玩家目前在遊戲中有多少 credit
-    BetBase: string, // default 下注比例
-    isCash: boolean, // 是否現金支付
+    // BetBase: string, // default 下注比例
+    // isCash: boolean, // 是否現金支付
     // userSetting: userSetting, // 玩家設定
     // SingleBet: 100,// 未知欄位
   }
 }
 
 export enum GameState {
-  GameReady = "gameReady",//準備中
-  GameNewRound = "gameNewRound",//新局開始
-  GameBetting = "gameBetting",//遊戲中(下注階段)
-  GameReward = "gameReward"//遊戲結束(派獎階段)
+  Ready = "Ready",//準備中
+  NewRound = "NewRound",//新局開始
+  Betting = "Betting",//遊戲中(下注階段)
+  Reward = "Reward"//遊戲結束(派獎階段)
 }
 
 //加入遊戲資料(本地給遊戲版本跟server要)
 export interface onJoinGame {
   event: boolean;//操作是否成功的標誌
   data: {
-    GameState: GameState;//遊戲目前狀態
+    GameState: string;//遊戲目前狀態
     UserID: number;//用戶ID
     RoundSerial: number;//局號
-    Limit: number; // 遊戲限額
+    StartColor: number[];//該局起始顏色
     BetTime: number; // 單局下注時間
-    ChipRange: number[]; // 籌碼額度範圍
     RoadMap: number[][];//前10局開獎顏色紀錄(顯示下注紀錄顏色)[局數][顏色]
     RoadMapPer: number[];//前100局開獎百分比[顏色id]
-    UserTotalBet: number;//該用戶目前總下注額
-    UserBets: number[];//該用戶各注區目前下注額(需要中途出現籌碼)
-    TotalBets: number[];//目前各注區的下注額(需要中途出現籌碼)
-    Rankings: RankingInfo[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
-    WagersID?: number;//該玩家注單
+    BetAreaTotal: number[];//目前各注區的下注額(需要中途出現籌碼)
+    Rankings: Ranking[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
+    LiveCount: number;//其他用戶人數
     PathID?: number;//該局表演路徑ID
     WinColor?: number[];//該局勝利3顏色編號
-    UserPayoff?: PayoffInfo;//本地玩家贏分
-    OtherPayoffs?: PayoffInfo[];//前三名玩家+其他玩家贏分資訊[玩家][注區贏分]
+    OtherPayoffs?: Payoff[];//前三名玩家+其他玩家贏分資訊[玩家][注區贏分]
   }
 }
 
 //更新資料(server每秒傳送)
-export interface UpdateData {
+export interface onUpdate {
+  event: boolean;//操作是否成功的標誌
   data: {
     // 遊戲狀態資訊
-    GameState: GameState;//遊戲目前狀態
+    GameState: string;//遊戲目前狀態
     RoundSerial?: number;//局號
+    StartColor?: number[];//該局起始顏色
     Countdown?: number;//下注倒數時間(每秒更新)
-    UserCount?: number;//用戶人數
     // 路紙
     RoadMap?: number[][];//前10局開獎顏色紀錄(顯示下注紀錄顏色)[局數][顏色]
     RoadMapPer?: number[];//前100局開獎百分比[顏色id]
-
     // 排名與下注
-    Rankings?: RankingInfo[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
-    TotalBets?: number[];//目前各下注區總額
+    Rankings?: Ranking[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
+    LiveCount?: number;//其他用戶人數
+    BetAreaTotal?: number[];//目前各下注區總額
     NewBets?: number[][];//前三名玩家+其他玩家新增的下注資訊[玩家][下注金額]
-
     // 派彩
-    WagersID?: number;//該玩家注單
     PathID?: number;//該局表演路徑ID
     WinColor?: number[];//該局勝利3顏色編號
-    UserPayoff?: PayoffInfo;//本地玩家贏分
-    OtherPayoffs?: PayoffInfo[];//前三名玩家+其他玩家贏分資訊[玩家][注區贏分]
+    UserPayoff?: Payoff;//本地玩家贏分
+    OtherPayoffs?: Payoff[];//前三名玩家+其他玩家贏分資訊[玩家][注區贏分]
   }
 }
 
-export interface RankingInfo {
+export interface Ranking {
   userID: number;//用戶ID
   displayName: string; // 登入名稱
   avatar: number; // 頭像
   credit: number; //換分餘額
 }
 
-export interface PayoffInfo {
+export interface Payoff {
   winAreas: number[];//勝利注區[0,2,4]
   payoff: number;//贏得額度
 }
 
 //下注成功回傳資料
-export interface BeginGameData {
-  isSuccess: boolean; // 操作是否成功的標誌
-  BetAreaID: number; // 下注區id
-  BetCredit: number; // 下注額度
-  Credit: number; // 剩餘額度
-  UserTotalBet: number;//用戶目前總下注額
-  UserBets: number[];//用戶目前各注區下注額
-  TotalBets: number[];//目前各下注區總額
+export interface onBetInfo {
+  event: boolean; // 操作是否成功的標誌
+  error?: string;//錯誤訊息
+  data: {
+    BetAreaID: number; // 下注區id
+    BetCredit: number; // 下注額度
+    Credit: number; // 剩餘額度
+    BetTotal: number;//用戶目前總下注額
+    // UserBets: number[];//用戶目前各注區下注額
+    // BetAreaTotal: number[];//目前各下注區總額
+  }
 }
 
 

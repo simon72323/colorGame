@@ -1,10 +1,10 @@
 {
-  "name": "gtgamecore",
+  "name": "NewProject_1",
   "uuid": "95a72153-8546-4ea2-8150-6556d26b0034",
   "creator": {
     "version": "3.8.3"
   },
   "dependencies": {
-    "@gt-npm/gt-lib-ts": "^1.0.13"
+    "@gt-npm/gt-lib-ts": "^1.0.15"
   }
 }

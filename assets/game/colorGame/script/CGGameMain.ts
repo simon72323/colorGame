@@ -1,16 +1,16 @@
 // import { gtCommEvents } from '@gt-npm/gtlibts';
-// import { h5GameTools, useGlobalEventDispatcher } from '@gt-npm/gt-lib-ts';
+import { h5GameTools, useGlobalEventDispatcher } from '@gt-npm/gt-lib-ts';
 import { _decorator, CCBoolean, Component, find, Node } from 'cc';
-import { CGGameControl } from './control/CGGameControl';
-import { CGGameModel } from './model/CGGameModel';
+import { CGController } from './controller/CGController';
+import { CGModel } from './model/CGModel';
 import { WorkOnBlur } from './tools/WorkOnBlur';
 import { WorkerTimeout } from './tools/WorkerTimeout';
 import { CGUtils } from './tools/CGUtils';
-import { GameState } from './connector/CGReceive';
+import { GameState } from './enum/CGInterface';
 import { WebSocketManager } from './WebSocketManager';
 
-import { onOnLoadInfo } from '../../luckyAce/script/enum/RAInterface';
-import { beginGameData } from '../../luckyAce/script/enum/mockData';
+import { onLoadInfo, onJoinGame, onUpdate } from './enum/CGInterface';
+import { LoadInfoData, JoinGameData, UpdateData } from './enum/CGMockData';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGGameMain')
@@ -19,26 +19,28 @@ export class CGGameMain extends Component {
     @property(CCBoolean)
     public useFakeData: boolean = false;//假資料
 
-    @property(CGGameControl)
-    private gameControl: CGGameControl = null!;
-    @property(CGGameModel)
-    private gameModel: CGGameModel = null!;
+    @property(CGController)
+    private controller: CGController = null!;
+    @property(CGModel)
+    private model: CGModel = null!;
+
     private webSocketManager: WebSocketManager = null;
-    
+
     protected onLoad(): void {
         //啟用後台運行(針對動畫、tween、schedule、spine等動畫)
         WorkOnBlur.getInstance();
         WorkerTimeout.getInstance().enable();
+        this.node.on('OnButtonEventPressed', this.onBet, this);
     }
 
     protected start(): void {
 
         // 註冊監聽GS事件
-        // useGlobalEventDispatcher().addEventListener(h5GameTools.slotGameConnector.SlotGameEvent.LOAD_INFO, this.onLoadInfo.bind(this));
-        // useGlobalEventDispatcher().addEventListener(h5GameTools.slotGameConnector.SlotGameEvent.CREDIT_EXCHANGE, this.onCreditExchange.bind(this));
-        // useGlobalEventDispatcher().addEventListener(h5GameTools.slotGameConnector.SlotGameEvent.BEGIN_GAME, this.onBeginGame.bind(this));
+        useGlobalEventDispatcher().addEventListener(h5GameTools.slotGameConnector.SlotGameEvent.LOAD_INFO, this.onLoadInfo.bind(this));
+        useGlobalEventDispatcher().addEventListener(h5GameTools.slotGameConnector.SlotGameEvent.CREDIT_EXCHANGE, this.onCreditExchange.bind(this));
+        useGlobalEventDispatcher().addEventListener(h5GameTools.slotGameConnector.SlotGameEvent.BEGIN_GAME, this.onBeginGame.bind(this));
 
-        if(!this.useFakeData){
+        if (!this.useFakeData) {
             this.init();
         }
 
@@ -58,28 +60,58 @@ export class CGGameMain extends Component {
     }
 
     protected update(deltaTime: number): void {
-        
+
     }
 
     protected onDestroy(): void {
         // 移除監聽公版事件
-        // useGlobalEventDispatcher().removeEventListener(h5GameTools.slotGameConnector.SlotGameEvent.LOAD_INFO);
-        // useGlobalEventDispatcher().removeEventListener(h5GameTools.slotGameConnector.SlotGameEvent.CREDIT_EXCHANGE);
-        // useGlobalEventDispatcher().removeEventListener(h5GameTools.slotGameConnector.SlotGameEvent.BEGIN_GAME);
+        useGlobalEventDispatcher().removeEventListener(h5GameTools.slotGameConnector.SlotGameEvent.LOAD_INFO);
+        useGlobalEventDispatcher().removeEventListener(h5GameTools.slotGameConnector.SlotGameEvent.CREDIT_EXCHANGE);
+        useGlobalEventDispatcher().removeEventListener(h5GameTools.slotGameConnector.SlotGameEvent.BEGIN_GAME);
     }
 
-   /**
-    * 下注
-    */
+
+
+    /**
+     * 注區按下
+     * @param param 下注的注區ID
+     */
+    private async onBet(param: string) {
+        if (this.useFakeData) {
+            //傳送下注資料給server，server確認後回傳
+            this.controller.chipDispatcher.createChipToBetArea(Number(param), 0, this.model.touchChipID, false);
+            // let msg = structuredClone(beginGameData.Instance.getData());
+            // this.controller.onBeginGame(msg);
+        } else {
+            try {
+                const response = await h5GameTools.slotGameConnector.SlotGameConnector.shared.callBeginGame({
+                    "action": "beginGame4",
+                    "betInfo": { "BetCredit": 200, "betArea": param }
+                });
+                if (response.event)
+                    this.controller.chipDispatcher.createChipToBetArea(Number(param), 0, this.model.touchChipID, false);
+
+            } catch (error) {
+                // console.error('下注过程中出错:', error);
+            }
+            // await h5GameTools.slotGameConnector.SlotGameConnector.shared.callBeginGame({ "action": "beginGame4", "betInfo": { "BetCredit": 200 } });
+            // console.log('下注完成...');
+        }
+    }
+
+    /**
+     * 下注
+     */
     public async Spin() {
-        if(this.useFakeData){
+        if (this.useFakeData) {
+            //傳送下注資料給server
             let msg = structuredClone(beginGameData.Instance.getData());
-            // this.gameControl.onBeginGame(msg);
-        }else{
-            // await h5GameTools.slotGameConnector.SlotGameConnector.shared.callBeginGame({"action":"beginGame4","betInfo":{"BetCredit":200}});
+            this.controller.onBeginGame(msg);
+        } else {
+            await h5GameTools.slotGameConnector.SlotGameConnector.shared.callBeginGame({ "action": "beginGame4", "betInfo": { "BetCredit": 200 } });
             console.log('下注完成...');
         }
-   }
+    }
 
 
     private async init(): Promise<void> {
@@ -96,10 +128,10 @@ export class CGGameMain extends Component {
      * GS連線
      */
     private async linkWs(): Promise<void> {
-        // h5GameTools.UrlHelper.shared.domain = 'https://casino1.bb-in555.com';
-        // await h5GameTools.boot();
-        // await h5GameTools.slotGameConnector.SlotGameConnector.shared.connect();
-        // console.log('GS連線完成...');
+        h5GameTools.UrlHelper.shared.domain = 'https://casino1.bb-in555.com';
+        await h5GameTools.boot();
+        await h5GameTools.slotGameConnector.SlotGameConnector.shared.connect();
+        console.log('GS連線完成...');
     }
 
     /**
@@ -107,14 +139,14 @@ export class CGGameMain extends Component {
      * @param exchange 
      */
     private async exchange(exchange: string): Promise<void> {
-        // await h5GameTools.slotGameConnector.SlotGameConnector.shared.callCreditExchange(h5GameTools.commonStore.CommonStore.shared.storeState.betBase, exchange);
+        await h5GameTools.slotGameConnector.SlotGameConnector.shared.callCreditExchange(h5GameTools.commonStore.CommonStore.shared.storeState.betBase, exchange);
         console.log('開始換分...');
     }
 
     private async onBeginGame(data) {
         console.log('收到下注結果:', JSON.stringify(data));
-        // this.gameControl.onBeginGame(data);
-    } 
+        this.controller.onBeginGame(data);
+    }
 
     // private async endGame() {
     //     await h5GameTools.slotGameConnector.SlotGameConnector.shared.callEndGame(h5GameTools.commonStore.CommonStore.shared.storeState.wagersID);
@@ -126,14 +158,14 @@ export class CGGameMain extends Component {
      */
     private onLoadInfo(data: onOnLoadInfo) {
         console.log('onLoadInfo:', JSON.stringify(data));
-        // this.model.setLoadingInfo(data);
+        this.model.setLoadingInfo(data);
     }
 
     private onCreditExchange(data: object): void {
         console.log('onCreditExchange:', JSON.stringify(data));
         console.log('換分完成...');
     }
-        
+
 
     private onSpinBtnClick(): void {
 

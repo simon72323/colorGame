@@ -1,8 +1,8 @@
 import { _decorator, Component, Node } from 'cc';
 const { ccclass, property } = _decorator;
 
-@ccclass('CGSetChipID')
-export class CGSetChipID extends Component {
-    public playerID: number = 0;//該籌碼玩家ID
+@ccclass('CGChipID')
+export class CGChipID extends Component {
+    // public playerID: number = 0;//該籌碼歸屬的玩家
     public chipID: number = 0;//該籌碼ID
 }

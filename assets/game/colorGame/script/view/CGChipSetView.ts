@@ -1,6 +1,6 @@
 import { _decorator, Component, Node, Label, Sprite, Toggle, UIOpacity, EventHandler, sys, Button } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
-import { CGController } from '../control/CGController';
+import { CGController } from '../controller/CGController';
 
 const { ccclass, property } = _decorator;
 @ccclass('CGChipSetView')

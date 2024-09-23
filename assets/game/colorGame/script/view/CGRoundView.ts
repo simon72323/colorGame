@@ -1,7 +1,7 @@
 import { _decorator, Component, Label, Button, Sprite, Animation, UIOpacity, tween, Vec3, Color, Node } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
 import { CGPathManager } from '../components/CGPathManager';//非loading過程是暫時使用
-import { CGController } from '../control/CGController';
+import { CGController } from '../controller/CGController';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGRoundView')
