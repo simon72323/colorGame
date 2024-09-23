@@ -1,5 +1,6 @@
 import { _decorator, Component, Node, Label, UITransform, Sprite, SpriteFrame } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
+import { RankInfo } from '../enum/CGInterface';
 
 const { ccclass, property } = _decorator;
 @ccclass('CGView')
@@ -9,6 +10,8 @@ export class CGView extends Component {
 
     @property({ type: Node, tooltip: "玩家位置" })
     public playerPos: Node = null;
+    @property({ type: [SpriteFrame], tooltip: "頭像貼圖", group: { name: '貼圖資源', id: '2' } })
+    public avatarPhoto: SpriteFrame[] = [];
 
     @property({ type: Node, tooltip: "下注額度按鈕(公版)" })
     public comBtnBet: Node = null;
@@ -58,12 +61,15 @@ export class CGView extends Component {
      * @param avatar 用戶頭像
      * @controller
      */
-    public updateUserRanks(name: string, credit: number, avatar: SpriteFrame) {
-        for (let i = 1; i < 4; i++) {
-            const node = this.playerPos.children[i].children[0];
-            node.getChildByName('Name').getComponent(Label).string = name;//更新名稱
-            node.getChildByName('Label').getComponent(Label).string = CGUtils.NumDigits(credit);//更新餘額
-            node.getChildByName('Mask').children[0].getComponent(Sprite).spriteFrame = avatar;//更新頭像
+    public updateUserRanks(rankings: RankInfo[], userID: number, liveCount: number) {
+        for (let i = 0; i < 3; i++) {
+            const node = this.playerPos.children[i + 1].children[0];
+            node.getChildByName('Name').getComponent(Label).string = rankings[i].displayName;//更新名稱
+            node.getChildByName('Label').getComponent(Label).string = CGUtils.NumDigits(rankings[i].credit);//更新餘額
+            node.getChildByName('Mask').children[0].getComponent(Sprite).spriteFrame = this.avatarPhoto[rankings[i].avatar];//更新頭像
+            if (rankings[i].userID === userID)
+                console.log("排名有本地玩家，隱藏該欄位跟注功能")
         }
+
     }
 }

@@ -42,6 +42,8 @@ export class CGGameMain extends Component {
 
         if (!this.useFakeData) {
             this.init();
+        } else {
+
         }
 
         // 註冊監聽公版事件
@@ -71,6 +73,78 @@ export class CGGameMain extends Component {
     }
 
 
+    //假資料
+    private fakeOnLoadInfo() {
+        const fakeOnLogInInfo: onLoadInfo = {
+            "event": true,
+            "data":
+            {
+                "userID": 12345678,
+                "avatar": 10,//頭像ID (隨機0~31) 共32組
+                "balance": 100000,
+                "base": "1:1",
+                "defaultBase": "1:1",
+                "betCreditList": [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],//遊戲籌碼注額
+                "currency": "RMB",
+                "loginName": "Player",
+                "autoExchange": false,
+                "credit": 20000,
+            }
+        }
+        this.controller.onLogInfoData(fakeOnLogInInfo);
+        this.fakeOnJoinGame();
+    }
+
+    private fakeOnJoinGame() {
+        const fakeOnJoinGame: onJoinGame = {
+            "event": true,
+            "data":
+            {
+                "gameState": 'Betting',//"Ready":準備中，"NewRound":新局開始，"Betting":下注中，"Reward":派獎
+                "roundSerial": 47378797,
+                "startColor": [1, 2, 3],//該局起始顏色編號(1~6，1=黃、2=灰、3=紫、4=藍、5=紅、6=綠)
+                "betTotalTime": 12,//遊戲下注時間(彈性調整)
+                "countdown": 10,//剩餘下注時間
+                //前10局路紙顏色[新到舊]
+                "roadMap": [
+                    [1, 1, 2], [5, 1, 2], [1, 1, 2], [1, 4, 5], [5, 3, 4], [2, 2, 2], [3, 4, 4], [5, 6, 1], [5, 3, 4], [6, 5, 2]
+                ],
+                "roadMapPer": [16.3, 17.5, 16.2, 18.3, 15.4, 16.3],//前100局路紙顏色百分比[黃、灰、紫、藍、紅、綠]
+                "totalBetAreaCredit": [2000, 1000, 2000, 1000, 1000, 2000],//總用戶目前各注區下注額
+                //目前前三名，{用戶ID、顯示名稱、頭像ID、餘額}
+                "rankings": [
+                    { "userID": 11111111, "displayName": 'john', "avatar": 10, "credit": 70000 },
+                    { "userID": 22222222, "displayName": 'kenny', "avatar": 11, "credit": 60000 },
+                    { "userID": 3845147, "displayName": 'simon', "avatar": 12, "credit": 50000 }
+                ],
+                "liveCount": 20,//其他用戶人數
+                "pathID": 1,//本局表演的路徑ID (隨機0~999) 
+                "winColor": [1, 2, 3],//該局開獎顏色編號(1~6，1=黃、2=灰、3=紫、4=藍、5=紅、6=綠)
+                //前三名用戶+其他用戶派彩，{勝利注區(1~6)，派彩額度}
+                "otherPayoffs": [
+                    { "winAreas": [1, 2, 3], "payoff": 200 },
+                    { "winAreas": [1, 2], "payoff": 300 },
+                    { "winAreas": [2, 3], "payoff": 500 },
+                    { "winAreas": [3], "payoff": 100 }
+                ],
+            }
+        }
+        const { gameState, roundSerial, startColor, betTotalTime, countdown, roadMap, roadMapPer,
+            totalBetAreaCredit, rankings, liveCount, pathID, winColor, otherPayoffs
+        } = fakeOnJoinGame.data;
+        this.controller
+
+        this.model.startColor = startColor;
+        this.model.betTotalTime = betTotalTime;
+        this.model.roadMap = roadMap;
+        this.model.roadMapPer = roadMapPer;
+        this.model.totalBetAreaCredit = totalBetAreaCredit;
+        this.model.rankings = rankings;
+        this.model.liveCount = liveCount;
+        this.model.pathID = pathID;
+        this.model.winColor = winColor;
+        this.model.otherPayoffs = otherPayoffs;
+    }
 
     /**
      * 注區按下

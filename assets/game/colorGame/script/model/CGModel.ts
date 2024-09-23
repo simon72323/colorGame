@@ -8,27 +8,32 @@ const { ccclass, property } = _decorator;
 //模擬後端給的資料
 @ccclass('CGModel')
 export class CGModel extends Component {
-    //遊戲資料紀錄
-    public gameType: number;//遊戲編號
-    public gameState: GameState;//遊戲目前狀態
-    public userID: number | string;//用戶ID
+
+    //遊戲基本資料
+
+
+    //用戶資料
+    public userID: number;//用戶ID
     public avatar: number;//頭像ID
+    public loginName: string;//登入名稱
     public credit: number;//餘額
     public balance: number;//用戶當前餘額
-    public loginName: string;//登入名稱
 
+    //遊戲資料
     public roundSerial: number;//局號
-    public limit: number; // 遊戲限額
-    public betTime: number; // 單局下注時間
-    public chipRange: number[]; // 籌碼額度範圍
+    public startColor: number[];// 起始顏色
+    // public limit: number; // 遊戲限額
+    // public betTotalTime: number; // 單局下注時間
+    public betCreditList: number[]; // 下注額度列表
 
+    //路紙
     public roadMap: number[][];//前10局開獎顏色紀錄(顯示下注紀錄顏色)[局數][顏色]
     public roadMapPer: number[];//前100局開獎百分比[顏色id]
 
-    public wagersID: number;//該玩家注單
-    public userTotalBet: number;//該用戶目前總下注額
-    public userBets: number[];//該用戶各注區目前下注額(需要中途出現籌碼)
-    public totalBets: number[];//目前各注區的下注額(需要中途出現籌碼)
+    //下注資料
+    public totalBet: number;//該用戶目前總下注額
+    public userBetAreaCredit: number[];//該用戶各注區目前下注額(需要中途出現籌碼)
+    public totalBetAreaCredit: number[];//目前各注區的下注額(需要中途出現籌碼)
     public rankings: Ranking[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
 
     public pathID: number;//該局表演路徑ID
@@ -38,7 +43,7 @@ export class CGModel extends Component {
 
     public countdown: number;//下注倒數時間
     public newBets: number[][];//前三名玩家+其他玩家新增的下注資訊[玩家][下注金額]
-    public userCount: number;//目前其他玩家人數
+    public liveCount: number;//其他線上人數
 
     //跟後端要的資料
     // public loadInfo: onLoadInfo;//玩家基本資料

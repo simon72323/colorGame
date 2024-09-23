@@ -11,18 +11,18 @@ export class LoadInfoData {
     "event": true,
     "data":
     {
-      "UserID": 3845147,
-      // "Avatar": 10,//頭像ID (隨機0~31) 共32組
-      "Balance": 100000,
-      "Base": "1:1",
-      "DefaultBase": "1:1",
-      "BetCreditList": [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],//遊戲籌碼注額
-      // "DefaultBetCredit": 1,
-      "Currency": "RMB",
-      "LoginName": "Player",
-      "AutoExchange": false,
-      "Credit": 2000,
-      // "BetBase": "",
+      "userID": 3845147,
+      // "avatar": 10,//頭像ID (隨機0~31) 共32組
+      "bBalance": 100000,
+      "base": "1:1",
+      "defaultBase": "1:1",
+      "betCreditList": [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],//遊戲籌碼注額
+      // "defaultBetCredit": 1,
+      "currency": "RMB",
+      "loginName": "Player",
+      "autoExchange": false,
+      "credit": 2000,
+      // "betBase": "",
       // "isCash": false,
     }
   }
@@ -43,28 +43,29 @@ export class JoinGameData {
     "event": true,
     "data":
     {
-      "GameState": 'Betting',//"Ready":準備中，"NewRound":新局開始，"Betting":下注中，"Reward":派獎
-      "UserID": 3845147,
-      "RoundSerial": 47378797,
-      "StartColor": [1, 2, 3],//該局起始顏色編號(1~6，1=黃、2=灰、3=紫、4=藍、5=紅、6=綠)
-      "BetTime": 12,//遊戲下注時間(彈性調整)
+      "gameState": 'Betting',//"Ready":準備中，"NewRound":新局開始，"Betting":下注中，"Reward":派獎
+      // "userID": 3845147,
+      "roundSerial": 47378797,
+      "startColor": [1, 2, 3],//該局起始顏色編號(1~6，1=黃、2=灰、3=紫、4=藍、5=紅、6=綠)
+      "countdown": 10,//剩餘下注時間
+      "betTime": 12,//遊戲下注時間(彈性調整)
       //前10局路紙顏色[新到舊]
-      "RoadMap": [
+      "roadMap": [
         [1, 1, 2], [5, 1, 2], [1, 1, 2], [1, 4, 5], [5, 3, 4], [2, 2, 2], [3, 4, 4], [5, 6, 1], [5, 3, 4], [6, 5, 2]
       ],
-      "RoadMapPer": [16.3, 17.5, 16.2, 18.3, 15.4, 16.3],//前100局路紙顏色百分比[黃、灰、紫、藍、紅、綠]
-      "BetAreaTotal": [2000, 1000, 2000, 1000, 1000, 2000],//總用戶目前各注區下注額
+      "roadMapPer": [16.3, 17.5, 16.2, 18.3, 15.4, 16.3],//前100局路紙顏色百分比[黃、灰、紫、藍、紅、綠]
+      "totalBetAreaCredit": [2000, 1000, 2000, 1000, 1000, 2000],//總用戶目前各注區下注額
       //目前前三名，{用戶ID、顯示名稱、頭像ID、餘額}
-      "Rankings": [
+      "rankings": [
         { "userID": 11111111, "displayName": 'john', "avatar": 10, "credit": 70000 },
         { "userID": 22222222, "displayName": 'kenny', "avatar": 11, "credit": 60000 },
         { "userID": 3845147, "displayName": 'simon', "avatar": 12, "credit": 50000 }
       ],
-      "LiveCount": 20,//其他用戶人數
-      "PathID": 1,//本局表演的路徑ID (隨機0~999) 
-      "WinColor": [1, 2, 3],//該局開獎顏色編號(1~6，1=黃、2=灰、3=紫、4=藍、5=紅、6=綠)
+      "liveCount": 20,//其他用戶人數
+      "pathID": 1,//本局表演的路徑ID (隨機0~999) 
+      "winColor": [1, 2, 3],//該局開獎顏色編號(1~6，1=黃、2=灰、3=紫、4=藍、5=紅、6=綠)
       //前三名用戶+其他用戶派彩，{勝利注區(1~6)，派彩額度}
-      "OtherPayoffs": [
+      "otherPayoffs": [
         { "winAreas": [1, 2, 3], "payoff": 200 },
         { "winAreas": [1, 2], "payoff": 300 },
         { "winAreas": [2, 3], "payoff": 500 },
@@ -88,35 +89,35 @@ export class UpdateData {
     "event": true,
     "data":
     {
-      "GameState": 'Betting',//"Ready":準備中，"NewRound":新局開始，"Betting":下注中，"Reward":派獎
-      "RoundSerial": 47378797,
-      "StartColor": [1, 2, 3],//該局起始顏色編號(1~6，1=黃、2=灰、3=紫、4=藍、5=紅、6=綠)
-      "Countdown": 10,//剩餘下注時間
+      "gameState": 'Betting',//"Ready":準備中，"NewRound":新局開始，"Betting":下注中，"Reward":派獎
+      "roundSerial": 47378797,
+      "startColor": [1, 2, 3],//該局起始顏色編號(1~6，1=黃、2=灰、3=紫、4=藍、5=紅、6=綠)
+      "countdown": 10,//剩餘下注時間
       //前10局路紙顏色[新到舊]
-      "RoadMap": [
+      "roadMap": [
         [1, 1, 2], [5, 1, 2], [1, 1, 2], [1, 4, 5], [5, 3, 4], [2, 2, 2], [3, 4, 4], [5, 6, 1], [5, 3, 4], [6, 5, 2]
       ],
-      "RoadMapPer": [16.3, 17.5, 16.2, 18.3, 15.4, 16.3],//前100局路紙顏色百分比[黃、灰、紫、藍、紅、綠]
+      "roadMapPer": [16.3, 17.5, 16.2, 18.3, 15.4, 16.3],//前100局路紙顏色百分比[黃、灰、紫、藍、紅、綠]
       //目前前三名，{用戶ID、顯示名稱、頭像ID、餘額}
-      "Rankings": [
+      "rankings": [
         { "userID": 11111111, "displayName": 'john', "avatar": 10, "credit": 70000 },
         { "userID": 22222222, "displayName": 'kenny', "avatar": 11, "credit": 60000 },
         { "userID": 33333333, "displayName": 'simon', "avatar": 12, "credit": 50000 }
       ],
-      "LiveCount": 20,//其他用戶人數
-      "BetAreaTotal": [10, 100, 100, 200, 300, 400],//總用戶目前各注區下注額
+      "liveCount": 20,//其他用戶人數
+      "totalBetAreaCredit": [10, 100, 100, 200, 300, 400],//總用戶目前各注區下注額
       //前三名用戶+其他用戶各注區新增的注額
-      "NewBets": [
+      "newBets": [
         [200, 0, 0, 0, 100, 0],
         [0, 100, 0, 0, 100, 100],
         [100, 100, 100, 300, 0, 0],
         [0, 0, 0, 500, 0, 0]
       ],
-      "PathID": 1,//本局表演的路徑ID (隨機0~999) 
-      "WinColor": [1, 2, 3],//該局開獎顏色編號(1~6，1=黃、2=灰、3=紫、4=藍、5=紅、6=綠)
-      "UserPayoff": { "winAreas": [1, 2], "payoff": 200 },//本地用戶派彩，{勝利注區(1~6)，派彩額度}
+      "pathID": 1,//本局表演的路徑ID (隨機0~999) 
+      "winColor": [1, 2, 3],//該局開獎顏色編號(1~6，1=黃、2=灰、3=紫、4=藍、5=紅、6=綠)
+      "userPayoff": { "winAreas": [1, 2], "payoff": 200 },//本地用戶派彩，{勝利注區(1~6)，派彩額度}
       //前三名用戶+其他用戶派彩，{勝利注區(1~6)，派彩額度}
-      "OtherPayoffs": [
+      "otherPayoffs": [
         { "winAreas": [1, 2, 3], "payoff": 200 },
         { "winAreas": [1, 2], "payoff": 300 },
         { "winAreas": [2, 3], "payoff": 500 },
@@ -141,12 +142,12 @@ export class BetData {
     "error": "餘額不足",
     "data":
     {
-      "BetAreaID": 1,// 下注區id
-      "BetCredit": 200,// 下注額度
-      "Credit": 2000,// 剩餘額度
-      "BetTotal": 500,//用戶目前總下注額
-      // "UserBets": [10, 90, 100, 100, 100, 100],//用戶目前各注區下注
-      // "BetAreaTotal": [200, 290, 300, 300, 300, 300],//目前各下注區總額
+      "betAreaID": 1,// 下注區id
+      "betCredit": 200,// 下注額度
+      "credit": 2000,// 剩餘額度
+      "betTotal": 500,//用戶目前總下注額
+      // "userBetAreaCredit": [10, 90, 100, 100, 100, 100],//用戶目前各注區下注
+      // "totalBetAreaCredit": [200, 290, 300, 300, 300, 300],//目前各下注區總額
     }
   }
   public getData(): onBetInfo {

@@ -25,7 +25,7 @@ export class CGRoundView extends Component {
     public betLight: Node = null;
     @property({ type: Node, tooltip: "下注時間", group: { name: '注區相關', id: '3' } })
     public betTime: Node = null;
-    
+
     @property({ type: Node, tooltip: "本地玩家贏分特效", group: { name: '玩家', id: '4' } })
     public mainPlayerWin: Node = null;
 
@@ -92,6 +92,35 @@ export class CGRoundView extends Component {
             time--;
             this.setBetTime(time);//模擬下注時間倒數
         }, 1, model.betTime - 1, 1)
+    }
+
+    public setCountdown(time: number, betTotalTime: number) {
+        const betTimeNode = this.betTime;
+        const labelNode = betTimeNode.getChildByName('Label');
+        const comLabel = labelNode.getComponent(Label);
+        comLabel.string = time.toString();//顯示秒數
+        labelNode.setScale(new Vec3(1, 1, 1));
+        const lastUIOpacity = betTimeNode.getChildByName('Last').getComponent(UIOpacity);
+        lastUIOpacity.opacity = 0;
+        if (time <= 5) {
+            comLabel.color = new Color(255, 0, 0, 255);
+            tween(betTimeNode).to(0.5, { scale: new Vec3(1.1, 1.1, 1) })
+                .then(tween(betTimeNode).to(0.5, { scale: new Vec3(1, 1, 1) }))
+                .start();
+            tween(lastUIOpacity).to(0.5, { opacity: 255 })
+                .then(tween(lastUIOpacity).to(0.5, { opacity: 0 }))
+                .start();
+        }
+        else
+            comLabel.color = new Color(0, 90, 80, 255);
+        const frameSprite = betTimeNode.getChildByName('Frame').getComponent(Sprite);
+        frameSprite.fillRange = time / betTotalTime;
+        if (!betTimeNode.active)
+            betTimeNode.active = true;
+        tween(frameSprite).to(1, { fillRange: (time - 1) / betTotalTime }).start();//進度條倒數
+        tween(labelNode).to(0.2, { scale: new Vec3(1.4, 1.4, 1) }, { easing: 'sineOut' })
+            .then(tween(labelNode).to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }))
+            .start();
     }
 
     //下注時間倒數(接收後端時間資料)
