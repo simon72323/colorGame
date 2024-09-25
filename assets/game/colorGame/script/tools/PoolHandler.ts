@@ -7,7 +7,16 @@ import { NodePool, instantiate, Node, Prefab } from 'cc';
  */
 
 export default class PoolHandler {
+    private static instance: PoolHandler;
     private poolTable: Map<string, NodePool> = null;
+
+    public static getInstance(): PoolHandler {
+        if (!PoolHandler.instance) {
+            PoolHandler.instance = new PoolHandler();
+        }
+        return PoolHandler.instance;
+    }
+
     /**取得 */
     public get(pre: Prefab): Node {
         const poolName = pre.name;//pool物件都會掛上"pool_"前綴名稱

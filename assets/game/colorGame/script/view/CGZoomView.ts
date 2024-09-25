@@ -20,17 +20,18 @@ export class CGZoomView extends Component {
         new Vec3(-10, -40, 10),
         new Vec3(-10, 40, -10),
     ]
-    @property({ type: Node, tooltip: "zoom按鈕" })
-    private btnZoom!: Node;
-    @property({ type: Node, tooltip: "zoom視窗" })
-    private zoomPopup!: Node;
-    @property({ type: Node, tooltip: "關閉彈窗按鈕" })
-    private btnClose!: Node;
-    @property({ type: Node, tooltip: "zoom攝影機" })
-    private zoomCamera!: Node;
-    @property({ type: Node, tooltip: "zoom按鈕顯示" })
-    private btnOn!: Node;
-    private isOpen = false;
+    @property(Node)
+    private btnZoom!: Node;//zoom按鈕
+    @property(Node)
+    private zoomPopup!: Node;//zoom視窗
+    @property(Node)
+    private btnClose!: Node;//關閉彈窗按鈕
+    @property(Node)
+    private zoomCamera!: Node;//zoom攝影機
+    @property(Node)
+    private btnOn!: Node;//zoom按鈕顯示
+    
+    private isOpen = false;//記錄使否開啟狀態
 
     /**
      * 組件加載時初始化

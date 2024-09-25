@@ -4,13 +4,13 @@ const { ccclass, property } = _decorator;
 
 @ccclass('CGRoadView')
 export class CGRoadView extends Component {
-    @property({ type: Node, tooltip: "走勢" })
+    @property(Node)//走勢
     private roadMap!: Node;
-    @property({ type: Node, tooltip: "走勢彈窗" })
+    @property(Node)//走勢彈窗
     private roadMapPopup!: Node;
-    @property({ type: Node, tooltip: "關閉彈窗按鈕" })
+    @property(Node)//關閉彈窗按鈕
     private btnClose!: Node;
-    @property({ type: [SpriteFrame], tooltip: "路紙區骰子顏色" })
+    @property([SpriteFrame])//路紙區骰子顏色
     public roadColorSF!: SpriteFrame[];
 
     /**
@@ -38,14 +38,23 @@ export class CGRoadView extends Component {
     /**
      * 更新路紙
      * @contorller
-     * @param roadMap 前10局路紙[[顏色], [顏色], ...]
-     * @param roadMapPer 前100局各顏色百分比
+     * @param roadMap 前100局路紙[[顏色], [顏色], ...]
      */
-    public updateRoadMap(roadMap: number[][], roadMapPer: number[]) {
+    public updateRoadMap(roadMap: number[][]) {
         const colorMap = this.roadMap.getChildByName('ColorMap');
         const popupColorMap = this.roadMapPopup.getChildByName('ColorMap');
-        for (let i = 0; i < 6; i++) {
-            const percentage = roadMapPer[i].toFixed(2);
+        let roadMapPer: number[] = [0, 0, 0, 0, 0, 0];
+        let totalCount: number = 0;
+        // 計算每個顏色的出現次數和總次數
+        for (let i = 0; i < roadMap.length; i++) {
+            const row = roadMap[i];
+            for (let j = 0; j < row.length; j++) {
+                roadMapPer[row[j]]++;
+                totalCount++;
+            }
+        }
+        for (let i = 0; i < roadMapPer.length; i++) {
+            const percentage = (roadMapPer[i] / totalCount * 100).toFixed(2);
             colorMap.children[i].getComponent(Label).string = `${percentage}%`;
             popupColorMap.children[i].getComponent(Label).string = `${percentage}\n%`;
         }
@@ -55,7 +64,7 @@ export class CGRoadView extends Component {
 
     /**
      * 更新路紙，上局顏色
-     * @param roadMap 前10局路紙[[顏色], [顏色], ...]
+     * @param roadMap 前100局路紙[[顏色], [顏色], ...]
      */
     private updateLastColors(roadMap: number[][]) {
         const lastColor = this.roadMap.getChildByName('LastColor');

@@ -19,13 +19,12 @@ export interface onLogin {
 //登入資料(本地給遊戲版本跟server要)
 export interface onLoadInfo {
   event: boolean;//操作是否成功的標誌
+  gameType:string;
   data: {
     userID: number;//用戶ID
-    avatar: number;//頭像ID
     balance: number, // 玩家擁有金額
     base: string, // 目前換分比
     defaultBase: string,  // default 換分比
-    betCreditList: number[], // 下注credit選項
     // defaultBetCredit: number, // default 下注credit選項
     // userAutoExchange: UserAutoExchange,
     currency: string, // 幣別
@@ -40,7 +39,6 @@ export interface onLoadInfo {
 }
 
 export enum GameState {
-  Ready = "Ready",//準備中
   NewRound = "NewRound",//新局開始
   Betting = "Betting",//遊戲中(下注階段)
   Reward = "Reward"//遊戲結束(派獎階段)
@@ -48,16 +46,18 @@ export enum GameState {
 
 //加入遊戲資料(本地給遊戲版本跟server要)
 export interface onJoinGame {
+  action: string;//動作
   event: boolean;//操作是否成功的標誌
+  gameType:string;
   data: {
     gameState: string;//遊戲目前狀態
-    // userID: number;//用戶ID
     roundSerial: number;//局號
+    avatarID: number;//頭像ID
+    betCreditList: number[], // 下注credit選項
     startColor: number[];//該局起始顏色
     betTotalTime: number; // 單局下注時間
     countdown: number;//剩餘下注時間
-    roadMap: number[][];//前10局開獎顏色紀錄(顯示下注紀錄顏色)[局數][顏色]
-    roadMapPer: number[];//前100局開獎百分比[顏色id]
+    roadMap: number[][];//前100局開獎顏色紀錄(顯示下注紀錄顏色)[局數][顏色]
     totalBetAreaCredit: number[];//目前各注區的下注額(需要中途出現籌碼)
     rankings: RankInfo[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
     liveCount: number;//其他用戶人數
@@ -69,16 +69,15 @@ export interface onJoinGame {
 
 //更新資料(server每秒傳送)
 export interface onUpdate {
+  action: string;
   event: boolean;//操作是否成功的標誌
+  gameType:string;
   data: {
     // 遊戲狀態資訊
     gameState: string;//遊戲目前狀態
     roundSerial?: number;//局號
     startColor?: number[];//該局起始顏色
     countdown?: number;//下注倒數時間(每秒更新)
-    // 路紙
-    roadMap?: number[][];//前10局開獎顏色紀錄(顯示下注紀錄顏色)[局數][顏色]
-    roadMapPer?: number[];//前100局開獎百分比[顏色id]
     // 排名與下注
     rankings?: RankInfo[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
     liveCount?: number;//其他用戶人數
@@ -95,7 +94,7 @@ export interface onUpdate {
 export interface RankInfo {
   userID: number;//用戶ID
   displayName: string; // 登入名稱
-  avatar: number; // 頭像
+  avatarID: number; // 頭像
   credit: number; //換分餘額
 }
 
@@ -104,15 +103,14 @@ export interface Payoff {
   payoff: number;//贏得額度
 }
 
-//下注成功回傳資料
+//下注成功回傳資料s
 export interface onBetInfo {
   event: boolean; // 操作是否成功的標誌
   error?: string;//錯誤訊息
   data: {
-    betAreaID: number; // 下注區id
-    betCredit: number; // 下注額度
-    credit: number; // 剩餘額度
-    betTotal: number;//用戶目前總下注額
+    betCredits: number[]; // 各區下注額度
+    // credit: number; // 剩餘額度
+    // betTotal: number;//用戶目前總下注額
     // userBetAreaCredit: number[];//用戶目前各注區下注額
     // totalBetAreaCredit: number[];//目前各下注區總額
   }

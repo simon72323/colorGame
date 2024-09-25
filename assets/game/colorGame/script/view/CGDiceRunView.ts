@@ -4,11 +4,11 @@ const { ccclass, property } = _decorator;
 
 @ccclass('CGDiceRunView')
 export class CGDiceRunView extends Component {
-    @property({ type: [Node], tooltip: "3顏色骰子" })
+    @property([Node])//3顏色骰子
     private dice!: Node[];
-    @property({ type: Node, tooltip: "3D開骰節點" })
-    private frame: Node = null;
-    
+    @property(Node)//3D開骰節點
+    private frame!: Node;
+
     //3顆骰子起點位置
     private readonly FIRST_POSITIONS = [
         new Vec3(-1.25, 4.77, -1.83),
@@ -17,26 +17,24 @@ export class CGDiceRunView extends Component {
     ];
     //骰子子物件顏色面向校正值
     private readonly CHANGE_EULER = [
-        [new Vec3(0, 0, 0), new Vec3(-90, 0, 0), new Vec3(0, 0, 90), new Vec3(0, 0, -90), new Vec3(90, 0, 0), new Vec3(180, 0, 0)],
-        [new Vec3(90, 0, 0), new Vec3(0, 0, 0), new Vec3(0, -90, 0), new Vec3(0, 90, 0), new Vec3(0, 180, 0), new Vec3(-90, 0, 0)],
-        [new Vec3(0, 0, -90), new Vec3(0, 90, 0), new Vec3(0, 0, 0), new Vec3(0, 180, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 90)],
-        [new Vec3(0, 0, 90), new Vec3(0, -90, 0), new Vec3(0, 180, 0), new Vec3(0, 0, 0), new Vec3(0, 90, 0), new Vec3(0, 0, -90)],
-        [new Vec3(-90, 0, 0), new Vec3(0, 180, 0), new Vec3(0, 90, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 0), new Vec3(90, 0, 0)],
-        [new Vec3(180, 0, 0), new Vec3(90, 0, 0), new Vec3(0, 0, -90), new Vec3(0, 0, 90), new Vec3(-90, 0, 0), new Vec3(0, 0, 0)]
+        new Vec3(0, 0, 0), new Vec3(-90, 0, 0), new Vec3(0, 0, 90), new Vec3(0, 0, -90), new Vec3(90, 0, 0), new Vec3(180, 0, 0),
+        new Vec3(90, 0, 0), new Vec3(0, 0, 0), new Vec3(0, -90, 0), new Vec3(0, 90, 0), new Vec3(0, 180, 0), new Vec3(-90, 0, 0),
+        new Vec3(0, 0, -90), new Vec3(0, 90, 0), new Vec3(0, 0, 0), new Vec3(0, 180, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 90),
+        new Vec3(0, 0, 90), new Vec3(0, -90, 0), new Vec3(0, 180, 0), new Vec3(0, 0, 0), new Vec3(0, 90, 0), new Vec3(0, 0, -90),
+        new Vec3(-90, 0, 0), new Vec3(0, 180, 0), new Vec3(0, 90, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 0), new Vec3(90, 0, 0),
+        new Vec3(180, 0, 0), new Vec3(90, 0, 0), new Vec3(0, 0, -90), new Vec3(0, 0, 90), new Vec3(-90, 0, 0), new Vec3(0, 0, 0)
     ];
-    private dataFrame = 0;//播放中的路徑影格
 
     /**
-     * 初始化骰子(隨機角度)
-     * 當controller接收到準備新局資料時會觸發這個
+     * 初始化骰子方位
+     * @startColor 骰子方位參數[](0~35)
      * @controller
      */
-    public diceIdle() {
+    public diceIdle(startColor:number[]) {
         this.dice.forEach((dice, i) => {
             dice.setPosition(this.FIRST_POSITIONS[i]);
             dice.setRotationFromEuler(new Vec3(-20, 0, 0));
-            const [randomRow, randomCol] = [Math.floor(Math.random() * 6), Math.floor(Math.random() * 6)];
-            dice.children[0].setRotationFromEuler(this.CHANGE_EULER[randomRow][randomCol]);
+            dice.children[0].setRotationFromEuler(this.CHANGE_EULER[startColor[i]]);
             dice.active = true; // 顯示骰子
         });
     }
@@ -62,12 +60,11 @@ export class CGDiceRunView extends Component {
             this.frame.getComponent(Animation).play();//播放翻板動畫
 
             const frameLength = pathData.pos.length;
-            this.dataFrame = 0;
+            let dataFrame = 0;//播放中的路徑影格
             this.schedule(() => {
-                const posPath = pathData.pos[this.dataFrame];
-                const rotatePath = pathData.rotate[this.dataFrame];
-                const t = Math.min(this.dataFrame / 100, 1);//前100格校正角度
-
+                const posPath = pathData.pos[dataFrame];
+                const rotatePath = pathData.rotate[dataFrame];
+                const t = Math.min(dataFrame / 100, 1);//前100格校正角度
                 this.dice.forEach((dice, i) => {
                     //慢慢地修正角度
                     let newRotation = new Quat();
@@ -80,10 +77,9 @@ export class CGDiceRunView extends Component {
                     dice.position = movePos;
                     dice.rotation = moveRotate;
                 });
-                this.dataFrame++;
-                if (this.dataFrame >= frameLength) {
+                dataFrame++;
+                if (dataFrame >= frameLength)
                     resolve();
-                }
             }, 0, frameLength - 1, 0.1)
         })
     }

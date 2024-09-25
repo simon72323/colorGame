@@ -5,19 +5,19 @@ import { CGController } from '../controller/CGController';
 const { ccclass, property } = _decorator;
 @ccclass('CGChipSetView')
 export class CGChipSetView extends Component {
-    @property({ type: Node, tooltip: "籌碼選擇區" })
+    @property(Node)//籌碼選擇區
     private touchChip!: Node;
-    @property({ type: Node, tooltip: "籌碼設置按鈕" })
+    @property(Node)//籌碼設置按鈕
     private btnChipSet!: Node;
-    @property({ type: Node, tooltip: "籌碼預設按鈕" })
+    @property(Node)//籌碼預設按鈕
     private btnDefault!: Node;
-    @property({ type: Node, tooltip: "籌碼確認按鈕" })
+    @property(Node)//籌碼確認按鈕
     private btnConfirm!: Node;
-    @property({ type: Node, tooltip: "關閉彈窗按鈕" })
+    @property(Node)//關閉彈窗按鈕
     private btnClose!: Node;
-    @property({ type: Node, tooltip: "籌碼設置彈窗" })
+    @property(Node)//籌碼設置彈窗
     private chipSetPopup!: Node;
-    @property({ type: Node, tooltip: "籌碼Toggle" })
+    @property(Node)//籌碼Toggle
     private chipToggle!: Node;
 
     private chipRange: number[] = [];//籌碼範圍

@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, tween, Vec3, Label, Sprite, Animation, UITransform, Button, Color, Prefab, SpriteFrame, EventHandler, instantiate } from 'cc';
+import { _decorator, Component, Node, tween, Vec3, Label, Sprite, Animation, UITransform, Button, Color, Prefab, SpriteFrame, EventHandler, instantiate, UIOpacity } from 'cc';
 import { CGController } from '../controller/CGController';
 import PoolHandler from '../tools/PoolHandler';
 import { CGUtils } from '../tools/CGUtils';
@@ -13,40 +13,48 @@ enum RebetState {
 
 @ccclass('CGChipDispatcher')
 export class CGChipDispatcher extends Component {
-    @property({ type: Node, tooltip: "籌碼派發層" })
-    public chipDispatcher: Node = null;
-    @property({ type: Node, tooltip: "提示訊息顯示層" })
-    public tipMessage: Node = null;
-    @property({ type: [Node], tooltip: "跟注按鈕(3顆)" })
-    public btnCall: Node[] = [];
-    @property({ type: [Node], tooltip: "取消跟注按鈕(3顆)" })
-    public btnStopCall: Node[] = [];
-    @property({ type: [Node], tooltip: "跟注特效" })
-    public callFx: Node[] = [];
-    @property({ type: Node, tooltip: "續押按鈕", group: { name: '注區相關', id: '3' } })
-    public btnRebet: Node = null;
-    @property({ type: Node, tooltip: "自動投注按鈕", group: { name: '注區相關', id: '3' } })
-    public btnAuto: Node = null;
-    @property({ type: Node, tooltip: "停止自動投注按鈕", group: { name: '注區相關', id: '3' } })
-    public btnAutoStop: Node = null;
-    @property({ type: Label, tooltip: "續押額度", group: { name: '注區相關', id: '3' } })
-    public rebetCreditLable: Label = null;
+    @property(Node)
+    public chipDispatcher!: Node;//籌碼派發層
+    @property(Node)
+    public tipMessage!: Node;//提示訊息顯示層
+    @property([Node])
+    public btnCall!: Node[];//跟注按鈕(3顆)
+    @property([Node])
+    public btnStopCall!: Node[];//取消跟注按鈕(3顆)
+    @property([Node])
+    public callFx!: Node[];//跟注特效
+    @property(Node)
+    public btnRebet!: Node;//續押按鈕
+    @property(Node)
+    public btnAuto!: Node;//自動投注按鈕
+    @property(Node)
+    public btnAutoStop!: Node;//停止自動投注按鈕
+    @property(Label)
+    public rebetCreditLable!: Label;//續押額度
 
-    @property({ type: [SpriteFrame], tooltip: "下注籌碼貼圖" })
-    public chipSF: SpriteFrame[] = [];
-    @property({ type: Prefab, tooltip: "其他玩家下注籌碼" })
-    public betChipBlack: Prefab = null;
-    @property({ type: Prefab, tooltip: "本地玩家下注籌碼" })
-    public betChipColor: Prefab = null;
-    @property({ type: Prefab, tooltip: "提示訊息" })
-    public tipPrefab: Prefab = null;
+    @property(Node)
+    public betTopBtns!: Node;//下注按鈕區
+    @property(Node)
+    public lockBet!: Node;//禁用下注區
+
+    @property([SpriteFrame])
+    public chipSF: SpriteFrame[] = [];//下注籌碼貼圖
+    @property(Prefab)
+    public betChipBlack: Prefab = null;//其他玩家下注籌碼
+    @property(Prefab)
+    public betChipColor: Prefab = null;//本地玩家下注籌碼
+    @property(Prefab)
+    public tipPrefab: Prefab = null;//提示訊息
 
     private controller: CGController = null;
 
-
+    //本地暫存資料
     private rebetSave: number[][] = Array(6).fill(null).map(() => []);;//上局本地玩家續押資料[下注區][籌碼ID]
     private rebetCredit: number = 0;//續押金額
     public rebetState: RebetState = RebetState.Init;
+    public tempBetCredits: number[] = Array(6).fill(0);//暫存的各區下注額
+    private tempBetChip: Node[] = [];//暫存的下注籌碼
+    private tempBetData: number[][] = [];//[下注區][籌碼ID]
 
     private pool: PoolHandler = null;
 
@@ -55,8 +63,9 @@ export class CGChipDispatcher extends Component {
     }
 
     protected onLoad(): void {
+        
         const scriptName = this.name.match(/<(.+)>/)?.[1] || '';
-        //btnCall按鈕觸發事件設置
+        //btnCall按鈕事件
         for (let i = 0; i < this.btnCall.length; i++) {
             const eventHandler = new EventHandler();
             eventHandler.target = this.node;
@@ -65,7 +74,7 @@ export class CGChipDispatcher extends Component {
             eventHandler.customEventData = i.toString();
             this.btnCall[i].getComponent(Button).clickEvents.push(eventHandler);
         }
-        //btnStopCall按鈕觸發事件設置
+        //btnStopCall按鈕事件
         for (let i = 0; i < this.btnStopCall.length; i++) {
             const eventHandler = new EventHandler();
             eventHandler.target = this.node;
@@ -74,32 +83,28 @@ export class CGChipDispatcher extends Component {
             eventHandler.customEventData = i.toString();
             this.btnStopCall[i].getComponent(Button).clickEvents.push(eventHandler);
         }
-    }
 
-    //跟注按鈕按下
-    public btnCallDown(event: Event, customEventData: string) {
-        const id = parseInt(customEventData);
-        // 例如：更新遊戲狀態，發送網路請求等
-        this.updateBetCallUI(id, true);//啟用跟注
-    }
+        //返回上一步按鈕事件
+        const betUndoEventHandler = new EventHandler();
+        betUndoEventHandler.target = this.node;
+        betUndoEventHandler.component = scriptName;
+        betUndoEventHandler.handler = 'btnBetUndoDown';
+        this.betTopBtns.getChildByName('btnUndo').getComponent(Button).clickEvents.push(betUndoEventHandler);
 
-    //取消跟注按鈕按下
-    public btnStopCallDown(event: Event, customEventData: string) {
-        const id = parseInt(customEventData);
-        // 例如：更新遊戲狀態，發送網路請求等
-        this.updateBetCallUI(id, false);//停用跟注
-    }
+        //取消下注按鈕事件
+        const betCancelEventHandler = new EventHandler();
+        betCancelEventHandler.target = this.node;
+        betCancelEventHandler.component = scriptName;
+        betCancelEventHandler.handler = 'btnBetCancelDown';
+        this.betTopBtns.getChildByName('btnCancel').getComponent(Button).clickEvents.push(betCancelEventHandler);
 
-    //更新跟注介面
-    public updateBetCallUI(id: number, isActive: boolean) {
-        this.btnCall[id].active = !isActive;
-        this.btnStopCall[id].active = isActive;
-        this.callFx[id].active = isActive;
+        this.pool = PoolHandler.getInstance();//獲得pool池實例
+        this.initializeChipPool();//預先生成pool
     }
 
     //預先生成pool
     private initializeChipPool() {
-        const tempPool = [];
+        const tempPool: Node[] = [];
         for (let i = 0; i < 300; i++) {
             tempPool.push(this.pool.get(this.betChipBlack));
             if (i > 100) {
@@ -109,13 +114,63 @@ export class CGChipDispatcher extends Component {
         tempPool.forEach(chip => this.pool.put(chip));
     }
 
+    //跟注按鈕按下
+    private btnCallDown(event: Event, customEventData: string) {
+        const id = parseInt(customEventData);
+        this.updateBetCallUI(id, true);//啟用跟注
+    }
+
+    //取消跟注按鈕按下
+    private btnStopCallDown(event: Event, customEventData: string) {
+        const id = parseInt(customEventData);
+        this.updateBetCallUI(id, false);//停用跟注
+    }
+
+    //更新跟注介面
+    private updateBetCallUI(id: number, isActive: boolean) {
+        this.btnCall[id].active = !isActive;
+        this.btnStopCall[id].active = isActive;
+        this.callFx[id].active = isActive;
+    }
+
+    //返回上一步按下
+    private btnBetUndoDown() {
+        this.tempBetChip.pop();// 刪除最後一個資料
+        this.tempBetData.pop();// 刪除最後一個資料
+        if (this.tempBetChip.length === 0)
+            this.btnBetCancelDown();
+    }
+
+    //取消下注按下
+    private btnBetCancelDown() {
+        this.tempBetCredits = Array(6).fill(0);//清空
+        this.tempBetData = [];//清空
+        for (let chip of this.tempBetChip) {
+            this.pool.put(chip);//退還所有
+        }
+        this.betTopBtns.active = this.tempBetChip.length > 0;//隱藏下注按鈕介面
+    }
+
+    //禁用下注區
+    public lockBetArea() {
+        this.betTopBtns.getComponent(UIOpacity).opacity = 150;
+        this.lockBet.active = true;//顯示禁用下注區
+    }
+
+    //下注成功，隱藏下注介面
+    public serverBetConfirm() {
+        this.betTopBtns.active = false;//隱藏下注按鈕介面
+        this.betTopBtns.getComponent(UIOpacity).opacity = 255;
+        this.lockBet.active = false;//隱藏禁用下注區
+    }
+
     /**
      * 本地用戶下注
      * @param betID 注區ID
      * @param chipID 籌碼ID
      */
     //本地用戶下注
-    public betLocally(betID: number, chipID: number) {
+    public betChip(betID: number, chipID: number) {
         const view = this.controller.view;
         const model = this.controller.model;
         let betChip: Node;
