@@ -1,5 +1,5 @@
 import { _decorator, Component, sys, JsonAsset, Vec3 } from 'cc';
-import { onLoadInfo, RankInfo, GameState, onJoinGame, Payoff, onBetInfo } from '../enum/CGInterface';
+import { onLoadInfo, RankInfo, GameState, onJoinGame, onBetInfo, UserBets, UserPayoff } from '../enum/CGInterface';
 
 import { PathInfo } from '../enum/CGInterface';
 const { ccclass, property } = _decorator;
@@ -8,6 +8,9 @@ const { ccclass, property } = _decorator;
 //模擬後端給的資料
 @ccclass('CGModel')
 export class CGModel extends Component {
+
+
+
     //玩家資料(server給的)
     public gameType: number;//遊戲編號
     public userID: number;//用戶ID
@@ -18,21 +21,25 @@ export class CGModel extends Component {
 
     //遊戲資料(server給的)
     public roundSerial: number;//局號
-    // public startColor: number[];// 起始顏色
-    // public limit: number; // 遊戲限額
     public betTotalTime: number; // 單局下注時間
-    public betCreditList: number[]; // 下注額度列表
+    // public betCreditList: number[]; // 下注額度列表
     public roadMap: number[][];//前100局開獎顏色紀錄(顯示下注紀錄顏色)[局數][顏色]
-    // public roadMapPer: number[];//前100局開獎百分比[顏色id]
+    public allBets: UserBets[];// 該局有下注的用戶與注額分布與餘額
+    public rankings: RankInfo[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
+    public liveCount: number;// 目前線上人數
+
+    public pathID: number;
+    public winColor: number[];
+    public winners: UserPayoff[];
 
     //下注資料(server給的)
     public betTotal: number;//該用戶目前總下注額
     public userBetAreaCredit: number[];//該用戶各注區目前下注額
     public totalBetAreaCredit: number[];//目前各注區的下注額(需要中途出現籌碼)
-    public rankings: RankInfo[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
+
 
     //本地端資料
-    public touchChipID: number = 1;//紀錄目前點選的籌碼ID
+    // public touchChipID: number = 1;//紀錄目前點選的籌碼ID
     public pathData: PathInfo;//該回合路徑資料
 
     onLoad() {

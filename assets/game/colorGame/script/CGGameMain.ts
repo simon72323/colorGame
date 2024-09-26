@@ -25,6 +25,9 @@ export class CGGameMain extends Component {
     @property(CGModel)
     private model: CGModel = null!;
 
+    @property(Node)
+    public lockBetArea!: Node;//禁用下注區，介面區域
+
     private gameType: string = "5278";
 
     private webSocketManager: WebSocketManager = null;
@@ -33,37 +36,32 @@ export class CGGameMain extends Component {
         //啟用後台運行(針對動畫、tween、schedule、spine等動畫)
         WorkOnBlur.getInstance();
         WorkerTimeout.getInstance().enable();
-        this.node.on('OnButtonEventPressed', this.onBet, this);
     }
 
     protected start(): void {
-
         // 註冊監聽GS事件
         // useGlobalEventDispatcher().addEventListener(h5GameTools.slotGameConnector.SlotGameEvent.LOAD_INFO, this.onLoadInfo.bind(this));
         // useGlobalEventDispatcher().addEventListener(h5GameTools.slotGameConnector.SlotGameEvent.CREDIT_EXCHANGE, this.onCreditExchange.bind(this));
         // useGlobalEventDispatcher().addEventListener(h5GameTools.slotGameConnector.SlotGameEvent.BEGIN_GAME, this.onBeginGame.bind(this));
 
-        if (!this.useSimulateData) {
-            // this.init();
-        } else {
+        if (!this.useSimulateData)
+            this.init();
+        else
             this.simulateInit();
-        }
 
         // 註冊監聽公版事件
-
         // Spin按鈕事件
         // useGlobalEventDispatcher().addEventListener(gtCommEvents.Game.SPIN, this.onSpinBtnClick)
         // Turbo按鈕事件
         // useGlobalEventDispatcher().addEventListener(gtCommEvents.Game.TURBO, this.onTurboBtnClick)
-        // 
         //useGlobalEventDispatcher().addEventListener(gtCommEvents.Game.GET_AUTO_PLAY_ROUND, ()=>{})
         // 註冊監聽GS事件
         // useGlobalEventDispatcher().addEventListener(h5GameTools.slotGameConnector.SlotGameEvent.LOAD_INFO, this.onLoadInfo)
     }
 
-    protected update(deltaTime: number): void {
+    // protected update(deltaTime: number): void {
 
-    }
+    // }
 
     protected onDestroy(): void {
         // 移除監聽公版事件
@@ -72,8 +70,15 @@ export class CGGameMain extends Component {
         useGlobalEventDispatcher().removeEventListener(h5GameTools.slotGameConnector.SlotGameEvent.BEGIN_GAME);
     }
 
-    //---------------------模擬資料-------------------------
-    //模擬資料接收(初始)
+    /**
+     * 模擬資料
+     * ------------------------
+     * 此區段包含用於模擬遊戲數據和事件的方法
+    */
+
+    /**
+     * 模擬:登入、加入遊戲和初始遊戲狀態
+     */
     private async simulateInit() {
         const loadInfoMsg = structuredClone(LoadInfoData.Instance.getData());
         this.onLoadInfo(loadInfoMsg);//發送登入訊息
@@ -89,7 +94,10 @@ export class CGGameMain extends Component {
         }
     }
 
-    //模擬:獲取每秒update訊息(時間)
+    /**
+     * 模擬:獲取每秒update訊息(時間)
+     * @param countdown - 剩餘的下注時間
+     */
     private async simulateBettingOnUpdate(countdown: number) {
         this.scheduleOnce(async () => {
             const bettingMsg = structuredClone(UpdateBettingData.Instance.getData(countdown));
@@ -101,7 +109,9 @@ export class CGGameMain extends Component {
         }, 1)
     }
 
-    //模擬:獲取派彩update訊息
+    /**
+     * 模擬:獲取派彩update訊息
+     */
     private async simulateRewardOnUpdate() {
         const rewardMsg = structuredClone(UpdateRewardData.Instance.getData());
         this.onUpdate(rewardMsg);//發送派彩資料
@@ -109,15 +119,29 @@ export class CGGameMain extends Component {
         this.simulateNewRoundOnUpdate();//新局開始
     }
 
-    //模擬:獲取新局開始update訊息
+    /**
+     * 模擬:獲取新局開始update訊息
+     */
     private async simulateNewRoundOnUpdate() {
         const newRoundMsg = structuredClone(UpdateNewRoundData.Instance.getData());
         this.onUpdate(newRoundMsg);//發送新局開始
         this.simulateBettingOnUpdate(this.model.betTotalTime);//再次執行下注倒數
     }
-    //---------------------模擬資料-------------------------
 
-    //收到登入資訊
+    /**
+     * 訊息接收
+     * ------------------------
+     * 此區段包含處理各種遊戲訊息的方法
+    */
+
+    private async init() {
+
+    }
+
+    /**
+     * 處理登入資訊訊息
+     * @param msg - 登入資訊訊息
+     */
     private async onLoadInfo(msg: onLoadInfo) {
         console.log('收到登入資訊:', JSON.stringify(msg));
         if (msg.gameType === this.gameType) {
@@ -125,7 +149,10 @@ export class CGGameMain extends Component {
         }
     }
 
-    //收到加入遊戲資訊
+    /**
+     * 處理加入遊戲訊息
+     * @param msg - 加入遊戲訊息
+     */
     private async onJoinGame(msg: onJoinGame) {
         console.log('收到加入遊戲資訊:', JSON.stringify(msg));
         if (msg.gameType === this.gameType) {
@@ -133,7 +160,10 @@ export class CGGameMain extends Component {
         }
     }
 
-    //收到更新資料
+    /**
+     * 處理更新訊息
+     * @param msg - 更新訊息
+     */
     private async onUpdate(msg: onUpdate) {
         console.log('收到更新資料:', JSON.stringify(msg));
         if (msg.gameType === this.gameType) {
@@ -142,36 +172,29 @@ export class CGGameMain extends Component {
     }
 
     /**
-     * 確認下注按下
+     * 確認下注按下(透過確認下注按鈕觸發)
      */
     private async onBetConfirm() {
         const chipDispatcher = this.controller.chipDispatcher;
         const betCredits = chipDispatcher.tempBetCredits;//各下注區新增的注額
+        this.lockBetArea.active = true;//禁用下注區
         if (this.useSimulateData) {
-            chipDispatcher.lockBetArea();//禁用下注區
             //傳送下注資料給server，server確認後回傳
             const sendBetInfo = {
                 "action": "betInfo",
                 "gametype": this.gameType,
                 "data": { "betCredits": betCredits }
             }
-            await CGUtils.Delay(0.05);//回傳下注成功
+            await CGUtils.Delay(0.05);//模擬等待傳送資料回傳
             const msg: onBetInfo = {
                 "event": true,
                 "error": "",
-                "data": { "betCredits": betCredits }// 新增各區下注額度
+                "data": { "betCredits": [100, 200, 0, 0, 200, 0], "credit": 2000 }
             }
-            if (!msg.error) {
-                chipDispatcher.serverBetConfirm();//下注成功
-                this.controller.updateBetCredit();//更新本地下注參數
-            }
+            if (!msg.error)
+                this.controller.handleBetSuccessful(msg.data.betCredits, msg.data.credit);//執行下注成功
             else
                 console.log(msg.error)
-            //批量下注
-
-            // chipDispatcher.createChipToBetArea(Number(param), 0, this.model.touchChipID, false);
-            // let msg = structuredClone(beginGameData.Instance.getData());
-            // this.controller.onBeginGame(msg);
         } else {
             try {
                 // const response = await h5GameTools.slotGameConnector.SlotGameConnector.shared.callBeginGame({

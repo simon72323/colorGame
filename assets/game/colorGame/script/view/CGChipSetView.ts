@@ -1,12 +1,12 @@
 import { _decorator, Component, Node, Label, Sprite, Toggle, UIOpacity, EventHandler, sys, Button } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
-import { CGController } from '../controller/CGController';
+import { CGDataService } from '../manager/CGDataService';
 
 const { ccclass, property } = _decorator;
 @ccclass('CGChipSetView')
 export class CGChipSetView extends Component {
     @property(Node)//籌碼選擇區
-    private touchChip!: Node;
+    public touchChip!: Node;
     @property(Node)//籌碼設置按鈕
     private btnChipSet!: Node;
     @property(Node)//籌碼預設按鈕
@@ -20,28 +20,20 @@ export class CGChipSetView extends Component {
     @property(Node)//籌碼Toggle
     private chipToggle!: Node;
 
-    private chipRange: number[] = [];//籌碼範圍
     private chipSetID: number[];//玩家針對此遊戲設置的籌碼ID
     private defaultChipSetID: number[] = [0, 1, 2, 3, 4];//預設籌碼
     private chipSetIDing: number[] = [0, 1, 2, 3, 4];//暫存選擇中的籌碼
 
-    private controller: CGController;//遊戲控制器
-
-    /**
-     * 初始化籌碼設置視圖
-     * @param controller 遊戲控制器實例
-     */
-    public init(controller: CGController) {
-        this.controller = controller;
-        this.loadChipSetID();//讀取籌碼設置資料
-        this.updateTouchChip();//更新點選的籌碼(每局更新)
-    }
+    private dataService: CGDataService;//數據服務
 
     /**
      * 組件加載時初始化
      * 設置縮放按鈕和彈窗的事件監聽器
      */
     protected onLoad(): void {
+        this.dataService = CGDataService.getInstance();//實例化數據服務
+        this.loadChipSetID();//讀取籌碼設置資料
+        this.updateTouchChip();//更新點選的籌碼(每局更新)
         const scriptName = this.name.match(/<(.+)>/)?.[1] || '';
         //點選的籌碼觸發事件
         for (let i = 0; i < this.touchChip.children.length; i++) {
@@ -83,7 +75,7 @@ export class CGChipSetView extends Component {
         defaultEventHandler.target = this.node;
         defaultEventHandler.component = scriptName;
         defaultEventHandler.handler = 'chipSetDefault';
-        this.btnConfirm.getComponent(Button).clickEvents.push(defaultEventHandler);
+        this.btnDefault.getComponent(Button).clickEvents.push(defaultEventHandler);
 
         //關閉彈窗按鈕設置
         const closeEventHandler = new EventHandler();
@@ -91,15 +83,6 @@ export class CGChipSetView extends Component {
         closeEventHandler.component = scriptName;
         closeEventHandler.handler = 'chipSetPopupHide';
         this.btnClose.getComponent(Button).clickEvents.push(closeEventHandler);
-    }
-
-    /**
-     * 設置籌碼範圍
-     * @param range 籌碼範圍
-     * @controller
-     */
-    public setChipRange(range: number[]) {
-        this.chipRange = range;
     }
 
     /**
@@ -154,7 +137,9 @@ export class CGChipSetView extends Component {
         CGUtils.popupHide(this.chipSetPopup);
     }
 
-    //更新籌碼設置(設置頁面)
+    /**
+     * 更新籌碼設置(設置頁面)
+     */
     private updateChipSet() {
         const chipToggleChildren = this.chipToggle.children;
         chipToggleChildren.forEach((child, i) => {
@@ -178,7 +163,9 @@ export class CGChipSetView extends Component {
      * @param touchPos 被選中籌碼的位置索引
      */
     private setTouchChipID(event: Event, touchPos: string) {
-        this.controller.setTouchChipID(this.chipSetID[parseInt(touchPos)]);
+        const posID = parseInt(touchPos);
+        this.dataService.touchChipID = this.chipSetID[posID];
+        this.dataService.touchChipPosID = posID;
     }
 
     /**
@@ -222,10 +209,11 @@ export class CGChipSetView extends Component {
                 touchChip.getChildByName('Checkmark').getComponent(Sprite).spriteFrame =
                     chipToggleChild.getChildByName('Checkmark').getComponent(Sprite).spriteFrame;
                 touchChip.getChildByName('Label').getComponent(Label).string =
-                    CGUtils.NumDigits(this.chipRange[chipSetID[i]]);
+                    CGUtils.NumDigits(this.dataService.betCreditList[chipSetID[i]]);
             }
         }
-        this.controller.setTouchChipID(chipSetID[0]);//選擇籌碼回到第一顆
+        this.dataService.touchChipID = chipSetID[0];//選擇籌碼回到第一顆
+        this.dataService.touchChipPosID = 0;
         touchChipChildren[0].getComponent(Toggle).isChecked = true;
     }
 }

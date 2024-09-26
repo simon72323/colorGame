@@ -1,18 +1,20 @@
 import { onBetInfo, onJoinGame, onLoadInfo, onUpdate } from "./CGInterface";
 
+const GAME_TYPE = "5278";
+
 //登入資料
 export class LoadInfoData {
   private static _instance: LoadInfoData;
   private constructor() { };
   public static get Instance() {
-    return this._instance || (this._instance = new this());
+    return this._instance;
   }
   private data: onLoadInfo = {
     "event": true,
-    "gameType": "5278",
+    "gameType": GAME_TYPE,
     "data":
     {
-      "userID": 3845147,
+      "userID": 33333,
       "balance": 100000,
       "base": "1:1",
       "defaultBase": "1:1",
@@ -35,43 +37,46 @@ export class JoinGameData {
   private static _instance: JoinGameData;
   private constructor() { };
   public static get Instance() {
-    return this._instance || (this._instance = new this());
+    return this._instance;
   }
-
   private data: onJoinGame = {
     "action": "onJoinGame",
-    "gameType": "5278",
+    "gameType": GAME_TYPE,
     "event": true,
     "data":
     {
       "gameState": Math.random() < 0.5 ? "Betting" : "Reward",//(下注中或開獎中?)"NewRound":新局開始，"Betting":下注中，"Reward":派獎中
+      "roundSerial": 47378797,
       "avatarID": 10,//頭像ID (隨機0~31) 共32組
       "betCreditList": [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],//遊戲籌碼注額
-      "roundSerial": 47378797,
       "startColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 36)),//該局起始顏色編號(0~35)
       "countdown": 5,//剩餘下注時間
       "betTotalTime": 12,//遊戲下注時間(彈性調整)
       //前100局路紙顏色[新到舊]
-      "roadMap": Array.from({ length: 100 }, () =>
-        Array.from({ length: 3 }, () => Math.floor(Math.random() * 6))
-      ),
-      "totalBetAreaCredit": Array.from({ length: 6 }, () => Math.floor(Math.random() * 2000)),//總用戶目前各注區下注額
-      //目前前三名，{用戶ID、顯示名稱、頭像ID、餘額}
-      "rankings": [
-        { "userID": 11111111, "displayName": 'john', "avatarID": 10, "credit": 70000 },
-        { "userID": 22222222, "displayName": 'kenny', "avatarID": 11, "credit": 60000 },
-        { "userID": 3845147, "displayName": 'simon', "avatarID": 12, "credit": 50000 }
+      "roadMap": Array.from({ length: 100 }, () => Array.from({ length: 3 }, () => Math.floor(Math.random() * 6))),
+      // 該局有下注的用戶與注額分布與餘額
+      "allBets": [
+        { "userID": 11111, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 2000 },
+        { "userID": 22222, "betCredits": [0, 100, 50, 50, 100, 200], "credit": 2000 },
+        { "userID": 33333, "betCredits": [0, 100, 50, 50, 100, 200], "credit": 2000 },
+        { "userID": 44444, "betCredits": [100, 100, 100, 300, 200, 100], "credit": 2000 }
       ],
-      "liveCount": Math.ceil(Math.random() * 30),//其他用戶人數
-      // "pathID": 1,//本局表演的路徑ID (隨機0~999) 
-      // "winColor": [1, 2, 3],//該局開獎顏色編號(1~6，1=黃、2=灰、3=紫、4=藍、5=紅、6=綠)
-      // //前三名用戶+其他用戶派彩，{勝利注區(0~5)，派彩額度}
-      // "otherPayoffs": [
-      //   { "winAreas": [1, 2, 3], "payoff": 200 },
-      //   { "winAreas": [1, 2], "payoff": 300 },
-      //   { "winAreas": [2, 3], "payoff": 500 },
-      //   { "winAreas": [3], "payoff": 100 }
-      // ],
+      //目前前三名，{用戶ID、顯示名稱、頭像ID、下注資料、餘額}
+      "rankings": [
+        { "userID": 11111, "displayName": 'john', "avatarID": 10, "betCredits": [200, 100, 0, 300, 400, 0],"credit": 70000 },
+        { "userID": 22222, "displayName": 'kenny', "avatarID": 11, "betCredits": [200, 100, 0, 300, 400, 0],"credit": 60000 },
+        { "userID": 33333, "displayName": 'simon', "avatarID": 12, "betCredits": [200, 100, 0, 300, 400, 0],"credit": 50000 }
+      ],
+      "liveCount": 3 + Math.ceil(Math.random() * 30),//其他用戶人數
+      "pathID": Math.floor(Math.random() * 1000),//本局表演的路徑ID (隨機0~999) 
+      "winColor": Array.from({ length: 3 }, () => Math.ceil(Math.random() * 6)),//該局開獎顏色編號(1~6)
+      //該局有派彩的用戶，{userID，派彩額度}
+      "winners": [
+        { "userID": 11111, "payoff": 200 },
+        { "userID": 22222, "payoff": 300 },
+        { "userID": 33333, "payoff": 500 },
+        { "userID": 44444, "payoff": 100 }
+      ]
     }
   }
   public getData(): onJoinGame {
@@ -84,12 +89,12 @@ export class UpdateNewRoundData {
   private static _instance: UpdateNewRoundData;
   private constructor() { };
   public static get Instance() {
-    return this._instance || (this._instance = new this());
+    return this._instance;
   }
   private data: onUpdate = {
     "action": "onUpdate",
     "event": true,
-    "gameType": "5278",
+    "gameType": GAME_TYPE,
     "data":
     {
       "gameState": "NewRound",//新局開始
@@ -107,21 +112,31 @@ export class UpdateBettingData {
   private static _instance: UpdateBettingData;
   private constructor() { };
   public static get Instance() {
-    return this._instance || (this._instance = new this());
+    return this._instance;
   }
   private data: onUpdate = {
     "action": "onUpdate",
     "event": true,
-    "gameType": "5278",
+    "gameType": GAME_TYPE,
     "data":
     {
       "gameState": "Betting",// 下注中
       "countdown": 10,//剩餘下注時間
-      "totalBetAreaCredit": Array.from({ length: 6 }, () => Math.floor(Math.random() * 2000)),//總用戶目前各注區下注額
-      //前三名用戶+其他用戶各注區新增的注額
-      "newBets": Array.from({ length: 4 }, () =>
-        Array.from({ length: 6 }, () => Math.floor(Math.random() * 1000))
-      ),
+      // 該局有下注的用戶與注額分布與餘額
+      // "allBets": [
+      //   { "userID": 11111, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 2000 },
+      //   { "userID": 22222, "betCredits": [0, 100, 50, 50, 100, 200], "credit": 2000 },
+      //   { "userID": 33333, "betCredits": [0, 100, 50, 50, 100, 200], "credit": 2000 },
+      //   { "userID": 44444, "betCredits": [100, 100, 100, 300, 200, 100], "credit": 2000 }
+      // ],
+      "totalBets": [1000, 200, 500, 300, 200, 700],//目前注區總注額
+      //前三名+其他玩家新增的下注額度
+      "newBets": [
+        [200, 100, 0, 300, 400, 0],
+        [0, 100, 50, 50, 100, 200],
+        [100, 0, 0, 0, 0, 100],
+        [500, 200, 150, 350, 500, 1200]
+      ]
     }
   }
   public getData(countdown: number): onUpdate {
@@ -135,44 +150,31 @@ export class UpdateRewardData {
   private static _instance: UpdateRewardData;
   private constructor() { };
   public static get Instance() {
-    return this._instance || (this._instance = new this());
+    return this._instance;
   }
-  private winColor = Array.from({ length: 3 }, () => Math.ceil(Math.random() * 6));
-  private getWinAreas(): number[] {
-    const uniqueColors = Array.from(new Set(this.winColor));//排除重複值
-    const winAreas: number[] = [];
-    uniqueColors.forEach(color => {
-      if (Math.random() < 0.5) {
-        winAreas.push(color);
-      }
-    });
-    return winAreas;
-  }
-
   private data: onUpdate = {
     "action": "onUpdate",
     "event": true,
-    "gameType": "5278",
+    "gameType": GAME_TYPE,
     "data":
     {
       "gameState": "Reward",//派獎中
       "pathID": Math.floor(Math.random() * 1000),//本局表演的路徑ID (隨機0~999) 
-      "winColor": this.winColor,//該局開獎顏色編號(1~6)
-      "userPayoff": { "winAreas": this.getWinAreas(), "payoff": 200 },//本地用戶派彩，{勝利注區(1~6)，派彩額度}
-      //前三名用戶+其他用戶派彩，{勝利注區(1~6)，派彩額度}
-      "otherPayoffs": [
-        { "winAreas": this.getWinAreas(), "payoff": 200 },
-        { "winAreas": this.getWinAreas(), "payoff": 300 },
-        { "winAreas": this.getWinAreas(), "payoff": 500 },
-        { "winAreas": this.getWinAreas(), "payoff": 100 }
+      "winColor": Array.from({ length: 3 }, () => Math.ceil(Math.random() * 6)),//該局開獎顏色編號(1~6)
+      //該局有派彩的用戶，{userID，派彩額度}
+      "winners": [
+        { "userID": 11111, "payoff": 200 },
+        { "userID": 22222, "payoff": 300 },
+        { "userID": 33333, "payoff": 500 },
+        { "userID": 44444, "payoff": 100 }
       ],
-      //目前前三名，{用戶ID、顯示名稱、頭像ID、餘額}
+      //目前前三名，{用戶ID、顯示名稱、頭像ID、下注資料、餘額}
       "rankings": [
-        { "userID": 11111111, "displayName": 'john', "avatarID": 10, "credit": 70000 },
-        { "userID": 22222222, "displayName": 'kenny', "avatarID": 11, "credit": 60000 },
-        { "userID": 33333333, "displayName": 'simon', "avatarID": 12, "credit": 50000 }
+        { "userID": 11111, "displayName": 'john', "avatarID": 10, "betCredits": [200, 100, 0, 300, 400, 0],"credit": 70000 },
+        { "userID": 22222, "displayName": 'kenny', "avatarID": 11, "betCredits": [200, 100, 0, 300, 400, 0],"credit": 60000 },
+        { "userID": 33333, "displayName": 'simon', "avatarID": 12, "betCredits": [200, 100, 0, 300, 400, 0],"credit": 50000 }
       ],
-      "liveCount": Math.ceil(Math.random() * 30),//其他用戶人數
+      "liveCount": 3 + Math.ceil(Math.random() * 30),//線上用戶人數
     }
   }
   public getData(): onUpdate {
@@ -185,88 +187,18 @@ export class BetData {
   private static _instance: BetData;
   private constructor() { };
   public static get Instance() {
-    return this._instance || (this._instance = new this());
+    return this._instance;
   }
   private data: onBetInfo = {
     "event": true,
     "error": "餘額不足",
     "data":
     {
-      "betCredits": [200, 0, 20, 500, 0, 0],// 新增各區下注額度
-      // "credit": 2000,// 剩餘額度
-      // "betTotal": 500,//用戶目前總下注額
-      // "userBetAreaCredit": [10, 90, 100, 100, 100, 100],//用戶目前各注區下注
-      // "totalBetAreaCredit": [200, 290, 300, 300, 300, 300],//目前各下注區總額
+      "betCredits": [200, 0, 20, 500, 0, 0],// 用戶目前注額分布
+      "credit": 2000,// 用戶剩餘額度
     }
   }
   public getData(): onBetInfo {
     return this.data;
   }
 }
-
-
-//   //接收到準備消息
-//   private updateReady = {
-//   "action": "update",
-//   "gameType": "5270",
-//   "data": {
-//     "GameState": "Ready",
-//   }
-// }
-
-//   //接收到新局消息
-//   private NewRoundMessage = {
-//   "action": "update",
-//   "gameType": "5270",
-//   "data": {
-//     "GameState": "NewRound",
-//     "RoundSerial": 488670,
-//     "StartColor": [1, 2, 3] // 起始顏色
-//   }
-// }
-
-//   //接收到下注中(每秒更新)
-//   private BettingMessage = {
-//   "action": "update",
-//   "gameType": "5270",
-//   "data": {
-//     "GameState": "Betting",
-//     "Countdown": 10,//剩餘下注時間
-//     "LiveCount": 20,//其他用戶人數
-//     "TotalBets": [10, 100, 100, 200, 300, 400],//總用戶目前各注區下注額
-//     //前三名用戶+其他用戶各注區新增的注額
-//     "NewBets": [
-//       [200, 100, 0, 300, 400, 0],
-//       [0, 100, 50, 50, 100, 200],
-//       [100, 100, 100, 300, 200, 100],
-//       [0, 0, 200, 500, 0, 400]
-//     ],
-//   }
-// }
-
-//   //接收到開獎派彩訊息
-//   private RewardMessage = {
-//   "action": "update",
-//   "gameType": "5270",
-//   "data": {
-//     "GameState": "Reward",
-//     "PathID": 1,//本局表演的路徑ID (隨機0~999)
-//     "WinColor": [1, 2, 3],//該局開獎顏色編號(1~6，1=黃、2=灰、3=紫、4=藍、5=紅、6=綠)
-//     "UserPayoff": { "winAreas": [1, 2, 4], "payoff": 200 },//本地用戶派彩，{勝利注區(1~6)，派彩額度}
-//     //前三名用戶+其他用戶派彩，{勝利注區(1~6)，派彩額度}
-//     "OtherPayoffs": [
-//       { "winAreas": [1, 2, 4], "payoff": 200 },
-//       { "winAreas": [1, 2, 4], "payoff": 200 },
-//       { "winAreas": [1, 2, 4], "payoff": 200 },
-//       { "winAreas": [1, 2, 4], "payoff": 200 }
-//     ],
-//     "RoadMap": [[0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2], [0, 1, 2]],
-//     "RoadMapPer": [10, 20, 20, 20, 20, 10],
-//     "Rankings": [
-//       { "userID": 11111111, "displayName": 'john', "avatar": 10, "credit": 70000 },
-//       { "userID": 22222222, "displayName": 'kenny', "avatar": 11, "credit": 60000 },
-//       { "userID": 33333333, "displayName": 'simon', "avatar": 12, "credit": 50000 }
-//     ],
-//     "LiveCount": 20,//其他用戶人數
-//   }
-// }
