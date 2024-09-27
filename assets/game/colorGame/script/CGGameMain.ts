@@ -1,6 +1,6 @@
 // import { gtCommEvents } from '@gt-npm/gtlibts';
 import { h5GameTools, useGlobalEventDispatcher } from '@gt-npm/gt-lib-ts';
-import { _decorator, CCBoolean, Component, find, Game, Node } from 'cc';
+import { _decorator, CCBoolean, Component } from 'cc';
 import { CGController } from './controller/CGController';
 import { CGModel } from './model/CGModel';
 import { WorkOnBlur } from './tools/WorkOnBlur';
@@ -16,17 +16,13 @@ const { ccclass, property } = _decorator;
 @ccclass('CGGameMain')
 export class CGGameMain extends Component {
 
-    @property(Node)
-    private waitNewRound!: Node;
+
     @property(CCBoolean)
     public useSimulateData: boolean = false;//模擬資料
     @property(CGController)
     private controller: CGController = null!;
     @property(CGModel)
     private model: CGModel = null!;
-
-    @property(Node)
-    public lockBetArea!: Node;//禁用下注區，介面區域
 
     private gameType: string = "5278";
 
@@ -88,7 +84,7 @@ export class CGGameMain extends Component {
         if (joinGameMsg.data.gameState === GameState.Betting)
             this.simulateBettingOnUpdate(joinGameMsg.data.countdown);//執行更新倒數下注資料發送剩餘下注時間
         else {
-            this.waitNewRound.active = true;//等待新局開始
+            this.controller.waitNewRound.active = true;//等待新局開始
             await CGUtils.Delay(3);
             this.simulateNewRoundOnUpdate();
         }
@@ -177,7 +173,7 @@ export class CGGameMain extends Component {
     private async onBetConfirm() {
         const chipDispatcher = this.controller.chipDispatcher;
         const betCredits = chipDispatcher.tempBetCredits;//各下注區新增的注額
-        this.lockBetArea.active = true;//禁用下注區
+        this.controller.lockBetArea.active = true;//開啟禁用下注區
         if (this.useSimulateData) {
             //傳送下注資料給server，server確認後回傳
             const sendBetInfo = {
@@ -191,10 +187,11 @@ export class CGGameMain extends Component {
                 "error": "",
                 "data": { "betCredits": [100, 200, 0, 0, 200, 0], "credit": 2000 }
             }
-            if (!msg.error)
+            this.controller.lockBetArea.active = false;//關閉禁用下注區
+            if (msg.error !== "")
                 this.controller.handleBetSuccessful(msg.data.betCredits, msg.data.credit);//執行下注成功
             else
-                console.log(msg.error)
+                this.controller.handleBetError(msg.error);//執行下注失敗
         } else {
             try {
                 // const response = await h5GameTools.slotGameConnector.SlotGameConnector.shared.callBeginGame({
@@ -211,6 +208,7 @@ export class CGGameMain extends Component {
             // console.log('下注完成...');
         }
     }
+
 
 
     //-------------------------------以上是colorGame使用---------------------------------

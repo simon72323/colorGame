@@ -5,7 +5,7 @@ const { ccclass, property, menu } = _decorator;
 @menu('UI/ButtonEvent')
 export default class ButtonEvent extends Component {
     @property(Node)
-    public targert: Node = null!;
+    public target: Node = null!;
     @property(CCString)
     public param: string = '';
 
@@ -62,6 +62,6 @@ export default class ButtonEvent extends Component {
         return Intersection2D.pointInPolygon(point, polygonCollider.points);
     }
     private triggerEvent(event: string): void {
-        this.targert.emit(event, this.param);
+        this.target.emit(event, this.param);
     }
 }

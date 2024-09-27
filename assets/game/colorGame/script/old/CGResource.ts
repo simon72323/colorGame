@@ -13,8 +13,8 @@ export class CGResource extends Component {
     // public winOddSF: SpriteFrame[] = [];
     // @property({ type: Prefab, tooltip: "提示訊息" })
     // public tipPrefab: Prefab = null;
-    // @property({ type: Prefab, tooltip: "其他玩家下注籌碼" })
+    // @property({ type: Prefab, tooltip: "其他用戶下注籌碼" })
     // public betChipBlack: Prefab = null;
-    // @property({ type: Prefab, tooltip: "本地玩家下注籌碼" })
+    // @property({ type: Prefab, tooltip: "本地用戶下注籌碼" })
     // public betChipColor: Prefab = null;
 }

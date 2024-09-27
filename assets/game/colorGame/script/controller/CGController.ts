@@ -1,19 +1,20 @@
-import { _decorator, Component, SpriteFrame, Animation, Vec3 } from 'cc';
+import { _decorator, Component, SpriteFrame, Animation, Node } from 'cc';
 import { CGView } from '../view/CGView';
 import { CGModel } from '../model/CGModel';
 import { CGZoomView } from '../view/CGZoomView';
 import { CGChipDispatcher } from '../view/CGChipDispatcher';
 import { CGRoundView } from '../view/CGRoundView';
 import { CGChipSetView } from '../view/CGChipSetView';
-import { CGBigWin } from '../view/CGBigWinView';
+// import { CGWinView } from '../view/CGWinView';
 import { CGDiceRunView } from '../view/CGDiceRunView';
 import { CGMarquee } from '../view/CGMarquee';
 import { CGRoadView } from '../view/CGRoadView';
 import PoolHandler from '../tools/PoolHandler';
-import { GameState, UserBets, onJoinGame, onLoadInfo, onUpdate } from '../enum/CGInterface';
-import { CGPathManager } from '../manager/CGPathManager';
+import { GameState, UserBets, UserPayoff, onJoinGame, onLoadInfo, onUpdate } from '../enum/CGInterface';
+
 import { CGRankView } from '../view/CGRankView';
 import { CGDataService } from '../manager/CGDataService';
+import { CGUtils } from '../tools/CGUtils';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGController')
@@ -31,8 +32,8 @@ export class CGController extends Component {
     public roundView: CGRoundView = null;
     @property(CGChipSetView)//籌碼設置
     public chipSetView: CGChipSetView = null;
-    @property(CGBigWin)//大獎表演
-    public bigWin: CGBigWin = null;
+    // @property(CGWinView)//勝利表演
+    // public winView: CGWinView = null;
     @property(CGDiceRunView)//開骰表演
     public diceRunView: CGDiceRunView = null;
     @property(CGRoadView)//路紙
@@ -42,25 +43,80 @@ export class CGController extends Component {
     @property(CGMarquee)//跑馬燈腳本
     private Marquee: CGMarquee = null;
 
+    @property(Node)
+    public waitNewRound!: Node;
+    @property(Node)
+    public lockBetArea!: Node;//禁用下注區，介面區域
+
     //遊戲資源
-    @property([SpriteFrame])
-    public resultColorSF: SpriteFrame[] = [];
-    @property([SpriteFrame])
-    public winOddSF: SpriteFrame[] = [];
+
+
 
     private dataService: CGDataService;//數據服務
 
     protected onLoad() {
         this.node.on('OnButtonEventPressed', this.betAreaPressed, this);
+        this.dataService = CGDataService.getInstance();//實例化數據服務
         //非loading時暫時使用
-        CGPathManager.getInstance().node.on("completed", async () => {
-            //路徑加載完畢，開始模擬遊戲
-        });
+        // CGPathManager.getInstance().node.on("completed", async () => {
+        //路徑加載完畢，開始模擬遊戲
+        // });
 
         // this.initWebSocket();
         //開始模擬server發送消息
         // this.startSimulatingServerMessages();
     }
+
+    //處理新局開始
+    private handleNewRound(startColor: number[]) {
+        this.roundView.startRound();//開始執行遊戲回合
+        this.diceRunView.diceIdle(startColor);//初始化骰子(隨機顏色)
+        const isRebet = this.chipDispatcher.testRebet();//判斷是否執行續押
+        this.zoomView.zoomShowing();//放大鏡功能顯示
+    }
+
+    //處理回合結束流程與派獎
+    private async handleReward(pathID: number, winColor: number[], payoff: number) {
+        const { localWinArea, betOdds } = this.model.calculateWinData(winColor);//計算表演所需參數
+        this.model.setPathData(pathID);//設置該回合路徑資料
+        // 停止下注等操作
+        this.roundView.betStop();//停止下注
+        this.lockBetArea.active = true;//啟用禁用下注區
+        this.zoomView.zoomHideing();//放大鏡功能隱藏
+        this.chipDispatcher.updateRebetData(this.model.betTotal);//更新寫入續押資料
+        await CGUtils.Delay(1);
+        await this.diceRunView.diceStart(this.model.pathData, winColor);//骰子表演
+        this.roundView.rewardShow(winColor, localWinArea, betOdds, payoff)//表演勝利效果
+        await CGUtils.Delay(1);
+        for (let i = 0; i < betOdds.length; i++) {
+            if (betOdds[i] === 0)
+                this.chipDispatcher.recycleChip(i);//回收未中獎的籌碼 
+        }
+        await CGUtils.Delay(0.9);
+        for (let i = 0; i < betOdds.length; i++) {
+            if (betOdds[i] > 0)
+                this.chipDispatcher.createPayChipToBetArea(i, this.model.calculateOdds(betOdds[i]));//派發籌碼
+        }
+        await CGUtils.Delay(2.1);
+        if (payoff > 0) {
+            this.roundView.showAddCredit(payoff);//顯示加分
+            this.model.credit += payoff;//用戶額度更新
+        }
+        this.view.comBtnCredits.getComponent(Animation).play();
+        //等待新局開始
+    }
+
+
+    //續押按鈕按下
+    private btnRebetDown(event: Event, state: string) {
+        const rebetSaveData = this.chipDispatcher.getRebetData(state);
+        if (rebetSaveData) {
+            //將續押參數傳給server確認，等待返回下注成功
+        }
+    }
+
+
+
 
     //本地用戶下注區按下(僅觸發籌碼移動)
     private betAreaPressed(param: string) {
@@ -76,6 +132,11 @@ export class CGController extends Component {
         this.chipDispatcher.betSuccessful();//執行下注成功
         this.model.credit = credit;//用戶剩餘金額
         this.updateBetCredit(betCredits, true);
+    }
+
+    //處理本地用戶下注失敗
+    public handleBetError(error: string) {
+        this.chipDispatcher.betError(error);
     }
 
     //處理所有下注區資料
@@ -102,14 +163,14 @@ export class CGController extends Component {
                     if (userID === this.model.rankings[k].userID) {
                         //前三名玩家下注
                         const rankID = k + 1;
-                        const playerPos = this.view.playerPos.children[rankID];
-                        const startPos = playerPos.getWorldPosition();
+                        const userPos = this.chipDispatcher.userPos.children[rankID];
+                        const startPos = userPos.getWorldPosition();
                         for (let l = 0; l < addBets.length; l++) {
                             const chipCredit = addBets[l];
                             if (chipCredit > 0) {
                                 //隨機延遲下注表演
                                 setTimeout(() => {
-                                    playerPos.getComponent(Animation).play();//頭像移動
+                                    userPos.getComponent(Animation).play();//頭像移動
                                     this.chipDispatcher.otherUserBetChip(l, rankID, chipCredit, startPos);
                                     //如果本地玩家有跟注，這時要表演跟注
                                 }, Math.random() * 800)
@@ -118,8 +179,8 @@ export class CGController extends Component {
                     } else {
                         //非前三名玩家的表演
                         const rankID = 4;
-                        const playerPos = this.view.playerPos.children[rankID];
-                        const startPos = playerPos.getWorldPosition();
+                        const userPos = this.chipDispatcher.userPos.children[rankID];
+                        const startPos = userPos.getWorldPosition();
                         for (let l = 0; l < addBets.length; l++) {
                             const chipCredit = addBets[l];
                             if (chipCredit > 0) {
@@ -147,7 +208,8 @@ export class CGController extends Component {
             for (let i = 0; i < 6; i++) {
                 model.userBetAreaCredit[i] += betCredits[i];
             }
-            view.updateUserBetCredit(model.betTotal, model.credit, model.userBetAreaCredit);
+            view.updateUserBetCredit(model.betTotal, model.credit);
+            view.updateUserBetAreaCredit(model.userBetAreaCredit);
         }
         for (let i = 0; i < 6; i++) {
             model.totalBetAreaCredit[i] += betCredits[i];
@@ -168,10 +230,7 @@ export class CGController extends Component {
         } = msg.data;
 
         if (gameState === GameState.Betting) {
-            this.roundView.startRound();//開始執行遊戲回合
-            this.diceRunView.diceIdle(startColor);//初始化骰子(隨機顏色)
-            this.chipDispatcher.testRebet();//判斷是否執行續押
-            this.zoomView.zoomShowing();//放大鏡功能顯示
+            this.handleNewRound(startColor);
             this.roundView.setCountdown(countdown, betTotalTime);//表演時間倒數
         }
         this.model.avatarID = avatarID;
@@ -181,7 +240,7 @@ export class CGController extends Component {
         this.roadView.updateRoadMap(roadMap);//更新下注介面
         this.model.rankings = rankings;
         this.model.liveCount = liveCount;
-        this.rankView.updateUserRanks(rankings, this.model.userID, liveCount);//更新排名與其他玩家人數
+        this.rankView.updateUserRanks(this.chipDispatcher.userPos, rankings, this.model.userID, liveCount);//更新排名與其他玩家人數
         this.model.betTotalTime = betTotalTime;
         this.model.allBets = allBets;
 
@@ -196,20 +255,18 @@ export class CGController extends Component {
 
     public onUpdateData(msg: onUpdate) {
         const { gameState, roundSerial, startColor, countdown,
-            allBets, rankings, liveCount, pathID, winColor, winners
+            allBets, rankings, liveCount, pathID, winColor, payoff
         } = msg.data;
         switch (gameState) {
             case GameState.NewRound:
-                this.roundView.startRound();//開始執行遊戲回合
-                this.diceRunView.diceIdle(startColor);//初始化骰子(隨機顏色)
-                this.chipDispatcher.testRebet();//判斷是否執行續押
-                this.zoomView.zoomShowing();//放大鏡功能顯示
+                this.handleNewRound(startColor);
                 break;
             case GameState.Betting:
                 this.roundView.setCountdown(countdown, this.model.betTotalTime);//表演時間倒數
                 this.handleAllBets(allBets);//處理所有下注區資料
                 break;
             case GameState.Reward:
+                this.handleReward(pathID, winColor, payoff);
                 break;
         }
     }

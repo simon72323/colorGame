@@ -63,9 +63,9 @@ export class JoinGameData {
       ],
       //目前前三名，{用戶ID、顯示名稱、頭像ID、下注資料、餘額}
       "rankings": [
-        { "userID": 11111, "displayName": 'john', "avatarID": 10, "betCredits": [200, 100, 0, 300, 400, 0],"credit": 70000 },
-        { "userID": 22222, "displayName": 'kenny', "avatarID": 11, "betCredits": [200, 100, 0, 300, 400, 0],"credit": 60000 },
-        { "userID": 33333, "displayName": 'simon', "avatarID": 12, "betCredits": [200, 100, 0, 300, 400, 0],"credit": 50000 }
+        { "userID": 11111, "displayName": 'john', "avatarID": 10, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 70000 },
+        { "userID": 22222, "displayName": 'kenny', "avatarID": 11, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 60000 },
+        { "userID": 33333, "displayName": 'simon', "avatarID": 12, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 50000 }
       ],
       "liveCount": 3 + Math.ceil(Math.random() * 30),//其他用戶人數
       "pathID": Math.floor(Math.random() * 1000),//本局表演的路徑ID (隨機0~999) 
@@ -161,18 +161,19 @@ export class UpdateRewardData {
       "gameState": "Reward",//派獎中
       "pathID": Math.floor(Math.random() * 1000),//本局表演的路徑ID (隨機0~999) 
       "winColor": Array.from({ length: 3 }, () => Math.ceil(Math.random() * 6)),//該局開獎顏色編號(1~6)
+      "payoff": Math.floor(Math.random() * 1000),//隨機0~999)
       //該局有派彩的用戶，{userID，派彩額度}
-      "winners": [
-        { "userID": 11111, "payoff": 200 },
-        { "userID": 22222, "payoff": 300 },
-        { "userID": 33333, "payoff": 500 },
-        { "userID": 44444, "payoff": 100 }
-      ],
+      // "winners": [
+      //   { "userID": 11111, "payoff": 200 },
+      //   { "userID": 22222, "payoff": 300 },
+      //   { "userID": 33333, "payoff": 500 },
+      //   { "userID": 44444, "payoff": 100 }
+      // ],
       //目前前三名，{用戶ID、顯示名稱、頭像ID、下注資料、餘額}
       "rankings": [
-        { "userID": 11111, "displayName": 'john', "avatarID": 10, "betCredits": [200, 100, 0, 300, 400, 0],"credit": 70000 },
-        { "userID": 22222, "displayName": 'kenny', "avatarID": 11, "betCredits": [200, 100, 0, 300, 400, 0],"credit": 60000 },
-        { "userID": 33333, "displayName": 'simon', "avatarID": 12, "betCredits": [200, 100, 0, 300, 400, 0],"credit": 50000 }
+        { "userID": 11111, "displayName": 'john', "avatarID": 10, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 70000 },
+        { "userID": 22222, "displayName": 'kenny', "avatarID": 11, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 60000 },
+        { "userID": 33333, "displayName": 'simon', "avatarID": 12, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 50000 }
       ],
       "liveCount": 3 + Math.ceil(Math.random() * 30),//線上用戶人數
     }

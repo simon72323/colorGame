@@ -1,5 +1,6 @@
 import { _decorator, Component, sys, JsonAsset, Vec3 } from 'cc';
 import { onLoadInfo, RankInfo, GameState, onJoinGame, onBetInfo, UserBets, UserPayoff } from '../enum/CGInterface';
+import { CGPathManager } from '../manager/CGPathManager';
 
 import { PathInfo } from '../enum/CGInterface';
 const { ccclass, property } = _decorator;
@@ -11,7 +12,7 @@ export class CGModel extends Component {
 
 
 
-    //玩家資料(server給的)
+    //用戶資料(server給的)
     public gameType: number;//遊戲編號
     public userID: number;//用戶ID
     public avatarID: number;//頭像ID
@@ -25,7 +26,7 @@ export class CGModel extends Component {
     // public betCreditList: number[]; // 下注額度列表
     public roadMap: number[][];//前100局開獎顏色紀錄(顯示下注紀錄顏色)[局數][顏色]
     public allBets: UserBets[];// 該局有下注的用戶與注額分布與餘額
-    public rankings: RankInfo[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
+    public rankings: RankInfo[];//前三名用戶資料(ID，名稱，頭像，餘額)，如果ID是本地用戶，不表演籌碼並取消跟注
     public liveCount: number;// 目前線上人數
 
     public pathID: number;
@@ -65,6 +66,115 @@ export class CGModel extends Component {
         return this.roadMap
     }
 
+    //設置路徑資料
+    public setPathData(pathID: number): void {
+        this.pathData = CGPathManager.getInstance().allPathData[pathID];
+    }
+
+    //計算本地用戶勝利注區倍率並更新注區分數
+    // public calculateBetOdds(winColor: number[]): number[] {
+    //     let localBetOdds = [0, 0, 0, 0, 0, 0];//勝利注區與倍率
+    //     let winColorCount = [0, 0, 0, 0, 0, 0];//每個注區的開獎數量
+    //     for (let i of winColor) {
+    //         winColorCount[i]++;
+    //     }
+    //     //本地下注分數變更
+    //     for (let i = 0; i < winColorCount.length; i++) {
+    //         const count = winColorCount[i];
+    //         if (count > 0) {
+    //             if (this.userBetAreaCredit[i] > 0) {
+    //                 this.userBetAreaCredit[i] *= count === 3 ? 10 : count + 1;//注區額度變更(倍率)
+    //                 localBetOdds[i] = count;
+    //             }
+    //         }
+    //         else
+    //             this.userBetAreaCredit[i] = 0;
+    //     }
+    //     return localBetOdds;
+    // }
+
+    //計算勝利表演所需用參數
+    public calculateWinData(winColor: number[]): { betOdds: number[], localWinArea: number[] } {
+        // const winNum = [...new Set(winColor)];//過濾重複數字
+        // const loseNum: number[] = [];
+
+        // for (let i = 0; i < 6; i++) {
+        //     if (winNum.indexOf(i) === -1) {
+        //         loseNum.push(i);
+        //     }
+        // }
+
+        let betOdds = [0, 0, 0, 0, 0, 0];//勝利注區與倍率
+        let winColorCount = [0, 0, 0, 0, 0, 0];//每個注區的開獎數量
+        let localWinArea = [];//本地勝利注區
+        for (let i of winColor) {
+            winColorCount[i]++;
+        }
+
+        //本地下注分數變更
+        for (let i = 0; i < winColorCount.length; i++) {
+            const count = winColorCount[i];
+            if (count > 0) {
+                const odds = this.calculateOdds(count);
+                if (this.userBetAreaCredit[i] > 0) {
+                    this.userBetAreaCredit[i] *= (odds + 1);//注區額度變更(倍率)
+                    localWinArea.push(i);
+                }
+                betOdds[i] = odds;
+            }
+            else
+                this.userBetAreaCredit[i] = 0;
+        }
+        return { localWinArea, betOdds };
+    }
+
+    //計算賠率
+    public calculateOdds(odds: number): number {
+        return odds === 3 ? 9 : odds;
+    }
+
+    // const winNum = new Set(winColor);//過濾重複數字
+
+    //中獎注區設置
+    // for (let i of winNum) {
+    //     // this.betWin.children[i].active = true;
+    //     //判斷用戶是否有下注該中獎區
+    //     if (this.userBetAreaCredit[i] > 0) {
+    //         this.userBetAreaCredit[i] *= winColorCount[i] === 3 ? 10 : winColorCount[i] + 1;//注區額度變更(倍率)
+    //         // localWinCredit += userBetAreaCredit[i];
+    //         // view.betInfo.children[i].getChildByName('BetCredit').getComponent(Label).string = CGUtils.NumDigits(userBetAreaCredit[i]);
+    //         // this.mainPlayerWin.children[i].active = true;
+    //         // this.mainPlayerWin.children[i].children[0].getComponent(Sprite).spriteFrame = this.controller.winOddSF[winColorCount[i] - 1];
+    //     }
+    // }
+
+    //未中獎注區設置
+    // const diceNum = [0, 1, 2, 3, 4, 5];
+    // const loseNum = diceNum.filter(number => !(winColor.indexOf(number) > -1) as boolean);
+    // for (let i of loseNum) {
+    //     userBetAreaCredit[i] = 0;
+    //     view.betInfo.children[i].getChildByName('BetCredit').getComponent(Label).string = CGUtils.NumDigits(userBetAreaCredit[i]);
+    //     view.betInfo.children[i].getComponent(UIOpacity).opacity = 100;
+    // }
+    //本地用戶勝利設置
+    // if (localWinCredit > 0) {
+    //     const showWinCredit = () => {
+    //         this.infoBar.getChildByName('Win').getChildByName('WinCredit').getChildByName('Label').getComponent(Label).string = CGUtils.NumDigits(localWinCredit);
+    //         this.infoBar.getComponent(Animation).play('InfoBarWin');
+    //     }
+    //     //size===1代表開骰3顆骰子同一個id
+    //     if (winNum.size === 1)
+    //         await this.controller.bigWin.runBigWin(localWinCredit);
+    //     else
+    //         showWinCredit.bind(this)();
+    // }
+    //顯示結算彈窗
+    // this.result.active = true;
+    // for (let i = 0; i < 3; i++) {
+    //     this.result.getChildByName(`Dice${i}`).getComponent(Sprite).spriteFrame = this.controller.resultColorSF[winColor[i]];
+    // }
+    // }
+
     // public setMockData() {
     //     console.log("設置mock");
     //     this.gameType = 1234;
@@ -87,7 +197,7 @@ export class CGModel extends Component {
     //     ]);//前10局開獎顏色紀錄(顯示下注紀錄顏色)[局數][顏色]
     //     this.roadMapPer = [10, 20, 20, 20, 20, 10];//前100局開獎百分比[顏色id]
 
-    //     this.wagersID = 123456;//該玩家注單
+    //     this.wagersID = 123456;//該用戶注單
     //     this.userTotalBet = 0;//該用戶目前總下注額
     //     this.userBets = [0, 0, 0, 0, 0, 0];//該用戶各注區目前下注額(需要中途出現籌碼)
     //     this.totalBets = [0, 0, 0, 0, 0, 0];//目前各注區的下注額(需要中途出現籌碼)
@@ -95,7 +205,7 @@ export class CGModel extends Component {
     //         { userID: 11111111, displayName: 'john', avatar: 10, credit: 70000 },
     //         { userID: 22222222, displayName: 'kenny', avatar: 11, credit: 60000 },
     //         { userID: 33333333, displayName: 'simon', avatar: 12, credit: 50000 }
-    //     ];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
+    //     ];//前三名用戶資料(ID，名稱，頭像，餘額)，如果ID是本地用戶，不表演籌碼並取消跟注
 
     //     this.pathID = 1;//該局表演路徑ID
     //     this.winColor = [
@@ -108,7 +218,7 @@ export class CGModel extends Component {
     //         { winAreas: [0, 2, 4], payoff: 200 },
     //         { winAreas: [0, 2, 4], payoff: 200 },
     //         { winAreas: [0, 2, 4], payoff: 200 },
-    //         { winAreas: [0, 2, 4], payoff: 200 }];//前三名玩家+其他玩家贏分資訊[玩家][注區贏分]
+    //         { winAreas: [0, 2, 4], payoff: 200 }];//前三名用戶+其他用戶贏分資訊[用戶][注區贏分]
 
     //     this.countdown = 5;//下注倒數時間
     //     this.newBets = [
@@ -116,8 +226,8 @@ export class CGModel extends Component {
     //         [0, 100, 50, 50, 100, 200],
     //         [100, 100, 100, 300, 200, 100],
     //         [0, 0, 200, 500, 0, 400]
-    //     ];//前三名玩家+其他玩家新增的下注資訊[玩家][下注金額]
-    //     this.userCount = 50;//目前其他玩家人數
+    //     ];//前三名用戶+其他用戶新增的下注資訊[用戶][下注金額]
+    //     this.userCount = 50;//目前其他用戶人數
     // }
 
     // //回傳接收下注成功後的本地用戶資料

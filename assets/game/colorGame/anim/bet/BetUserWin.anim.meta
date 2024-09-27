@@ -2,12 +2,12 @@
   "ver": "2.0.3",
   "importer": "animation-clip",
   "imported": true,
-  "uuid": "b2efbc84-0c1d-49f3-a67c-d4cc0915062c",
+  "uuid": "438f2375-9034-4655-80c7-eaf6b9e79a1c",
   "files": [
     ".cconb"
   ],
   "subMetas": {},
   "userData": {
-    "name": "OtherPlayerWin"
+    "name": "BetUserWin"
   }
 }

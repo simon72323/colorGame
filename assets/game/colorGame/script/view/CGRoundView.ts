@@ -1,61 +1,76 @@
-import { _decorator, Component, Label, Button, Sprite, Animation, UIOpacity, tween, Vec3, Color, Node } from 'cc';
+import { _decorator, Component, Label, SpriteFrame, Sprite, Animation, UIOpacity, tween, Vec3, Color, Node, Vec2, instantiate } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
-import { CGController } from '../controller/CGController';
+// import { CGController } from '../controller/CGController';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGRoundView')
 export class CGRoundView extends Component {
     @property(Node)//背景燈光
-    public bgLight: Node = null;
+    private bgLight: Node = null;
     @property(Node)//下注區資訊
-    public betInfo!: Node;
-    @property(Node)//資訊面板
-    public infoBar: Node = null;
+    private betInfo!: Node;
+
     @property(Node)//結算
-    public result: Node = null;
+    private result: Node = null;
     @property(Node)//狀態標題
-    public stageTitle: Node = null;
-    @property(Node)//3d盒子
-    public box3D: Node = null;
-    @property(Node)//下注按鈕區
-    public betArea: Node = null;
+    private stageTitle: Node = null;
+    // @property(Node)//3d盒子
+    // private box3D: Node = null;
+    // @property(Node)//下注按鈕區
+    // private betArea: Node = null;
     @property(Node)//下注勝利顯示區
-    public betWin: Node = null;
+    private betWin: Node = null;
     @property(Node)//下注提示光區
-    public betLight: Node = null;
+    private betLight!: Node;
     @property(Node)//下注時間
-    public betTime: Node = null;
-    @property(Node)//本地玩家贏分特效
-    public mainPlayerWin: Node = null;
+    private betTime: Node = null;
+    @property(Node)//本地用戶贏分特效
+    private mainUserWin: Node = null;
 
-    private controller: CGController = null;//初始化資源腳本
+    private chips: Node[] = [];
+    @property(Node)//資訊面板
+    private infoBar: Node = null;
+    @property(Node)
+    private bigWin!: Node;//大贏節點
+    // @property(Node)
+    // private chipParent!: Node;//要噴的籌碼層
 
-    public init(controller: CGController) {
-        this.controller = controller;
-        //非loading過程是暫時使用
-        // CGPathManager.getInstance().node.on("completed", async () => {
-        //     this.controller.setPathData();
-        //     this.newRound();
-        // });
 
-        //loading流程
-        // await this.model.getOnLoadInfo();//獲取遊戲資料
-        // this.newRound();
+    @property(Node)
+    private winCredit!: Node;//贏分節點
 
-        // await this.model.loadRoundData();//獲取新局資料
-        //     // this.marquee.addText('----------這是公告~!這是公告~!這是公告~!');
-        //     // this.marquee.run();
+
+    @property([SpriteFrame])
+    private winOddSF: SpriteFrame[] = [];
+    @property([SpriteFrame])
+    private resultColorSF: SpriteFrame[] = [];
+
+    /**
+     * 在組件載入時初始化籌碼陣列
+     * 遍歷 chipParent 的子節點，將它們添加到 chips 陣列中
+     */
+    protected onLoad(): void {
+        for (const chip of this.bigWin.getChildByName('CreatChip').children)
+            this.chips.push(chip);
     }
 
     //開始執行回合(server觸發)
     public async startRound() {
+        //初始化
+        this.betWin.active = false;
+        for (const child of this.betWin.children) {
+            child.active = false;
+        }
+        this.result.active = false;
+        this.infoBar.getComponent(Animation).play('InfoBarTip');//播放跑馬燈動態
         this.bgLight.getComponent(Animation).play('BgLightIdle');
         for (let i = 0; i < 6; i++) {
             this.betInfo.children[i].getComponent(UIOpacity).opacity = 255;
         }
+        //標題顯示
         this.stageTitle.children[0].active = true;//標題顯示
         this.betLight.active = true;//下注提示光
-        this.btnState(true);//按鈕啟用
+        // this.btnState(true);//按鈕啟用
         await CGUtils.Delay(1);
         this.stageTitle.children[0].active = false;//標題隱藏
     }
@@ -90,166 +105,146 @@ export class CGRoundView extends Component {
             .start();
     }
 
-    //下注時間倒數(接收後端時間資料)
-    // public setBetTime(timer: number) {
-    //     const model = this.controller.model;
-    //     const betTimeNode = this.betTime;
-    //     const labelNode = betTimeNode.getChildByName('Label');
-    //     const comLabel = labelNode.getComponent(Label);
-    //     comLabel.string = timer.toString();//顯示秒數
-    //     if (timer === 0) {
-    //         betTimeNode.active = false;
-    //         this.betStop();//下注結束
-    //         return;
+    //其他用戶押注
+    // private async otherPlayerBet() {
+    //     // const model = this.controller.model;
+    //     // const chipDispatcher = this.controller.chipDispatcher;
+    //     await CGUtils.Delay(0.1 + Math.random() * 0.1);
+    //     for (let i = 1; i < 5; i++) {
+    //         if (Math.random() > 0.5) {
+    //             const randomBetArea = Math.floor(Math.random() * 6);
+    //             const randomChipID = Math.floor(Math.random() * 10);
+    //             chipDispatcher.createChipToBetArea(randomBetArea, i, randomChipID, false);
+    //             //判斷本地用戶是否跟注
+    //             if (i < 4)
+    //                 if (chipDispatcher.btnStopCall[i - 1].active) {
+    //                     chipDispatcher.createChipToBetArea(randomBetArea, 0, model.touchChipID, false);//用戶跟注
+    //                 }
+    //         }
     //     }
-    //     labelNode.setScale(new Vec3(1, 1, 1));
-    //     const lastUIOpacity = betTimeNode.getChildByName('Last').getComponent(UIOpacity);
-    //     lastUIOpacity.opacity = 0;
-    //     if (timer <= 5) {
-    //         comLabel.color = new Color(255, 0, 0, 255);
-    //         tween(betTimeNode).to(0.5, { scale: new Vec3(1.1, 1.1, 1) })
-    //             .then(tween(betTimeNode).to(0.5, { scale: new Vec3(1, 1, 1) }))
-    //             .start();
-    //         tween(lastUIOpacity).to(0.5, { opacity: 255 })
-    //             .then(tween(lastUIOpacity).to(0.5, { opacity: 0 }))
-    //             .start();
-    //     }
-    //     else
-    //         comLabel.color = new Color(0, 90, 80, 255);
-    //     const betTotalTime = model.betTime;
-    //     const frameSprite = betTimeNode.getChildByName('Frame').getComponent(Sprite);
-    //     frameSprite.fillRange = timer / betTotalTime;
-    //     if (!betTimeNode.active)
-    //         betTimeNode.active = true;
-    //     tween(frameSprite).to(1, { fillRange: (timer - 1) / betTotalTime }).start();//進度條倒數
-    //     tween(labelNode).to(0.2, { scale: new Vec3(1.4, 1.4, 1) }, { easing: 'sineOut' })
-    //         .then(tween(labelNode).to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }))
-    //         .start();
     // }
 
-    //其他玩家押注
-    private async otherPlayerBet() {
-        const model = this.controller.model;
-        const chipDispatcher = this.controller.chipDispatcher;
-        await CGUtils.Delay(0.1 + Math.random() * 0.1);
-        for (let i = 1; i < 5; i++) {
-            if (Math.random() > 0.5) {
-                const randomBetArea = Math.floor(Math.random() * 6);
-                const randomChipID = Math.floor(Math.random() * 10);
-                chipDispatcher.createChipToBetArea(randomBetArea, i, randomChipID, false);
-                //判斷本地玩家是否跟注
-                if (i < 4)
-                    if (chipDispatcher.btnStopCall[i - 1].active) {
-                        chipDispatcher.createChipToBetArea(randomBetArea, 0, model.touchChipID, false);//玩家跟注
-                    }
-            }
-        }
-    }
-
-    //停止押注
-    private async betStop() {
-        const chipDispatcher = this.controller.chipDispatcher;
-        const zoom = this.controller.zoomView;
+    /**
+     * 停止下注
+     * @controller
+     */
+    public async betStop() {
         this.stageTitle.children[1].active = true;
-        this.btnState(false);//按鈕禁用
-        zoom.zoomHideing();//放大鏡功能隱藏
         await CGUtils.Delay(1);
         this.stageTitle.children[1].active = false;
-        chipDispatcher.updateRebetData();//更新寫入續押資料
-        // model.getRewardInfo();//獲取開獎結果
-        this.runReward();
+        // let winColor = model.winColor;
+        // await DiceRunSet.diceStart(model.pathData, winColor);//骰子表演
+
     }
 
-    //按鈕啟用狀態
-    public btnState(bool: boolean) {
-        const chipDispatcher = this.controller.chipDispatcher;
-        if (bool)
-            chipDispatcher.testRebet();//判斷是否執行續押
-        for (let betBtn of this.betArea.children) {
-            betBtn.getComponent(Button).interactable = bool;//下注按鈕狀態
-        }
-        chipDispatcher.btnRebet.getComponent(Button).interactable = bool;//續押按鈕狀態
-    }
-
-    //開獎表演(透過server接收後觸發)
-    public async runReward() {
-        const view = this.controller.view;
-        const model = this.controller.model;
-        const chipDispatcher = this.controller.chipDispatcher;
-        const DiceRunSet = this.controller.diceRunView;
-        let winColor = model.winColor;
-        await DiceRunSet.diceStart(model.pathData, model.winColor);//骰子表演
+    //派彩
+    public async rewardShow(winColor: number[], localWinArea: number[], betOdds: number[], payoff: number) {
         this.bgLight.getComponent(Animation).play('BgLightOpen');//背景燈閃爍
         this.betWin.active = true;
-        let betCount = [0, 0, 0, 0, 0, 0];//每個注區的開獎數量
-        for (let i of winColor) {
-            betCount[i]++;
-        }
-        let localWinCredit = 0;
         const winNum = new Set(winColor);//過濾重複數字
+        for (let i of winNum) { this.betWin.children[i].active = true; }
 
-        //中獎注區設置
-        for (let i of winNum) {
-            this.betWin.children[i].active = true;
-            //判斷玩家是否有下注該中獎區
-            if (model.userBets[i] > 0) {
-                model.userBets[i] *= betCount[i] === 3 ? 10 : betCount[i] + 1;//注區額度變更(倍率)
-                localWinCredit += model.userBets[i];
-                view.betInfo.children[i].getChildByName('BetCredit').getComponent(Label).string = CGUtils.NumDigits(model.userBets[i]);
-                this.mainPlayerWin.children[i].active = true;
-                this.mainPlayerWin.children[i].children[0].getComponent(Sprite).spriteFrame = this.controller.winOddSF[betCount[i] - 1];
-            }
+        for (let i = 0; i < betOdds.length; i++) {
+            const odds = betOdds[i];
+            if (odds > 0) {
+                if (localWinArea.indexOf(i) !== -1) {
+                    this.mainUserWin.children[i].active = true;
+                    const winOddSFID = odds === 9 ? 2 : odds - 1;
+                    this.mainUserWin.children[i].children[0].getComponent(Sprite).spriteFrame = this.winOddSF[winOddSFID];
+                }
+            } else
+                this.betInfo.children[i].getComponent(UIOpacity).opacity = 100;
         }
-
-        //未中獎注區設置
-        const diceNum = [0, 1, 2, 3, 4, 5];
-        const loseNum = diceNum.filter(number => !(winColor.indexOf(number) > -1) as boolean);
-        for (let i of loseNum) {
-            model.userBets[i] = 0;
-            view.betInfo.children[i].getChildByName('BetCredit').getComponent(Label).string = CGUtils.NumDigits(model.userBets[i]);
-            view.betInfo.children[i].getComponent(UIOpacity).opacity = 100;
-        }
-        //本地玩家勝利設置
-        if (localWinCredit > 0) {
+        //本地用戶勝利設置
+        if (payoff > 0) {
             const showWinCredit = () => {
-                this.infoBar.getChildByName('Win').getChildByName('WinCredit').getChildByName('Label').getComponent(Label).string = CGUtils.NumDigits(localWinCredit);
+                this.infoBar.getChildByName('Win').getChildByName('WinCredit').getChildByName('Label').getComponent(Label).string = CGUtils.NumDigits(payoff);
                 this.infoBar.getComponent(Animation).play('InfoBarWin');
             }
             //size===1代表開骰3顆骰子同一個id
             if (winNum.size === 1)
-                await this.controller.bigWin.runBigWin(localWinCredit);
+                await this.runBigWin(payoff);
             else
                 showWinCredit.bind(this)();
         }
         //顯示結算彈窗
         this.result.active = true;
         for (let i = 0; i < 3; i++) {
-            this.result.getChildByName(`Dice${i}`).getComponent(Sprite).spriteFrame = this.controller.resultColorSF[winColor[i]];
+            this.result.getChildByName(`Dice${i}`).getComponent(Sprite).spriteFrame = this.resultColorSF[winColor[i]];
         }
-        // this.gameRoad.updateRoadMap(winColor);//更新路紙
-        await CGUtils.Delay(1);
-        for (let i of loseNum) {
-            chipDispatcher.recycleChip(i);//回收未中獎的籌碼
+    }
+
+    /**
+     * 顯示勝利派彩
+     * @param payoff 派彩
+     */
+    public showAddCredit(payoff: number) {
+        this.winCredit.getChildByName('Win').getComponent(Label).string = '+' + CGUtils.NumDigits(payoff);
+        this.winCredit.active = true;
+    }
+
+    /**
+     * 運行大獎動畫並顯示獲勝金額
+     * @param winCredit - 獲勝的金額
+     * @returns 動畫完成後 resolve
+     */
+    public runBigWin(winCredit: number): Promise<void> {
+        this.bigWin.active = true;
+        return new Promise<void>(async (resolve) => {
+            this.bigWin.getComponent(UIOpacity).opacity = 0;
+            this.bigWin.getComponent(Animation).play('BigWinShow');
+            const label = this.bigWin.getChildByName('WinCredit').getChildByName('Label').getComponent(Label);
+            label.string = '0';
+            CGUtils.runCredit(1.2, winCredit, label);
+            this.chipRunAndDistroy(30, new Vec2(500, 300));//噴籌碼
+            await CGUtils.Delay(1.1);
+            this.bigWin.getComponent(Animation).play('BigWinHide');
+            await CGUtils.Delay(0.6);
+            this.scheduleOnce(() => {
+                this.bigWin.active = false;
+            }, 0.2)
+            resolve();
+        });
+    }
+
+    /**
+     * 執行多個籌碼的生成和銷毀
+     * @param count - 要生成的籌碼數量
+     * @param size - 籌碼移動的範圍大小
+     */
+    private chipRunAndDistroy(count: number, size: Vec2) {
+        for (let i = 0; i < count; i++) {
+            this.scheduleOnce(() => this.createChip(size), Math.random() * 1.2);
         }
-        await CGUtils.Delay(0.9);
-        for (let i of winNum) {
-            chipDispatcher.createPayChipToBetArea(i, betCount[i] === 3 ? 9 : betCount[i]);//派彩
-        }
-        await CGUtils.Delay(2.1);
-        if (localWinCredit > 0) {
-            view.playerPos.children[0].children[0].getChildByName('Win').getComponent(Label).string = '+' + CGUtils.NumDigits(localWinCredit);
-            view.playerPos.children[0].children[0].active = true;
-            // this.model.localCredit += this.model.localWinCredit;//玩家現金額更新
-        }
-        view.comBtnCredits.getComponent(Animation).play();
-        // view.updateUICredit();//更新介面額度
-        await CGUtils.Delay(2);
-        this.betWin.active = false;
-        for (let i of winNum) {
-            this.betWin.children[i].active = false;
-        }
-        this.result.active = false;
-        this.infoBar.getComponent(Animation).play('InfoBarTip');
-        this.newRound();
+    }
+
+    /**
+     * 生成籌碼
+     * @param size - 籌碼移動的範圍大小
+     */
+    private createChip(size: Vec2) {
+        const instCoin = instantiate(this.chips[Math.floor(Math.random() * this.chips.length)]);
+        const chipParent = new Node();
+        chipParent.addChild(instCoin);
+        this.bigWin.getChildByName('CreatChip').addChild(chipParent);
+
+        // 計算籌碼的移動距離
+        const moveX = size.x * (Math.random() * 2 - 1);
+        let moveY = size.y + Math.random() * 100;
+        moveY += Math.max(0, (size.x / 2 - Math.abs(moveX)) / 2);
+
+        const moveTime = 0.8 + Math.random() * 0.2;// 設定移動時間
+
+        // 設定父節點的水平移動動畫
+        tween(chipParent)
+            .to(moveTime, { position: new Vec3(moveX, 0, 0) }, { easing: 'sineOut' })
+            .call(() => instCoin.destroy())
+            .start();
+
+        // 設定籌碼的垂直移動動畫
+        tween(instCoin)
+            .to(moveTime / 2, { position: new Vec3(0, moveY, 0) }, { easing: 'sineOut' })
+            .then(tween(instCoin).to(moveTime / 2, { position: Vec3.ZERO }, { easing: 'sineIn' }))
+            .start();
     }
 }

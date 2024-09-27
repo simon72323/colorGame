@@ -62,7 +62,7 @@
   },
   {
     "__type__": "cc.animation.HierarchyPath",
-    "path": "Player"
+    "path": "User"
   },
   {
     "__type__": "cc.animation.Channel",

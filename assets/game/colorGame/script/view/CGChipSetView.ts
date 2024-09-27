@@ -20,7 +20,7 @@ export class CGChipSetView extends Component {
     @property(Node)//籌碼Toggle
     private chipToggle!: Node;
 
-    private chipSetID: number[];//玩家針對此遊戲設置的籌碼ID
+    private chipSetID: number[];//用戶針對此遊戲設置的籌碼ID
     private defaultChipSetID: number[] = [0, 1, 2, 3, 4];//預設籌碼
     private chipSetIDing: number[] = [0, 1, 2, 3, 4];//暫存選擇中的籌碼
 

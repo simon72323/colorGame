@@ -1,4 +1,4 @@
-//本地玩家下注傳送
+//本地用戶下注傳送
 export interface BeginGame {
     // UserID: number | string;//下注者(對應籌碼id)
     betAreaID: number;//下注區id

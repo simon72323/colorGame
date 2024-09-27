@@ -22,18 +22,18 @@ export interface onLoadInfo {
   gameType: string;
   data: {
     userID: number;//用戶ID
-    balance: number, // 玩家擁有金額
+    balance: number, // 用戶擁有金額
     base: string, // 目前換分比
     defaultBase: string,  // default 換分比
     // defaultBetCredit: number, // default 下注credit選項
     // userAutoExchange: UserAutoExchange,
     currency: string, // 幣別
-    loginName: string, // 玩家暱稱
+    loginName: string, // 用戶暱稱
     autoExchange: boolean, // 是否自動換分
-    credit: number,  // 玩家目前在遊戲中有多少 credit
+    credit: number,  // 用戶目前在遊戲中有多少 credit
     // betBase: string, // default 下注比例
     // isCash: boolean, // 是否現金支付
-    // userSetting: userSetting, // 玩家設定
+    // userSetting: userSetting, // 用戶設定
     // singleBet: 100,// 未知欄位
   }
 }
@@ -59,7 +59,7 @@ export interface onJoinGame {
     betTotalTime: number; // 單局下注時間
     roadMap: number[][];//前100局開獎顏色紀錄(顯示下注紀錄顏色)[局數][顏色]
     allBets: UserBets[];//該局有下注的用戶與注額分布與餘額
-    rankings: RankInfo[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
+    rankings: RankInfo[];//前三名用戶資料(ID，名稱，頭像，餘額)，如果ID是本地用戶，不表演籌碼並取消跟注
     liveCount: number;//其他用戶人數
     pathID: number;//該局表演路徑ID
     winColor: number[];//該局勝利3顏色編號
@@ -80,13 +80,14 @@ export interface onUpdate {
     countdown?: number;//下注倒數時間(每秒更新)
     totalBets?: number[];
     allBets?: UserBets[];//該局有下注的用戶與注額分布與餘額
-    newBets?: number[][];//排名玩家新增的下注
+    newBets?: number[][];//排名用戶新增的下注
     // 派彩
     pathID?: number;//該局表演路徑ID
     winColor?: number[];//該局勝利3顏色編號
-    winners?: UserPayoff[];//該局有派彩的用戶
+    payoff?:number;//本地用戶派彩分數
+    // winners?: UserPayoff[];//該局有派彩的用戶
     // 排名
-    rankings?: RankInfo[];//前三名玩家資料(ID，名稱，頭像，餘額)，如果ID是本地玩家，不表演籌碼並取消跟注
+    rankings?: RankInfo[];//前三名用戶資料(ID，名稱，頭像，餘額)，如果ID是本地用戶，不表演籌碼並取消跟注
     liveCount?: number;//其他用戶人數
   }
 }
