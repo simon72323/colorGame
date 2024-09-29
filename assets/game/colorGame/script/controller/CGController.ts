@@ -10,7 +10,8 @@ import { CGDiceRunView } from '../view/CGDiceRunView';
 import { CGMarquee } from '../view/CGMarquee';
 import { CGRoadView } from '../view/CGRoadView';
 import PoolHandler from '../tools/PoolHandler';
-import { GameState, UserBets, UserPayoff, onJoinGame, onLoadInfo, onUpdate } from '../enum/CGInterface';
+import { GameState, User, UserBets, UserPayoff, onJoinGame, onLoadInfo, onUpdate } from '../enum/CGInterface';
+import { IBetHandler } from '../enum/CGInterface';
 
 import { CGRankView } from '../view/CGRankView';
 import { CGDataService } from '../manager/CGDataService';
@@ -51,8 +52,12 @@ export class CGController extends Component {
     //遊戲資源
 
 
-
+    private betHandler: IBetHandler | null = null;
     private dataService: CGDataService;//數據服務
+
+    public setBetHandler(handler: IBetHandler) {
+        this.betHandler = handler;
+    }
 
     protected onLoad() {
         this.node.on('OnButtonEventPressed', this.betAreaPressed, this);
@@ -71,7 +76,10 @@ export class CGController extends Component {
     private handleNewRound(startColor: number[]) {
         this.roundView.startRound();//開始執行遊戲回合
         this.diceRunView.diceIdle(startColor);//初始化骰子(隨機顏色)
-        const isRebet = this.chipDispatcher.testRebet();//判斷是否執行續押
+        const reBetBetCredits = this.chipDispatcher.testReBet();//判斷是否執行續押(回傳續押注區額度)
+        if (reBetBetCredits) {
+            this.betHandler.onBet(reBetBetCredits, 'reBet');//傳送續押各注區注額
+        }
         this.zoomView.zoomShowing();//放大鏡功能顯示
     }
 
@@ -83,7 +91,7 @@ export class CGController extends Component {
         this.roundView.betStop();//停止下注
         this.lockBetArea.active = true;//啟用禁用下注區
         this.zoomView.zoomHideing();//放大鏡功能隱藏
-        this.chipDispatcher.updateRebetData(this.model.betTotal);//更新寫入續押資料
+        this.chipDispatcher.updateReBetData(this.model.betTotal, this.model.userBetAreaCredit);//更新寫入續押資料
         await CGUtils.Delay(1);
         await this.diceRunView.diceStart(this.model.pathData, winColor);//骰子表演
         this.roundView.rewardShow(winColor, localWinArea, betOdds, payoff)//表演勝利效果
@@ -106,16 +114,18 @@ export class CGController extends Component {
         //等待新局開始
     }
 
-
-    //續押按鈕按下
-    private btnRebetDown(event: Event, state: string) {
-        const rebetSaveData = this.chipDispatcher.getRebetData(state);
-        if (rebetSaveData) {
-            //將續押參數傳給server確認，等待返回下注成功
-        }
+    //確認下注按鈕按下
+    private btnBetConfirmDown(event: Event) {
+        this.betHandler.onBet(this.chipDispatcher.tempBetCredits, 'newBet');//傳送新增各注區注額
     }
 
-
+    //續押按鈕按下
+    private btnReBetDown(event: Event, state: string) {
+        const reBetBetCredits = this.chipDispatcher.setReBet(state);//續押各注區注額
+        if (reBetBetCredits) {
+            this.betHandler.onBet(reBetBetCredits, 'reBet');//傳送續押各注區注額
+        }
+    }
 
 
     //本地用戶下注區按下(僅觸發籌碼移動)
@@ -123,21 +133,45 @@ export class CGController extends Component {
         const data = this.dataService;
         const betID = parseInt(param);
         const chipID = data.touchChipID;//目前點選的籌碼ID
-        const chipCredit = this.dataService.betCreditList[chipID];//籌碼額度
         const touchChipPos = this.chipSetView.touchChip.children[this.dataService.touchChipPosID].getWorldPosition();//選擇的籌碼世界座標位置
-        this.chipDispatcher.betChip(betID, chipID, chipCredit, touchChipPos);//該籌碼移動至下注區
-    }
-    //處理本地用戶下注成功
-    public handleBetSuccessful(betCredits: number[], credit: number) {
-        this.chipDispatcher.betSuccessful();//執行下注成功
-        this.model.credit = credit;//用戶剩餘金額
-        this.updateBetCredit(betCredits, true);
+        this.chipDispatcher.betChip(betID, chipID, touchChipPos);//該籌碼移動至下注區
     }
 
-    //處理本地用戶下注失敗
-    public handleBetError(error: string) {
-        this.chipDispatcher.betError(error);
+    //處理本地用戶新下注成功
+    public handleNewBetSuccessful(betCredits: number[], credit: number) {
+        this.model.updateBetCredit(betCredits, credit);
+        this.chipDispatcher.newBetSuccessful(this.model.betTotal);//執行下注成功
+        this.updateView();
     }
+
+    //處理本地用戶新下注失敗
+    public handleNewBetError(error: string) {
+        this.chipDispatcher.newBetError(error);
+    }
+
+    //處理本地用戶續押下注成功
+    public async handleReBetSuccessful(betCredits: number[], credit: number) {
+        this.model.updateBetCredit(betCredits, credit);
+        this.chipDispatcher.reBetSuccessful(this.model.betTotal);//執行下注成功
+        await CGUtils.Delay(0.3);//延遲顯示分數更新
+        this.updateView();
+    }
+
+    //處理本地用戶續押下注失敗
+    public handleReBetError(error: string) {
+        this.chipDispatcher.reBetError(error);
+    }
+
+    //更新注額分數
+    private updateView() {
+        const view = this.view;
+        const model = this.model;
+        view.updateUserBetCredit(model.betTotal, model.credit);
+        view.updateUserBetAreaCredit(model.userBetAreaCredit);
+        view.updateTotalBets(model.totalBetAreaCredit);
+    }
+
+
 
     //處理所有下注區資料
     private handleAllBets(newAllBets: UserBets[]) {
@@ -195,26 +229,6 @@ export class CGController extends Component {
             }
         }
         this.model.allBets = [...newAllBets];//更新參數
-    }
-
-    //更新注區分數
-    updateBetCredit(betCredits: number[], isLocal: boolean) {
-        const model = this.model;
-        const view = this.view;
-        if (isLocal) {
-            const addCredit = betCredits.reduce((a, b) => a + b, 0);
-            model.credit -= addCredit;
-            model.betTotal += addCredit;
-            for (let i = 0; i < 6; i++) {
-                model.userBetAreaCredit[i] += betCredits[i];
-            }
-            view.updateUserBetCredit(model.betTotal, model.credit);
-            view.updateUserBetAreaCredit(model.userBetAreaCredit);
-        }
-        for (let i = 0; i < 6; i++) {
-            model.totalBetAreaCredit[i] += betCredits[i];
-        }
-        view.updateTotalBets(model.totalBetAreaCredit);
     }
 
     public onLogInfoData(msg: onLoadInfo) {

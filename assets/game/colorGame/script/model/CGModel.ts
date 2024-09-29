@@ -13,7 +13,7 @@ export class CGModel extends Component {
 
 
     //用戶資料(server給的)
-    public gameType: number;//遊戲編號
+    // public gameType: number;//遊戲編號
     public userID: number;//用戶ID
     public avatarID: number;//頭像ID
     public loginName: string;//登入名稱
@@ -71,46 +71,14 @@ export class CGModel extends Component {
         this.pathData = CGPathManager.getInstance().allPathData[pathID];
     }
 
-    //計算本地用戶勝利注區倍率並更新注區分數
-    // public calculateBetOdds(winColor: number[]): number[] {
-    //     let localBetOdds = [0, 0, 0, 0, 0, 0];//勝利注區與倍率
-    //     let winColorCount = [0, 0, 0, 0, 0, 0];//每個注區的開獎數量
-    //     for (let i of winColor) {
-    //         winColorCount[i]++;
-    //     }
-    //     //本地下注分數變更
-    //     for (let i = 0; i < winColorCount.length; i++) {
-    //         const count = winColorCount[i];
-    //         if (count > 0) {
-    //             if (this.userBetAreaCredit[i] > 0) {
-    //                 this.userBetAreaCredit[i] *= count === 3 ? 10 : count + 1;//注區額度變更(倍率)
-    //                 localBetOdds[i] = count;
-    //             }
-    //         }
-    //         else
-    //             this.userBetAreaCredit[i] = 0;
-    //     }
-    //     return localBetOdds;
-    // }
-
     //計算勝利表演所需用參數
     public calculateWinData(winColor: number[]): { betOdds: number[], localWinArea: number[] } {
-        // const winNum = [...new Set(winColor)];//過濾重複數字
-        // const loseNum: number[] = [];
-
-        // for (let i = 0; i < 6; i++) {
-        //     if (winNum.indexOf(i) === -1) {
-        //         loseNum.push(i);
-        //     }
-        // }
-
         let betOdds = [0, 0, 0, 0, 0, 0];//勝利注區與倍率
         let winColorCount = [0, 0, 0, 0, 0, 0];//每個注區的開獎數量
         let localWinArea = [];//本地勝利注區
         for (let i of winColor) {
             winColorCount[i]++;
         }
-
         //本地下注分數變更
         for (let i = 0; i < winColorCount.length; i++) {
             const count = winColorCount[i];
@@ -131,6 +99,20 @@ export class CGModel extends Component {
     //計算賠率
     public calculateOdds(odds: number): number {
         return odds === 3 ? 9 : odds;
+    }
+
+
+    //更新本地下注額度
+    public updateBetCredit(betCredits: number[], credit: number) {
+        this.credit = credit;//已被server更新
+        const addCredit = betCredits.reduce((a, b) => a + b, 0);
+        this.betTotal += addCredit;
+        for (let i = 0; i < 6; i++) {
+            this.userBetAreaCredit[i] += betCredits[i];
+        }
+        for (let i = 0; i < 6; i++) {
+            this.totalBetAreaCredit[i] += betCredits[i];
+        }
     }
 
     // const winNum = new Set(winColor);//過濾重複數字

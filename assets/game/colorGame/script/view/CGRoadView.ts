@@ -14,25 +14,22 @@ export class CGRoadView extends Component {
     public roadColorSF!: SpriteFrame[];
 
     /**
-     * 組件加載時初始化
-     * 設置縮放按鈕和彈窗的事件監聽器
+     * 設置按鈕事件監聽器
      */
     protected onLoad(): void {
-        const scriptName = this.name.match(/<(.+)>/)?.[1] || '';
+        this.bindButtonEvent(this.roadMap, 'roadMapPopupShow'); //顯示彈窗按鈕設置
+        this.bindButtonEvent(this.btnClose, 'roadMapPopupHide'); //關閉彈窗按鈕設置
 
-        //顯示彈窗按鈕設置
-        const openEventHandler = new EventHandler();
-        openEventHandler.target = this.node;
-        openEventHandler.component = scriptName;
-        openEventHandler.handler = 'roadMapPopupShow';
-        this.roadMap.getComponent(Button).clickEvents.push(openEventHandler);
-
-        //關閉彈窗按鈕設置
-        const closeEventHandler = new EventHandler();
-        closeEventHandler.target = this.node;
-        closeEventHandler.component = scriptName;
-        closeEventHandler.handler = 'roadMapPopupHide';
-        this.btnClose.getComponent(Button).clickEvents.push(closeEventHandler);
+    }
+    /**
+     * 按鈕事件設置
+     * @param touchNode 觸發節點 
+     * @param handler 函數名稱
+     * @param customData 自定義事件數據?
+     */
+    private bindButtonEvent(touchNode: Node, handler: string, customData?: string) {
+        const componentName = this.name.match(/<(.+)>/)?.[1] || '';
+        CGUtils.bindButtonEvent(this.node, componentName, touchNode, handler, customData);
     }
 
     /**

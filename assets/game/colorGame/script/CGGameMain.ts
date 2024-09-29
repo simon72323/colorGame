@@ -8,13 +8,15 @@ import { WorkerTimeout } from './tools/WorkerTimeout';
 import { CGUtils } from './tools/CGUtils';
 import { GameState, onBetInfo } from './enum/CGInterface';
 import { WebSocketManager } from './WebSocketManager';
+import { GAME_TYPE } from './enum/CGInterface';
+import { IBetHandler } from './enum/CGInterface';
 
 import { onLoadInfo, onJoinGame, onUpdate } from './enum/CGInterface';
 import { LoadInfoData, JoinGameData, UpdateNewRoundData, UpdateBettingData, UpdateRewardData } from './enum/CGMockData';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGGameMain')
-export class CGGameMain extends Component {
+export class CGGameMain extends Component implements IBetHandler {
 
 
     @property(CCBoolean)
@@ -23,8 +25,6 @@ export class CGGameMain extends Component {
     private controller: CGController = null!;
     @property(CGModel)
     private model: CGModel = null!;
-
-    private gameType: string = "5278";
 
     private webSocketManager: WebSocketManager = null;
 
@@ -140,7 +140,7 @@ export class CGGameMain extends Component {
      */
     private async onLoadInfo(msg: onLoadInfo) {
         console.log('收到登入資訊:', JSON.stringify(msg));
-        if (msg.gameType === this.gameType) {
+        if (msg.gameType === GAME_TYPE) {
             this.controller.onLogInfoData(msg);
         }
     }
@@ -151,7 +151,7 @@ export class CGGameMain extends Component {
      */
     private async onJoinGame(msg: onJoinGame) {
         console.log('收到加入遊戲資訊:', JSON.stringify(msg));
-        if (msg.gameType === this.gameType) {
+        if (msg.gameType === GAME_TYPE) {
             this.controller.onJoinGameData(msg);
         }
     }
@@ -162,36 +162,43 @@ export class CGGameMain extends Component {
      */
     private async onUpdate(msg: onUpdate) {
         console.log('收到更新資料:', JSON.stringify(msg));
-        if (msg.gameType === this.gameType) {
+        if (msg.gameType === GAME_TYPE) {
             this.controller.onUpdateData(msg);
         }
     }
 
     /**
-     * 確認下注按下(透過確認下注按鈕觸發)
+     * 確認下注
+     * @param betCredits 新增的各注區注額
      */
-    private async onBetConfirm() {
-        const chipDispatcher = this.controller.chipDispatcher;
-        const betCredits = chipDispatcher.tempBetCredits;//各下注區新增的注額
+    public async onBet(betCredits: number[], type: string) {
         this.controller.lockBetArea.active = true;//開啟禁用下注區
         if (this.useSimulateData) {
             //傳送下注資料給server，server確認後回傳
             const sendBetInfo = {
                 "action": "betInfo",
-                "gametype": this.gameType,
-                "data": { "betCredits": betCredits }
+                "gametype": GAME_TYPE,
+                "data": { "type": type, "betCredits": betCredits }
             }
             await CGUtils.Delay(0.05);//模擬等待傳送資料回傳
             const msg: onBetInfo = {
                 "event": true,
                 "error": "",
-                "data": { "betCredits": [100, 200, 0, 0, 200, 0], "credit": 2000 }
+                "data": { "type": "reBet", "credit": 2000 }
             }
             this.controller.lockBetArea.active = false;//關閉禁用下注區
-            if (msg.error !== "")
-                this.controller.handleBetSuccessful(msg.data.betCredits, msg.data.credit);//執行下注成功
-            else
-                this.controller.handleBetError(msg.error);//執行下注失敗
+            if (msg.error !== "") {
+                if (msg.data.type === 'newBet')
+                    this.controller.handleNewBetSuccessful(betCredits, msg.data.credit);
+                else if (msg.data.type === 'reBet')
+                    this.controller.handleReBetSuccessful(betCredits, msg.data.credit);
+            }
+            else {
+                if (msg.data.type === 'newBet')
+                    this.controller.handleNewBetError(msg.error);
+                else if (msg.data.type === 'reBet')
+                    this.controller.handleReBetError(msg.error);
+            }
         } else {
             try {
                 // const response = await h5GameTools.slotGameConnector.SlotGameConnector.shared.callBeginGame({
@@ -208,6 +215,8 @@ export class CGGameMain extends Component {
             // console.log('下注完成...');
         }
     }
+
+
 
 
 

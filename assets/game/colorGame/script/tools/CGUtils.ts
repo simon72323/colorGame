@@ -1,4 +1,4 @@
-import { Animation, Node, Button, director, UITransform, tween, Label, sp } from "cc";
+import { Animation, Node, Button, director, UITransform, tween, Label, sp, EventHandler, Toggle } from "cc";
 
 export class CGUtils {
     /**
@@ -89,6 +89,40 @@ export class CGUtils {
             } else
                 resolve();
         });
+    }
+
+    /**
+     * 綁定按鈕事件
+     * @param target 事件處裡目標
+     * @param component 組件/腳本名稱
+     * @param touchNode 觸發節點
+     * @param handler 函數名稱
+     * @param customData 自定義事件數據?
+     */
+    public static bindButtonEvent(target: Node, component: string, touchNode: Node, handler: string, customData?: string) {
+        const eventHandler = new EventHandler();
+        eventHandler.target = target;
+        eventHandler.component = component;
+        eventHandler.handler = handler;
+        if (customData) eventHandler.customEventData = customData;
+        touchNode.getComponent(Button).clickEvents.push(eventHandler);
+    }
+
+    /**
+     * 綁定Toggle事件
+     * @param target 事件處裡目標
+     * @param component 組件/腳本名稱
+     * @param touchNode 觸發節點
+     * @param handler 函數名稱
+     * @param customData 自定義事件數據?
+     */
+    public static bindToggleEvent(target: Node, component: string, touchNode: Node, handler: string, customData?: string) {
+        const eventHandler = new EventHandler();
+        eventHandler.target = target;
+        eventHandler.component = component;
+        eventHandler.handler = handler;
+        if (customData) eventHandler.customEventData = customData;
+        touchNode.getComponent(Toggle).clickEvents.push(eventHandler);
     }
 
     /**

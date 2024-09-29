@@ -1,9 +1,22 @@
 
+export interface IBetHandler {
+  onBet(betCredits: number[], type: string): void;
+}
+
+
 export interface PathInfo {
   pos: number[][];//路徑座標參數[第幾個frame][三顆骰子的座標]
   rotate: number[][];//路徑旋轉參數[第幾個frame][三顆骰子的座標]
   diceNumber: number[];//開獎點數[三顆骰子的點數](0~5)
 }
+
+export enum User {
+  local = 0,//本地用戶
+  other = 1,//其他用戶
+
+}
+
+export const GAME_TYPE = "5278";
 
 export interface onLogin {
   userID: number;
@@ -84,7 +97,7 @@ export interface onUpdate {
     // 派彩
     pathID?: number;//該局表演路徑ID
     winColor?: number[];//該局勝利3顏色編號
-    payoff?:number;//本地用戶派彩分數
+    payoff?: number;//本地用戶派彩分數
     // winners?: UserPayoff[];//該局有派彩的用戶
     // 排名
     rankings?: RankInfo[];//前三名用戶資料(ID，名稱，頭像，餘額)，如果ID是本地用戶，不表演籌碼並取消跟注
@@ -105,7 +118,7 @@ export interface RankInfo {
   userID: number;//用戶ID
   displayName: string; // 登入名稱
   avatarID: number; // 頭像
-  betCredits:number[];//下注資料
+  betCredits: number[];//下注資料
   credit: number; //換分餘額
 }
 
@@ -119,7 +132,8 @@ export interface onBetInfo {
   event: boolean; // 操作是否成功的標誌
   error?: string;//錯誤訊息
   data: {
-    betCredits: number[]; // 各注區新增的注額
+    type: string;//下注類型(新注或續押)
+    // betCredits: number[]; // 各注區新增的注額
     credit: number; // 用戶剩餘額度
     // betTotal: number;//用戶目前總下注額
     // userBetAreaCredit: number[];//用戶目前各注區下注額

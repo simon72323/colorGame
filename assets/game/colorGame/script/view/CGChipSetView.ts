@@ -27,62 +27,45 @@ export class CGChipSetView extends Component {
     private dataService: CGDataService;//數據服務
 
     /**
-     * 組件加載時初始化
-     * 設置縮放按鈕和彈窗的事件監聽器
+     * 設置按鈕事件監聽器
      */
     protected onLoad(): void {
         this.dataService = CGDataService.getInstance();//實例化數據服務
         this.loadChipSetID();//讀取籌碼設置資料
         this.updateTouchChip();//更新點選的籌碼(每局更新)
-        const scriptName = this.name.match(/<(.+)>/)?.[1] || '';
-        //點選的籌碼觸發事件
         for (let i = 0; i < this.touchChip.children.length; i++) {
-            const eventHandler = new EventHandler();
-            eventHandler.target = this.node;
-            eventHandler.component = scriptName;
-            eventHandler.handler = 'setTouchChipID';
-            eventHandler.customEventData = i.toString();
-            this.touchChip.children[i].getComponent(Toggle).clickEvents.push(eventHandler);
+            this.bindToggleEvent(this.touchChip.children[i], 'setTouchChipID', i.toString());//點選的籌碼觸發事件
         }
-
-        //選擇籌碼按鈕觸發事件
         const chipToggleChildren = this.chipToggle.children;
         for (let i = 0; i < chipToggleChildren.length; i++) {
-            const eventHandler = new EventHandler();
-            eventHandler.target = this.node;
-            eventHandler.component = scriptName;
-            eventHandler.handler = 'chipSet';
-            eventHandler.customEventData = i.toString();
-            chipToggleChildren[i].getComponent(Toggle).clickEvents.push(eventHandler);
+            this.bindToggleEvent(chipToggleChildren[i], 'chipSet', i.toString());//選擇籌碼按鈕觸發事件
         }
+        this.bindButtonEvent(this.btnChipSet, 'chipSetPopupShow');//顯示彈窗按鈕設置
+        this.bindButtonEvent(this.btnConfirm, 'chipSetConfirm');//確認按鈕設置
+        this.bindButtonEvent(this.btnDefault, 'chipSetDefault');//預設按鈕設置
+        this.bindButtonEvent(this.btnClose, 'chipSetPopupHide');//關閉彈窗按鈕設置
+    }
 
-        //顯示彈窗按鈕設置
-        const openEventHandler = new EventHandler();
-        openEventHandler.target = this.node;
-        openEventHandler.component = scriptName;
-        openEventHandler.handler = 'chipSetPopupShow';
-        this.btnChipSet.getComponent(Button).clickEvents.push(openEventHandler);
+    /**
+     * Toggle事件設置
+     * @param touchNode 觸發節點 
+     * @param handler 函數名稱
+     * @param customData 自定義事件數據?
+     */
+    private bindToggleEvent(touchNode: Node, handler: string, customData?: string) {
+        const componentName = this.name.match(/<(.+)>/)?.[1] || '';
+        CGUtils.bindToggleEvent(this.node, componentName, touchNode, handler, customData);
+    }
 
-        //確認按鈕設置
-        const confirmEventHandler = new EventHandler();
-        confirmEventHandler.target = this.node;
-        confirmEventHandler.component = scriptName;
-        confirmEventHandler.handler = 'chipSetConfirm';
-        this.btnConfirm.getComponent(Button).clickEvents.push(confirmEventHandler);
-
-        //預設按鈕設置
-        const defaultEventHandler = new EventHandler();
-        defaultEventHandler.target = this.node;
-        defaultEventHandler.component = scriptName;
-        defaultEventHandler.handler = 'chipSetDefault';
-        this.btnDefault.getComponent(Button).clickEvents.push(defaultEventHandler);
-
-        //關閉彈窗按鈕設置
-        const closeEventHandler = new EventHandler();
-        closeEventHandler.target = this.node;
-        closeEventHandler.component = scriptName;
-        closeEventHandler.handler = 'chipSetPopupHide';
-        this.btnClose.getComponent(Button).clickEvents.push(closeEventHandler);
+    /**
+     * 按鈕事件設置
+     * @param touchNode 觸發節點 
+     * @param handler 函數名稱
+     * @param customData 自定義事件數據?
+     */
+    private bindButtonEvent(touchNode: Node, handler: string, customData?: string) {
+        const componentName = this.name.match(/<(.+)>/)?.[1] || '';
+        CGUtils.bindButtonEvent(this.node, componentName, touchNode, handler, customData);
     }
 
     /**
