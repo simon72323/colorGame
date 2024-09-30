@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Vec3, tween, Tween, Button, EventHandler } from 'cc';
+import { _decorator, Component, Node, Vec3, tween, Tween } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
 const { ccclass, property } = _decorator;
 
@@ -30,29 +30,31 @@ export class CGZoomView extends Component {
     private zoomCamera!: Node;//zoom攝影機
     @property(Node)
     private btnOn!: Node;//zoom按鈕顯示
-    
+    @property([Node])
+    private btnChange: Node[] = [];//change按鈕(上下左右，1~4)
+
     private isOpen = false;//記錄使否開啟狀態
 
     /**
-     * 組件加載時初始化
-     * 設置縮放按鈕和彈窗的事件監聽器
+     * 設置按鈕事件監聽器
      */
     protected onLoad(): void {
-        const scriptName = this.name.match(/<(.+)>/)?.[1] || '';
+        this.bindButtonEvent(this.btnZoom, 'zoomPopupShow');//顯示彈窗按鈕設置
+        this.bindButtonEvent(this.btnClose, 'zoomPopupHide');//關閉彈窗按鈕設置
+        for (let i = 0; i < this.btnChange.length; i++) {
+            this.bindButtonEvent(this.btnChange[i], 'zoomChange', (i + 1).toString());//視角改變按鈕設置
+        }
+    }
 
-        //顯示彈窗按鈕設置
-        const openEventHandler = new EventHandler();
-        openEventHandler.target = this.node;
-        openEventHandler.component = scriptName;
-        openEventHandler.handler = 'zoomPopupShow';
-        this.btnZoom.getComponent(Button).clickEvents.push(openEventHandler);
-
-        //關閉彈窗按鈕設置
-        const closeEventHandler = new EventHandler();
-        closeEventHandler.target = this.node;
-        closeEventHandler.component = scriptName;
-        closeEventHandler.handler = 'zoomPopupHide';
-        this.btnClose.getComponent(Button).clickEvents.push(closeEventHandler);
+    /**
+     * 按鈕事件設置
+     * @param touchNode 觸發節點 
+     * @param handler 函數名稱
+     * @param customData 自定義事件數據?
+     */
+    private bindButtonEvent(touchNode: Node, handler: string, customData?: string) {
+        const componentName = this.name.match(/<(.+)>/)?.[1] || '';
+        CGUtils.bindButtonEvent(this.node, componentName, touchNode, handler, customData);
     }
 
     /**

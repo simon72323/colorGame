@@ -58,7 +58,7 @@ export class CGChipDispatcher extends Component {
     public tempBetCredits: number[] = Array(6).fill(0);//暫存的各區下注額
     private tempBetCredit: number = 0;//暫存下注金額
     private tempBetChip: Node[] = [];//暫存的下注籌碼
-    private tempBetData: number[][] = [];//[下注區][籌碼ID]
+    private tempBetData: number[] = [];//籌碼ID
 
     private pool: PoolHandler = null;
     private dataService: CGDataService;//數據服務
@@ -74,8 +74,8 @@ export class CGChipDispatcher extends Component {
         for (let i = 0; i < this.btnStopCall.length; i++) {
             this.bindButtonEvent(this.btnStopCall[i], 'btnStopCallDown', i.toString());//停止跟注按鈕事件件
         }
-        this.bindButtonEvent(this.betTopBtns.getChildByName('btnUndo'), 'betUndo');//返回上一步按鈕事件
-        this.bindButtonEvent(this.betTopBtns.getChildByName('btnCancel'), 'resetBetBtns');//取消下注按鈕事件
+        this.bindButtonEvent(this.betTopBtns.getChildByName('BtnBetUndo'), 'betUndo');//返回上一步按鈕事件
+        this.bindButtonEvent(this.betTopBtns.getChildByName('BtnBetCancel'), 'putBetChip');//取消下注按鈕事件
 
         this.pool = PoolHandler.getInstance();//獲得pool池實例
         this.initializeChipPool();//預先生成pool
@@ -135,24 +135,37 @@ export class CGChipDispatcher extends Component {
      * 返回上一步按下
      */
     private betUndo() {
-        this.tempBetChip.pop();// 刪除最後一個資料
-        this.tempBetData.pop();// 刪除最後一個資料
-        if (this.tempBetChip.length === 0)
-            this.resetBetBtns();
+        const lastChip = this.tempBetChip.pop();// 刪除最後一個資料
+        this.pool.put(lastChip);
+        const lastChipID = this.tempBetData.pop();// 刪除最後一個資料
+        const chipCredit = this.dataService.betCreditList[lastChipID];//籌碼額度
+        this.tempBetCredit -= chipCredit;//分數扣回
+        this.setTempBetInfo();
+        if (this.tempBetChip.length === 0) {
+            this.clearBetBtns();//清除暫存下注資料
+        }
     }
 
     /**
-     * 初始化暫存下注資料
+     * 清除暫存下注資料
      */
-    private resetBetBtns() {
+    private clearBetBtns() {
         this.tempBetCredit = 0;
         this.tempBetCredits = Array(6).fill(0);//清空
         this.setTempBetInfo();
         this.tempBetData = [];//清空
+        this.tempBetChip = [];
+        this.betTopBtns.active = false;//隱藏下注按鈕介面
+    }
+
+    /**
+     * 退還下注籌碼
+     */
+    private putBetChip() {
         for (let chip of this.tempBetChip) {
             this.pool.put(chip);//退還所有
         }
-        this.betTopBtns.active = false;//隱藏下注按鈕介面
+        this.clearBetBtns();//清除暫存下注資料
     }
 
     /**
@@ -160,7 +173,7 @@ export class CGChipDispatcher extends Component {
      * @param betTotal 總下注額
      */
     public newBetSuccessful(betTotal: number) {
-        this.betTopBtns.active = false;//隱藏下注按鈕介面
+        this.clearBetBtns();//清除暫存下注資料
         this.reBetCredit = betTotal;
         this.reBetCreditLable.string = CGUtils.NumDigits(this.reBetCredit);//續押額度更新
     }
@@ -169,7 +182,7 @@ export class CGChipDispatcher extends Component {
      * 新下注失敗，清空籌碼與介面，並彈出下注失敗提示
      */
     public newBetError() {
-        this.resetBetBtns();
+        this.putBetChip();//退還下注籌碼並清除資料
         this.showTipMessage("下注失敗", new Color(255, 0, 0, 255));
     }
 
@@ -232,6 +245,8 @@ export class CGChipDispatcher extends Component {
         const betPos = this.chipDispatcher.getChildByName('MainUser').children[betID];//下注區節點
         poolBetChip.parent = betPos;
         poolBetChip.position = startPos.subtract(betPos.worldPosition);
+        this.tempBetChip.push(poolBetChip);//添加到暫存籌碼
+        this.tempBetData.push(chipID);
         this.chipMove(betPos, poolBetChip);
     }
 
@@ -406,6 +421,7 @@ export class CGChipDispatcher extends Component {
     /**
      * 設置續押狀態
      * @param state 續押觸發狀態
+     * @controller
      */
     public setReBet(state: string): number[] | undefined {
         const btnReBet = this.btnReBet;

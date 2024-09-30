@@ -3,12 +3,7 @@ import { onBetInfo, onJoinGame, onLoadInfo, onUpdate } from "./CGInterface";
 const GAME_TYPE = "5278";
 
 //登入資料
-export class LoadInfoData {
-  private static _instance: LoadInfoData;
-  private constructor() { };
-  public static get Instance() {
-    return this._instance;
-  }
+export const LoadInfoData = new class {
   private data: onLoadInfo = {
     "event": true,
     "gameType": GAME_TYPE,
@@ -33,12 +28,7 @@ export class LoadInfoData {
 }
 
 //登入遊戲資料
-export class JoinGameData {
-  private static _instance: JoinGameData;
-  private constructor() { };
-  public static get Instance() {
-    return this._instance;
-  }
+export const JoinGameData = new class {
   private data: onJoinGame = {
     "action": "onJoinGame",
     "gameType": GAME_TYPE,
@@ -79,12 +69,7 @@ export class JoinGameData {
 }
 
 //更新下注資料(新局)
-export class UpdateNewRoundData {
-  private static _instance: UpdateNewRoundData;
-  private constructor() { };
-  public static get Instance() {
-    return this._instance;
-  }
+export const UpdateNewRoundData = new class {
   private data: onUpdate = {
     "action": "onUpdate",
     "event": true,
@@ -109,12 +94,7 @@ export class UpdateNewRoundData {
 }
 
 //每秒更新下注資料
-export class UpdateBettingData {
-  private static _instance: UpdateBettingData;
-  private constructor() { };
-  public static get Instance() {
-    return this._instance;
-  }
+export const UpdateBettingData = new class {
   private data: onUpdate = {
     "action": "onUpdate",
     "event": true,
@@ -147,12 +127,7 @@ export class UpdateBettingData {
 }
 
 //更新派彩資料
-export class UpdateEndRoundData {
-  private static _instance: UpdateEndRoundData;
-  private constructor() { };
-  public static get Instance() {
-    return this._instance;
-  }
+export const UpdateEndRoundData = new class {
   private data: onUpdate = {
     "action": "onUpdate",
     "event": true,
@@ -190,12 +165,7 @@ export class UpdateEndRoundData {
 }
 
 //接收玩家下注資料
-export class BetData {
-  private static _instance: BetData;
-  private constructor() { };
-  public static get Instance() {
-    return this._instance;
-  }
+export const BetData = new class {
   private data: onBetInfo = {
     "event": true,
     "error": "餘額不足",

@@ -6,44 +6,33 @@ const { ccclass, property } = _decorator;
 
 @ccclass('CGRoundView')
 export class CGRoundView extends Component {
-    @property(Node)//背景燈光
-    private bgLight: Node = null;
-    @property(Node)//下注區資訊
-    private betInfo!: Node;
-
-    @property(Node)//結算
-    private result: Node = null;
-    @property(Node)//狀態標題
-    private stageTitle: Node = null;
-    // @property(Node)//3d盒子
-    // private box3D: Node = null;
-    // @property(Node)//下注按鈕區
-    // private betArea: Node = null;
-    @property(Node)//下注勝利顯示區
-    private betWin: Node = null;
-    @property(Node)//下注提示光區
-    private betLight!: Node;
-    @property(Node)//下注時間
-    private betTime: Node = null;
-    @property(Node)//本地用戶贏分特效
-    private mainUserWin: Node = null;
-
+    @property(Node)
+    private bgLight!: Node;//背景燈光
+    @property(Node)
+    private betInfo!: Node;//下注區資訊
+    @property(Node)
+    private result!: Node;//結算
+    @property(Node)
+    private stageTitle!: Node;//狀態標題
+    @property(Node)
+    private betWin!: Node;//下注勝利顯示區
+    @property(Node)
+    private betLight!: Node;//下注提示光區
+    @property(Node)
+    private betTime!: Node;//下注時間
+    @property(Node)
+    private mainUserWin!: Node;//本地用戶贏分特效
     private chips: Node[] = [];
-    @property(Node)//資訊面板
-    private infoBar: Node = null;
+    @property(Node)
+    private infoBar!: Node;//資訊面板
     @property(Node)
     private bigWin!: Node;//大贏節點
-    // @property(Node)
-    // private chipParent!: Node;//要噴的籌碼層
-
-
     @property(Node)
-    private winCredit!: Node;//贏分節點
-
+    private winCredit!: Node;//本地贏分節點
     @property([SpriteFrame])
-    private winOddSF: SpriteFrame[] = [];
+    private winOddSF: SpriteFrame[] = [];//倍率貼圖
     @property([SpriteFrame])
-    private resultColorSF: SpriteFrame[] = [];
+    private resultColorSF: SpriteFrame[] = [];//結算顏色貼圖
 
     /**
      * 在組件載入時初始化籌碼陣列
@@ -54,9 +43,11 @@ export class CGRoundView extends Component {
             this.chips.push(chip);
     }
 
-    //開始執行回合(server觸發)
-    public async startRound() {
-        //初始化
+    /**
+     * 新局開始
+     * @controller
+     */
+    public async newRound() {
         this.betWin.active = false;
         for (const child of this.betWin.children) {
             child.active = false;
@@ -67,17 +58,25 @@ export class CGRoundView extends Component {
         for (let i = 0; i < 6; i++) {
             this.betInfo.children[i].getComponent(UIOpacity).opacity = 255;
         }
-        //標題顯示
         this.stageTitle.children[0].active = true;//標題顯示
         this.betLight.active = true;//下注提示光
-        // this.btnState(true);//按鈕啟用
         await CGUtils.Delay(1);
         this.stageTitle.children[0].active = false;//標題隱藏
     }
 
-    //執行下注倒數(server觸發)
+    /**
+     * 執行下注倒數
+     * @param time 剩餘下注時間
+     * @param betTotalTime 總下注時間
+     * @controller
+     * @returns 
+     */
     public setCountdown(time: number, betTotalTime: number) {
         const betTimeNode = this.betTime;
+        if (time <= 0) {
+            betTimeNode.active = false;
+            return;
+        }
         const labelNode = betTimeNode.getChildByName('Label');
         const comLabel = labelNode.getComponent(Label);
         comLabel.string = time.toString();//顯示秒數
@@ -105,25 +104,6 @@ export class CGRoundView extends Component {
             .start();
     }
 
-    //其他用戶押注
-    // private async otherPlayerBet() {
-    //     // const model = this.controller.model;
-    //     // const chipDispatcher = this.controller.chipDispatcher;
-    //     await CGUtils.Delay(0.1 + Math.random() * 0.1);
-    //     for (let i = 1; i < 5; i++) {
-    //         if (Math.random() > 0.5) {
-    //             const randomBetArea = Math.floor(Math.random() * 6);
-    //             const randomChipID = Math.floor(Math.random() * 10);
-    //             chipDispatcher.createChipToBetArea(randomBetArea, i, randomChipID, false);
-    //             //判斷本地用戶是否跟注
-    //             if (i < 4)
-    //                 if (chipDispatcher.btnStopCall[i - 1].active) {
-    //                     chipDispatcher.createChipToBetArea(randomBetArea, 0, model.touchChipID, false);//用戶跟注
-    //                 }
-    //         }
-    //     }
-    // }
-
     /**
      * 停止下注
      * @controller
@@ -132,9 +112,6 @@ export class CGRoundView extends Component {
         this.stageTitle.children[1].active = true;
         await CGUtils.Delay(1);
         this.stageTitle.children[1].active = false;
-        // let winColor = model.winColor;
-        // await DiceRunSet.diceStart(model.pathData, winColor);//骰子表演
-
     }
 
     /**
@@ -236,14 +213,11 @@ export class CGRoundView extends Component {
         const chipParent = new Node();
         chipParent.addChild(instCoin);
         this.bigWin.getChildByName('CreatChip').addChild(chipParent);
-
         // 計算籌碼的移動距離
         const moveX = size.x * (Math.random() * 2 - 1);
         let moveY = size.y + Math.random() * 100;
         moveY += Math.max(0, (size.x / 2 - Math.abs(moveX)) / 2);
-
         const moveTime = 0.8 + Math.random() * 0.2;// 設定移動時間
-
         // 設定父節點的水平移動動畫
         tween(chipParent)
             .to(moveTime, { position: new Vec3(moveX, 0, 0) }, { easing: 'sineOut' })

@@ -1,5 +1,5 @@
-import { _decorator, Component, sys, JsonAsset, Vec3 } from 'cc';
-import { onLoadInfo, RankInfo, GameState, onJoinGame, onBetInfo, UserBets } from '../enum/CGInterface';
+import { _decorator, Component } from 'cc';
+import { RankInfo } from '../enum/CGInterface';
 import { CGPathManager } from '../manager/CGPathManager';
 
 import { PathInfo } from '../enum/CGInterface';
@@ -9,18 +9,14 @@ const { ccclass, property } = _decorator;
 //模擬後端給的資料
 @ccclass('CGModel')
 export class CGModel extends Component {
-
-
-
-    //用戶資料(server給的)
-    // public gameType: number;//遊戲編號
+    //用戶資料
     public userID: number;//用戶ID
     public avatarID: number;//頭像ID
     public loginName: string;//登入名稱
     public credit: number;//餘額
     public balance: number;//用戶當前餘額
 
-    //遊戲資料(server給的)
+    //遊戲資料
     public wagersID: number;//局號
     public betTotalTime: number; // 單局下注時間
     // public betCreditList: number[]; // 下注額度列表
@@ -28,39 +24,42 @@ export class CGModel extends Component {
     // public allBets: UserBets[];// 該局有下注的用戶與注額分布與餘額
     public rankings: RankInfo[];//前三名用戶資料(ID，名稱，頭像，餘額，下注總額分布)，如果ID是本地用戶，不表演籌碼並取消跟注
     public liveCount: number;// 目前線上人數
-
     public pathID: number;
     public winColor: number[];
-    // public winners: UserPayoff[];
 
-    //下注資料(server給的)
+    //下注資料
     public betTotal: number;//該用戶目前總下注額
     public userBetAreaCredits: number[];//該用戶各注區目前下注額
     public totalBetAreaCredits: number[];//目前各注區的下注額(需要中途出現籌碼)
 
-
     //本地端資料
-    // public touchChipID: number = 1;//紀錄目前點選的籌碼ID
     public pathData: PathInfo;//該回合路徑資料
 
     onLoad() {
+        this.dataInit();
+        //非loading時暫時使用
+        CGPathManager.getInstance().node.on("completed", async () => {
+            console.log("路徑加載完畢，開始模擬遊戲")
+        });
         // this.setMockData();//暫時設置資料
     }
 
 
-    //數值初始化
-    public dataInit(){
+    /**
+     * 數值初始化
+     */
+    public dataInit() {
+        console.log("初始化", this.userBetAreaCredits);
         this.betTotal = 0;
         this.userBetAreaCredits = Array(6).fill(0);
+        this.totalBetAreaCredits = Array(6).fill(0);
 
     }
 
-    public otherUserBet(){
-        
-    }
-
-
-    //獲得數值更新資料
+    /**
+     * 獲得數值更新資料
+     * @returns 
+     */
     public getCreditData() {
         return {
             betTotal: this.betTotal,//該用戶總下注額
@@ -70,25 +69,23 @@ export class CGModel extends Component {
         };
     }
 
-    //獲得用戶排名資料
-    public getRanksData() {
-        return this.rankings;
-    }
 
-    //獲取路子資料
-    public getRoadMapData() {
-        return this.roadMap
-    }
-
-    //設置路徑資料
+    /**
+     * 設置路徑資料
+     * @param pathID 路徑ID
+     */
     public setPathData(pathID: number): void {
         this.pathData = CGPathManager.getInstance().allPathData[pathID];
     }
 
-    //計算勝利表演所需用參數
+    /**
+     * 計算勝利表演所需用參數
+     * @param winColor 開獎顏色編號
+     * @returns 
+     */
     public calculateWinData(winColor: number[]): { betOdds: number[], localWinArea: number[] } {
-        let betOdds = [0, 0, 0, 0, 0, 0];//勝利注區與倍率
-        let winColorCount = [0, 0, 0, 0, 0, 0];//每個注區的開獎數量
+        let betOdds = Array(6).fill(0);//勝利注區與倍率
+        let winColorCount = Array(6).fill(0);//每個注區的開獎數量
         let localWinArea = [];//本地勝利注區
         for (let i of winColor) {
             winColorCount[i]++;
@@ -110,18 +107,29 @@ export class CGModel extends Component {
         return { localWinArea, betOdds };
     }
 
-    //計算賠率
+    /**
+     * 計算賠率
+     * @param odds 
+     * @returns 
+     */
     public calculateOdds(odds: number): number {
-        return odds === 3 ? 9 : odds;
+        return odds === 3 ? 14 : odds;
     }
 
 
-    //更新本地下注額度
+    /**
+     * 更新本地下注額度
+     * @param betCredits 本地下注分數
+     * @param credit 餘額
+     */
     public updateBetCredit(betCredits: number[], credit: number) {
-        this.credit = credit;//已被server更新
-        const addCredit = betCredits.reduce((a, b) => a + b, 0);
+        this.credit = credit;
+        const addCredit = betCredits.reduce((a, b) => a + b, 0);//注額加總
         this.betTotal += addCredit;
+
         for (let i = 0; i < 6; i++) {
+            console.log("下注", betCredits[i])
+            console.log("下注2", this.userBetAreaCredits[i])
             this.userBetAreaCredits[i] += betCredits[i];
         }
         for (let i = 0; i < 6; i++) {
