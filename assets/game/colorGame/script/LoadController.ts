@@ -1,9 +1,9 @@
 import { Component, ImageAsset, JsonAsset, Label, Node, ProgressBar, Scene, Sprite, SpriteFrame, Texture2D, UIOpacity, _decorator, assetManager, director, game, tween } from 'cc'
 // import { Application } from "./Applicaiton"
-import { LanguageManager } from './components/LanguageManager';
+import { LanguageManager } from './manager/LanguageManager';
 // import { LanguageFiles } from './LanguageFiles';
-import { AudioManager } from './components/AudioManager';
-import { CGPathManager } from './components/CGPathManager';
+import { AudioManager } from './manager/AudioManager';
+import { CGPathManager } from './manager/CGPathManager';
 // import { AlertPanel } from './components/AlertPanel';
 // import { SoundFiles } from './components/SoundFiles';
 // import { URLParameter } from './include';

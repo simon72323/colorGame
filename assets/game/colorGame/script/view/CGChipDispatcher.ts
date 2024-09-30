@@ -167,11 +167,10 @@ export class CGChipDispatcher extends Component {
 
     /**
      * 新下注失敗，清空籌碼與介面，並彈出下注失敗提示
-     * @param error 錯誤訊息
      */
-    public newBetError(error: string) {
+    public newBetError() {
         this.resetBetBtns();
-        this.showTipMessage(error, new Color(255, 0, 0, 255));
+        this.showTipMessage("下注失敗", new Color(255, 0, 0, 255));
     }
 
     /**
@@ -196,11 +195,10 @@ export class CGChipDispatcher extends Component {
 
     /**
      * 續押下注失敗
-     * @param error 錯誤訊息
      */
-    public reBetError(error: string) {
+    public reBetError() {
         this.setReBet(ReBetState.Init);//初始化續押狀態
-        this.showTipMessage(error, new Color(255, 0, 0, 255));
+        this.showTipMessage("續押失敗", new Color(255, 0, 0, 255));
     }
 
     /**
@@ -261,16 +259,16 @@ export class CGChipDispatcher extends Component {
      * @param betID 注區ID
      * @param rankID 該用戶的排名區域位置ID
      * @param chipCredit 下注的籌碼額度
-     * @param startPos 籌碼起點世界座標位置
      * @controller
      */
-    public otherUserBetChip(betID: number, rankID: number, chipCredit: number, startPos: Vec3) {
+    public otherUserBetChip(betID: number, rankID: number, chipCredit: number) {
         const poolBetChip = this.pool.get(this.betChipBlack) as ChipNode;
         poolBetChip.ChipID = -1;//其他用戶id為-1
         poolBetChip.UserPosID = rankID;//用戶排名區域位置ID
         poolBetChip.children[0].getComponent(Label).string = CGUtils.NumDigits(chipCredit);//設置籌碼額度
         const betPos = this.chipDispatcher.getChildByName('OtherUser').children[betID];//下注區節點
         poolBetChip.parent = betPos;
+        const startPos = this.userPos.children[rankID].getWorldPosition();
         poolBetChip.position = startPos.subtract(betPos.worldPosition);
         this.chipMove(betPos, poolBetChip);
     }
@@ -326,7 +324,7 @@ export class CGChipDispatcher extends Component {
      * @param betID 注區ID
      * @param odds 倍率
      */
-    public async createPayChipToBetArea(betID: number, odds: number) {
+    public async payChipToBetArea(betID: number, odds: number) {
         //0=其他用戶，1=本地用戶
         for (let i = 0; i < 2; i++) {
             const betPos = this.chipDispatcher.children[i].children[betID];//下注區節點

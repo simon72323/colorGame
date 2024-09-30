@@ -1,5 +1,5 @@
 import { _decorator, Component, sys, JsonAsset, Vec3 } from 'cc';
-import { onLoadInfo, RankInfo, GameState, onJoinGame, onBetInfo, UserBets, UserPayoff } from '../enum/CGInterface';
+import { onLoadInfo, RankInfo, GameState, onJoinGame, onBetInfo, UserBets } from '../enum/CGInterface';
 import { CGPathManager } from '../manager/CGPathManager';
 
 import { PathInfo } from '../enum/CGInterface';
@@ -21,22 +21,22 @@ export class CGModel extends Component {
     public balance: number;//用戶當前餘額
 
     //遊戲資料(server給的)
-    public roundSerial: number;//局號
+    public wagersID: number;//局號
     public betTotalTime: number; // 單局下注時間
     // public betCreditList: number[]; // 下注額度列表
     public roadMap: number[][];//前100局開獎顏色紀錄(顯示下注紀錄顏色)[局數][顏色]
-    public allBets: UserBets[];// 該局有下注的用戶與注額分布與餘額
-    public rankings: RankInfo[];//前三名用戶資料(ID，名稱，頭像，餘額)，如果ID是本地用戶，不表演籌碼並取消跟注
+    // public allBets: UserBets[];// 該局有下注的用戶與注額分布與餘額
+    public rankings: RankInfo[];//前三名用戶資料(ID，名稱，頭像，餘額，下注總額分布)，如果ID是本地用戶，不表演籌碼並取消跟注
     public liveCount: number;// 目前線上人數
 
     public pathID: number;
     public winColor: number[];
-    public winners: UserPayoff[];
+    // public winners: UserPayoff[];
 
     //下注資料(server給的)
     public betTotal: number;//該用戶目前總下注額
-    public userBetAreaCredit: number[];//該用戶各注區目前下注額
-    public totalBetAreaCredit: number[];//目前各注區的下注額(需要中途出現籌碼)
+    public userBetAreaCredits: number[];//該用戶各注區目前下注額
+    public totalBetAreaCredits: number[];//目前各注區的下注額(需要中途出現籌碼)
 
 
     //本地端資料
@@ -46,13 +46,27 @@ export class CGModel extends Component {
     onLoad() {
         // this.setMockData();//暫時設置資料
     }
+
+
+    //數值初始化
+    public dataInit(){
+        this.betTotal = 0;
+        this.userBetAreaCredits = Array(6).fill(0);
+
+    }
+
+    public otherUserBet(){
+        
+    }
+
+
     //獲得數值更新資料
     public getCreditData() {
         return {
             betTotal: this.betTotal,//該用戶總下注額
             credit: this.credit,
-            userBetAreaCredit: this.userBetAreaCredit,//該用戶各注區目前下注額
-            totalBetAreaCredit: this.totalBetAreaCredit//目前各注區的下注額
+            userBetAreaCredit: this.userBetAreaCredits,//該用戶各注區目前下注額
+            totalBetAreaCredit: this.totalBetAreaCredits//目前各注區的下注額
         };
     }
 
@@ -61,7 +75,7 @@ export class CGModel extends Component {
         return this.rankings;
     }
 
-    //獲取路紙資料
+    //獲取路子資料
     public getRoadMapData() {
         return this.roadMap
     }
@@ -84,14 +98,14 @@ export class CGModel extends Component {
             const count = winColorCount[i];
             if (count > 0) {
                 const odds = this.calculateOdds(count);
-                if (this.userBetAreaCredit[i] > 0) {
-                    this.userBetAreaCredit[i] *= (odds + 1);//注區額度變更(倍率)
+                if (this.userBetAreaCredits[i] > 0) {
+                    this.userBetAreaCredits[i] *= (odds + 1);//注區額度變更(倍率)
                     localWinArea.push(i);
                 }
                 betOdds[i] = odds;
             }
             else
-                this.userBetAreaCredit[i] = 0;
+                this.userBetAreaCredits[i] = 0;
         }
         return { localWinArea, betOdds };
     }
@@ -108,10 +122,10 @@ export class CGModel extends Component {
         const addCredit = betCredits.reduce((a, b) => a + b, 0);
         this.betTotal += addCredit;
         for (let i = 0; i < 6; i++) {
-            this.userBetAreaCredit[i] += betCredits[i];
+            this.userBetAreaCredits[i] += betCredits[i];
         }
         for (let i = 0; i < 6; i++) {
-            this.totalBetAreaCredit[i] += betCredits[i];
+            this.totalBetAreaCredits[i] += betCredits[i];
         }
     }
 
@@ -167,7 +181,7 @@ export class CGModel extends Component {
     //     this.balance = 50000;//用戶當前餘額
     //     this.loginName = 'simon';//登入名稱
 
-    //     this.roundSerial = 12345678;//局號
+    //     this.wagersID = 12345678;//局號
     //     this.limit = 30000; // 遊戲限額
     //     this.betTime = 3; // 單局下注時間
     //     this.chipRange = [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000]; // 籌碼額度範圍

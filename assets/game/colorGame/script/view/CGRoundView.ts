@@ -1,5 +1,6 @@
 import { _decorator, Component, Label, SpriteFrame, Sprite, Animation, UIOpacity, tween, Vec3, Color, Node, Vec2, instantiate } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
+import { Payoff } from '../enum/CGInterface';
 // import { CGController } from '../controller/CGController';
 const { ccclass, property } = _decorator;
 
@@ -38,7 +39,6 @@ export class CGRoundView extends Component {
 
     @property(Node)
     private winCredit!: Node;//贏分節點
-
 
     @property([SpriteFrame])
     private winOddSF: SpriteFrame[] = [];
@@ -137,13 +137,21 @@ export class CGRoundView extends Component {
 
     }
 
-    //派彩
-    public async rewardShow(winColor: number[], localWinArea: number[], betOdds: number[], payoff: number) {
+    /**
+     * 回合結束
+     * @param winColor //開獎顏色
+     * @param localWinArea //本地勝利注區
+     * @param betOdds //各注區賠率
+     * @param userPayoff 本地用戶派彩
+     * @controller
+     */
+    public async endRound(winColor: number[], localWinArea: number[], betOdds: number[], userPayoff: Payoff) {
         this.bgLight.getComponent(Animation).play('BgLightOpen');//背景燈閃爍
         this.betWin.active = true;
         const winNum = new Set(winColor);//過濾重複數字
-        for (let i of winNum) { this.betWin.children[i].active = true; }
-
+        for (let i of winNum) {
+            this.betWin.children[i].active = true;
+        }
         for (let i = 0; i < betOdds.length; i++) {
             const odds = betOdds[i];
             if (odds > 0) {
@@ -156,14 +164,14 @@ export class CGRoundView extends Component {
                 this.betInfo.children[i].getComponent(UIOpacity).opacity = 100;
         }
         //本地用戶勝利設置
-        if (payoff > 0) {
+        if (userPayoff.payoff > 0) {
             const showWinCredit = () => {
-                this.infoBar.getChildByName('Win').getChildByName('WinCredit').getChildByName('Label').getComponent(Label).string = CGUtils.NumDigits(payoff);
+                this.infoBar.getChildByName('Win').getChildByName('WinCredit').getChildByName('Label').getComponent(Label).string = CGUtils.NumDigits(userPayoff.payoff);
                 this.infoBar.getComponent(Animation).play('InfoBarWin');
             }
             //size===1代表開骰3顆骰子同一個id
             if (winNum.size === 1)
-                await this.runBigWin(payoff);
+                await this.runBigWin(userPayoff.payoff);
             else
                 showWinCredit.bind(this)();
         }
@@ -175,8 +183,9 @@ export class CGRoundView extends Component {
     }
 
     /**
-     * 顯示勝利派彩
+     * 顯示本地勝利派彩
      * @param payoff 派彩
+     * @controller
      */
     public showAddCredit(payoff: number) {
         this.winCredit.getChildByName('Win').getComponent(Label).string = '+' + CGUtils.NumDigits(payoff);

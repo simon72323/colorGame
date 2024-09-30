@@ -10,7 +10,7 @@ export class CGRoadView extends Component {
     private roadMapPopup!: Node;
     @property(Node)//關閉彈窗按鈕
     private btnClose!: Node;
-    @property([SpriteFrame])//路紙區骰子顏色
+    @property([SpriteFrame])//路子區骰子顏色
     public roadColorSF!: SpriteFrame[];
 
     /**
@@ -33,9 +33,9 @@ export class CGRoadView extends Component {
     }
 
     /**
-     * 更新路紙
+     * 更新路子
      * @contorller
-     * @param roadMap 前100局路紙[[顏色], [顏色], ...]
+     * @param roadMap 前100局路子[[顏色], [顏色], ...]
      */
     public updateRoadMap(roadMap: number[][]) {
         const colorMap = this.roadMap.getChildByName('ColorMap');
@@ -60,8 +60,8 @@ export class CGRoadView extends Component {
     }
 
     /**
-     * 更新路紙，上局顏色
-     * @param roadMap 前100局路紙[[顏色], [顏色], ...]
+     * 更新路子，上局顏色
+     * @param roadMap 前100局路子[[顏色], [顏色], ...]
      */
     private updateLastColors(roadMap: number[][]) {
         const lastColor = this.roadMap.getChildByName('LastColor');
@@ -78,10 +78,10 @@ export class CGRoadView extends Component {
     }
 
     /**
-     * 更新路紙，冷熱值
+     * 更新路子，冷熱值
      * @param roadMapPer 前100局各顏色百分比
-     * @param colorMap 顏色路紙節點
-     * @param popupColorMap 彈窗顏色路紙節點
+     * @param colorMap 顏色路子節點
+     * @param popupColorMap 彈窗顏色路子節點
      */
     private updateHotColdValues(roadMapPer: number[], colorMap: Node, popupColorMap: Node) {
         const updateElement = (type: 'Hot' | 'Freeze') => {
@@ -99,14 +99,14 @@ export class CGRoadView extends Component {
     }
 
     /**
-     * 路紙視窗顯示
+     * 路子視窗顯示
      */
     private roadMapPopupShow() {
         CGUtils.popupShow(this.roadMapPopup);
     }
 
     /**
-     * 路紙視窗關閉
+     * 路子視窗關閉
      */
     private roadMapPopupHide() {
         CGUtils.popupHide(this.roadMapPopup);

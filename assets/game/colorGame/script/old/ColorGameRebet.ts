@@ -7,12 +7,12 @@ import { _decorator, Component, find, Node, Label, Sprite, Button, Animation, co
 const { ccclass, property } = _decorator;
 
 //續押與自動投注控制
-@ccclass('ColorGameReBet')
-export class ColorGameReBet extends Component {
+@ccclass('ColorGameRebet')
+export class ColorGameRebet extends Component {
     // private gameData: ColorGameData = null;
     // public gameMain: ColorGameMain = null;
     // @property({ type: Node, tooltip: "續押按鈕" })
-    // public btnReBet: Node = null;
+    // public btnRebet: Node = null;
     // @property({ type: Node, tooltip: "自動投注按鈕" })
     // public btnAuto: Node = null;
     // @property({ type: Node, tooltip: "停止自動投注按鈕" })

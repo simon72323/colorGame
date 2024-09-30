@@ -17,7 +17,7 @@ export class CGDataService {
     }
 
     /**
-     * 點選的籌碼位置座標
+     * 點選的籌碼位置ID
      */
     private _touchChipPosID: number = 1;
     public get touchChipPosID(): number {
@@ -28,7 +28,7 @@ export class CGDataService {
     }
 
     /**
-     * 下注額度列表
+     * 下注額度列表(固定值)
      */
     private _betCreditList: number[] = [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000];
     public get betCreditList(): number[] {

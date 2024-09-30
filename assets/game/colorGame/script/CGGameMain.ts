@@ -12,7 +12,7 @@ import { GAME_TYPE } from './enum/CGInterface';
 import { IBetHandler } from './enum/CGInterface';
 
 import { onLoadInfo, onJoinGame, onUpdate } from './enum/CGInterface';
-import { LoadInfoData, JoinGameData, UpdateNewRoundData, UpdateBettingData, UpdateRewardData } from './enum/CGMockData';
+import { LoadInfoData, JoinGameData, UpdateNewRoundData, UpdateBettingData, UpdateEndRoundData } from './enum/CGMockData';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGGameMain')
@@ -23,8 +23,8 @@ export class CGGameMain extends Component implements IBetHandler {
     public useSimulateData: boolean = false;//模擬資料
     @property(CGController)
     private controller: CGController = null!;
-    @property(CGModel)
-    private model: CGModel = null!;
+    // @property(CGModel)
+    // private model: CGModel = null!;
 
     private webSocketManager: WebSocketManager = null;
 
@@ -67,68 +67,44 @@ export class CGGameMain extends Component implements IBetHandler {
     }
 
     /**
-     * 模擬資料
-     * ------------------------
-     * 此區段包含用於模擬遊戲數據和事件的方法
-    */
-
-    /**
      * 模擬:登入、加入遊戲和初始遊戲狀態
      */
     private async simulateInit() {
         const loadInfoMsg = structuredClone(LoadInfoData.Instance.getData());
-        this.onLoadInfo(loadInfoMsg);//發送登入訊息
+        this.onLoadInfo(loadInfoMsg);//接收登入訊息
         await CGUtils.Delay(0.5);
+        //本地發送加入遊戲
         const joinGameMsg = structuredClone(JoinGameData.Instance.getData());
-        this.onJoinGame(joinGameMsg);//發送登入遊戲資料
-        if (joinGameMsg.data.gameState === GameState.Betting)
-            this.simulateBettingOnUpdate(joinGameMsg.data.countdown);//執行更新倒數下注資料發送剩餘下注時間
+        this.onJoinGame(joinGameMsg);//接收登入遊戲資料
+        if (joinGameMsg.data.gameState === GameState.NewRound || joinGameMsg.data.gameState === GameState.Betting)
+            this.simulateBettingOnUpdate(joinGameMsg.data.countdown);//模擬下注倒數
         else {
-            this.controller.waitNewRound.active = true;//等待新局開始
             await CGUtils.Delay(3);
-            this.simulateNewRoundOnUpdate();
+            const newRoundMsg = structuredClone(UpdateNewRoundData.Instance.getData());
+            this.onUpdate(newRoundMsg);//發送新局開始
+            this.simulateBettingOnUpdate(joinGameMsg.data.betTotalTime);//模擬下注倒數
         }
     }
 
     /**
-     * 模擬:獲取每秒update訊息(時間)
+     * 模擬:獲取update訊息
      * @param countdown - 剩餘的下注時間
      */
     private async simulateBettingOnUpdate(countdown: number) {
         this.scheduleOnce(async () => {
-            const bettingMsg = structuredClone(UpdateBettingData.Instance.getData(countdown));
-            this.onUpdate(bettingMsg);//發送下注資料
-            if (countdown > 0)
+            const bettingMsg = structuredClone(UpdateBettingData.Instance.getData(countdown));//會自動-1秒
+            this.onUpdate(bettingMsg);//發送下注資料(有第0秒的下注資料)
+            if (bettingMsg.data.countdown > 0)
                 this.simulateBettingOnUpdate(countdown);//再次執行下注倒數
-            else
-                this.simulateRewardOnUpdate();//派彩
+            else {
+                const endRoundMsg = structuredClone(UpdateEndRoundData.Instance.getData());
+                this.onUpdate(endRoundMsg);//發送回合結束資料
+                await CGUtils.Delay(8);
+                const newRoundMsg = structuredClone(UpdateNewRoundData.Instance.getData());
+                this.onUpdate(newRoundMsg);//發送新局開始
+            }
         }, 1)
     }
-
-    /**
-     * 模擬:獲取派彩update訊息
-     */
-    private async simulateRewardOnUpdate() {
-        const rewardMsg = structuredClone(UpdateRewardData.Instance.getData());
-        this.onUpdate(rewardMsg);//發送派彩資料
-        await CGUtils.Delay(8);
-        this.simulateNewRoundOnUpdate();//新局開始
-    }
-
-    /**
-     * 模擬:獲取新局開始update訊息
-     */
-    private async simulateNewRoundOnUpdate() {
-        const newRoundMsg = structuredClone(UpdateNewRoundData.Instance.getData());
-        this.onUpdate(newRoundMsg);//發送新局開始
-        this.simulateBettingOnUpdate(this.model.betTotalTime);//再次執行下注倒數
-    }
-
-    /**
-     * 訊息接收
-     * ------------------------
-     * 此區段包含處理各種遊戲訊息的方法
-    */
 
     private async init() {
 
@@ -141,7 +117,7 @@ export class CGGameMain extends Component implements IBetHandler {
     private async onLoadInfo(msg: onLoadInfo) {
         console.log('收到登入資訊:', JSON.stringify(msg));
         if (msg.gameType === GAME_TYPE) {
-            this.controller.onLogInfoData(msg);
+            this.controller.handleLogInfo(msg);
         }
     }
 
@@ -152,7 +128,7 @@ export class CGGameMain extends Component implements IBetHandler {
     private async onJoinGame(msg: onJoinGame) {
         console.log('收到加入遊戲資訊:', JSON.stringify(msg));
         if (msg.gameType === GAME_TYPE) {
-            this.controller.onJoinGameData(msg);
+            this.controller.handleJoinGame(msg);
         }
     }
 
@@ -163,7 +139,7 @@ export class CGGameMain extends Component implements IBetHandler {
     private async onUpdate(msg: onUpdate) {
         console.log('收到更新資料:', JSON.stringify(msg));
         if (msg.gameType === GAME_TYPE) {
-            this.controller.onUpdateData(msg);
+            this.controller.handleUpdate(msg);
         }
     }
 
@@ -180,14 +156,13 @@ export class CGGameMain extends Component implements IBetHandler {
                 "gametype": GAME_TYPE,
                 "data": { "type": type, "betCredits": betCredits }
             }
-            await CGUtils.Delay(0.05);//模擬等待傳送資料回傳
+            await CGUtils.Delay(0.05);//模擬等待回傳資料
             const msg: onBetInfo = {
                 "event": true,
-                "error": "",
-                "data": { "type": "reBet", "credit": 2000 }
+                "data": { "type": type, "credit": 2000 }
             }
             this.controller.lockBetArea.active = false;//關閉禁用下注區
-            if (msg.error !== "") {
+            if (msg.event) {
                 if (msg.data.type === 'newBet')
                     this.controller.handleNewBetSuccessful(betCredits, msg.data.credit);
                 else if (msg.data.type === 'reBet')
@@ -195,9 +170,9 @@ export class CGGameMain extends Component implements IBetHandler {
             }
             else {
                 if (msg.data.type === 'newBet')
-                    this.controller.handleNewBetError(msg.error);
+                    this.controller.handleNewBetError();
                 else if (msg.data.type === 'reBet')
-                    this.controller.handleReBetError(msg.error);
+                    this.controller.handleReBetError();
             }
         } else {
             try {
@@ -332,10 +307,10 @@ export class CGGameMain extends Component implements IBetHandler {
 
     // //火箭
     // public handleUpdateMessage(data: any) {
-    //     const { state, odds, time, sec, countdown, totalsBet, liveCount, roundSerial, arrCoefficient, arrOddsPartition, startTime, escape } = data;
+    //     const { state, odds, time, sec, countdown, totalsBet, liveCount, wagersID, arrCoefficient, arrOddsPartition, startTime, escape } = data;
     //     switch (state) {
     //         case 'gameReady':
-    //             this.handleReady(roundSerial);
+    //             this.handleReady(wagersID);
     //             break;
     //         case 'gameNewRound':
     //             this.handleNewRound(startTime, arrCoefficient, arrOddsPartition, totalsBet, liveCount);
@@ -350,10 +325,10 @@ export class CGGameMain extends Component implements IBetHandler {
     //             console.log('Unknown game state:', state);
     //     }
     // }
-    // private handleReady(roundSerial?: number) {
-    //     console.log('遊戲準備中', roundSerial ? `局號: ${roundSerial}` : '');
+    // private handleReady(wagersID?: number) {
+    //     console.log('遊戲準備中', wagersID ? `局號: ${wagersID}` : '');
     //     // 更新UI顯示準備狀態
-    //     // this.view.showReadyState(roundSerial);
+    //     // this.view.showReadyState(wagersID);
     // }
     // private handleWaiting(countdown: number, totalsBet: string, liveCount: number) {
     //     console.log(`等待中，倒計時: ${countdown}秒，總下注: ${totalsBet}，在線人數: ${liveCount}`);
@@ -396,7 +371,7 @@ export class CGGameMain extends Component implements IBetHandler {
 
     //進入遊戲後執行的流程
     // private onJoinGame() {
-    //     this.view.updateRoadMap();//更新路紙
+    //     this.view.updateRoadMap();//更新路子
     //     this.chipSet.loadChipSetID();//讀取籌碼設置資料(本地)
     //     this.chipSet.updateTouchChip();//更新點選的籌碼(每局更新)
     //     if (this.gameModel.gameState === GameState.GameNewRound)
