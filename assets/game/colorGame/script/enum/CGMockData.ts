@@ -40,8 +40,8 @@ export const JoinGameData = new class {
       "avatarID": 10,//頭像ID (隨機0~31) 共32組
       "betCreditList": [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],//遊戲籌碼注額
       "startColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 36)),//該局起始顏色編號(0~35)
-      "countdown": 5,//剩餘下注時間
-      "betTotalTime": 15,//遊戲下注時間(彈性調整)
+      "countdown": 3,//剩餘下注時間
+      "betTotalTime": 3,//遊戲下注時間(彈性調整)
       //前100局路子顏色[新到舊]
       "roadMap": Array.from({ length: 100 }, () => Array.from({ length: 3 }, () => Math.floor(Math.random() * 6))),
       // "betCredits": [200, 100, 0, 300, 400, 0], // 本地用戶各注區下注分
@@ -54,7 +54,7 @@ export const JoinGameData = new class {
       ],
       "liveCount": 3 + Math.ceil(Math.random() * 30),//其他用戶人數
       "pathID": Math.floor(Math.random() * 1000),//本局表演的路徑ID (隨機0~999) 
-      "winColor": Array.from({ length: 3 }, () => Math.ceil(Math.random() * 6)),//該局開獎顏色編號(1~6)
+      "winColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 6)),//該局開獎顏色編號(0~5)
       "userPayoff": { "payoff": Math.floor(Math.random() * 1000), "credit": 2000 },
       "ranksPayoff": [
         { "payoff": Math.floor(Math.random() * 1000), "credit": 20000 },
@@ -89,6 +89,7 @@ export const UpdateNewRoundData = new class {
     }
   }
   public getData(): onUpdate {
+    this.data.data.startColor = Array.from({ length: 3 }, () => Math.floor(Math.random() * 36));
     return this.data;
   }
 }
@@ -103,7 +104,7 @@ export const UpdateBettingData = new class {
     {
       "gameState": "Betting",// 下注中
       "countdown": 10,//剩餘下注時間
-      "totalBetAreaCredits": [1000, 200, 500, 300, 200, 700],//目前注區總注額
+      // "totalBetAreaCredits": [1000, 200, 500, 300, 200, 700],//目前注區總注額
       //目前前三名，{用戶ID、顯示名稱、頭像ID、餘額} (有更新才給)
       "rankings": [
         { "userID": 11111, "displayName": 'john', "avatarID": 10, "credit": 70000 },
@@ -113,10 +114,10 @@ export const UpdateBettingData = new class {
       "liveCount": 3 + Math.ceil(Math.random() * 30),//線上用戶人數
       //前三名+其他玩家新增的下注額度
       "newBets": [
-        [200, 100, 0, 300, 400, 0],
-        [0, 100, 50, 50, 100, 200],
+        [200, 0, 0, 0, 400, 0],
+        [0, 100, 0, 0, 100, 0],
         [100, 0, 0, 0, 0, 100],
-        [500, 200, 150, 350, 500, 1200]
+        [0, 200, 0, 350, 0, 1200]
       ]
     }
   }
@@ -136,7 +137,7 @@ export const UpdateEndRoundData = new class {
     {
       "gameState": "EndRound",//派獎中
       "pathID": Math.floor(Math.random() * 1000),//本局表演的路徑ID (隨機0~999) 
-      "winColor": Array.from({ length: 3 }, () => Math.ceil(Math.random() * 6)),//該局開獎顏色編號(1~6)
+      "winColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 6)),//該局開獎顏色編號(0~5)
       "userPayoff": { "payoff": Math.floor(Math.random() * 1000), "credit": 2000 },
       "ranksPayoff": [
         { "payoff": Math.floor(Math.random() * 1000), "credit": 20000 },
@@ -160,6 +161,8 @@ export const UpdateEndRoundData = new class {
     }
   }
   public getData(): onUpdate {
+    this.data.data.pathID = Math.floor(Math.random() * 1000);
+    this.data.data.winColor = Array.from({ length: 3 }, () => Math.floor(Math.random() * 6));
     return this.data;
   }
 }

@@ -20,12 +20,18 @@ export class CGRankView extends Component {
      */
     public updateRanks(rankings: RankInfo[], userID: number) {
         for (let i = 0; i < 3; i++) {
-            const node = this.userPos.children[i + 1].children[0];
-            node.getChildByName('Name').getComponent(Label).string = rankings[i].displayName;//更新名稱
-            node.getChildByName('Label').getComponent(Label).string = CGUtils.NumDigits(rankings[i].credit);//更新餘額
-            node.getChildByName('Mask').children[0].getComponent(Sprite).spriteFrame = this.avatarPhoto[rankings[i].avatarID];//更新頭像
-            if (rankings[i].userID === userID)
-                console.log("排名有本地用戶，隱藏該欄位跟注功能")
+            const rankUser = this.userPos.children[i + 1].children[0];
+            rankUser.getChildByName('Name').getComponent(Label).string = rankings[i].displayName;//更新名稱
+            rankUser.getChildByName('Label').getComponent(Label).string = CGUtils.NumDigits(rankings[i].credit);//更新餘額
+            rankUser.getChildByName('Mask').children[0].getComponent(Sprite).spriteFrame = this.avatarPhoto[rankings[i].avatarID];//更新頭像
+            const betCall = rankUser.parent.getChildByName('BtnCall');
+            const betStopCall = rankUser.parent.getChildByName('BtnStopCall');
+            if (rankings[i].userID === userID) {
+                betCall.active = false;
+                betStopCall.active = false;
+            } else
+                if (!betCall.active && !betStopCall.active)
+                    betCall.active = true;
         }
     }
 
@@ -49,5 +55,14 @@ export class CGRankView extends Component {
                 node.getChildByName('Label').getComponent(Label).string = CGUtils.NumDigits(ranksPayoff[i].credit);//更新餘額
             }
         }
+    }
+
+    /**
+     * 判斷是否跟注
+     * @param rankPosID 排名位置
+     * @returns 
+     */
+    public testCall(rankPosID: number) {
+        return this.userPos.children[rankPosID].getChildByName('BtnStopCall').active;
     }
 }

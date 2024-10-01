@@ -36,7 +36,7 @@ export class CGModel extends Component {
     public pathData: PathInfo;//該回合路徑資料
 
     onLoad() {
-        this.dataInit();
+        // this.dataInit();
         //非loading時暫時使用
         CGPathManager.getInstance().node.on("completed", async () => {
             console.log("路徑加載完畢，開始模擬遊戲")
@@ -49,11 +49,10 @@ export class CGModel extends Component {
      * 數值初始化
      */
     public dataInit() {
-        console.log("初始化", this.userBetAreaCredits);
+        // console.log("初始化", this.userBetAreaCredits);
         this.betTotal = 0;
         this.userBetAreaCredits = Array(6).fill(0);
         this.totalBetAreaCredits = Array(6).fill(0);
-
     }
 
     /**
@@ -69,7 +68,6 @@ export class CGModel extends Component {
         };
     }
 
-
     /**
      * 設置路徑資料
      * @param pathID 路徑ID
@@ -84,25 +82,34 @@ export class CGModel extends Component {
      * @returns 
      */
     public calculateWinData(winColor: number[]): { betOdds: number[], localWinArea: number[] } {
-        let betOdds = Array(6).fill(0);//勝利注區與倍率
-        let winColorCount = Array(6).fill(0);//每個注區的開獎數量
-        let localWinArea = [];//本地勝利注區
+        let betOdds: number[] = Array(6).fill(0);//勝利注區與倍率
+        let winColorCount: number[] = Array(6).fill(0);//每個注區的開獎數量
+        let localWinArea: number[] = [];//本地勝利注區
         for (let i of winColor) {
             winColorCount[i]++;
         }
         //本地下注分數變更
+        // for (let i = 0; i < winColorCount.length; i++) {
+        //     const count = winColorCount[i];
+        //     if (count > 0) {
+        //         const odds = this.calculateOdds(count);
+        //         if (this.userBetAreaCredits[i] > 0) {
+        //             this.userBetAreaCredits[i] *= (odds + 1);//注區額度變更(倍率)
+        //             localWinArea.push(i);
+        //         }
+        //         betOdds[i] = odds;
+        //     }
+        //     else
+        //         this.userBetAreaCredits[i] = 0;
+        // }
+        //判斷勝利注區
         for (let i = 0; i < winColorCount.length; i++) {
             const count = winColorCount[i];
             if (count > 0) {
-                const odds = this.calculateOdds(count);
-                if (this.userBetAreaCredits[i] > 0) {
-                    this.userBetAreaCredits[i] *= (odds + 1);//注區額度變更(倍率)
+                if (this.userBetAreaCredits[i] > 0)//如果用戶該區有下注
                     localWinArea.push(i);
-                }
-                betOdds[i] = odds;
+                betOdds[i] = this.calculateOdds(count);//設置賠率
             }
-            else
-                this.userBetAreaCredits[i] = 0;
         }
         return { localWinArea, betOdds };
     }
@@ -116,20 +123,42 @@ export class CGModel extends Component {
         return odds === 3 ? 14 : odds;
     }
 
+    /**
+     * 更新其他玩家下注額度(單籌碼)
+     * @param betID 注區
+     * @param chipCredit 籌碼額度
+     * @param rankID 名次
+     */
+    public updateTotalBet(betID: number, chipCredit: number, rankID: number) {
+        this.totalBetAreaCredits[betID] += chipCredit;
+        if (rankID < 3)
+            this.rankings[rankID].credit -= chipCredit;//排名玩家額度減少
+    }
+
+    // /**
+    //  * 更新其他玩家下注注區額度(整個注區)
+    //  * @param betCredits 注區額度
+    //  * @param rankID 名次
+    //  */
+    // public updateTotalBetArea(betCredits: number[], rankID: number) {
+    //     for (let i = 0; i < 6; i++) {
+    //         this.totalBetAreaCredits[i] += betCredits[i];
+    //     }
+    //     const addCredit = betCredits.reduce((a, b) => a + b, 0);//注額加總
+    //     if (rankID < 3)
+    //         this.rankings[rankID].credit -= addCredit;//排名玩家額度減少
+    // }
 
     /**
-     * 更新本地下注額度
-     * @param betCredits 本地下注分數
+     * 更新本地下注注區額度
+     * @param betCredits 本地下注注區額度
      * @param credit 餘額
      */
     public updateBetCredit(betCredits: number[], credit: number) {
         this.credit = credit;
         const addCredit = betCredits.reduce((a, b) => a + b, 0);//注額加總
         this.betTotal += addCredit;
-
         for (let i = 0; i < 6; i++) {
-            console.log("下注", betCredits[i])
-            console.log("下注2", this.userBetAreaCredits[i])
             this.userBetAreaCredits[i] += betCredits[i];
         }
         for (let i = 0; i < 6; i++) {

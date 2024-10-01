@@ -86,15 +86,18 @@ export class CGGameMain extends Component implements IBetHandler {
     private async simulateBettingOnUpdate(countdown: number) {
         this.scheduleOnce(async () => {
             const bettingMsg = structuredClone(UpdateBettingData.getData(countdown));//會自動-1秒
+            // console.log("剩餘秒數",bettingMsg.data.countdown)
             this.onUpdate(bettingMsg);//發送下注資料(有第0秒的下注資料)
             if (bettingMsg.data.countdown > 0)
-                this.simulateBettingOnUpdate(countdown);//再次執行下注倒數
+                this.simulateBettingOnUpdate(bettingMsg.data.countdown);//再次執行下注倒數
             else {
+                await CGUtils.Delay(0.1);
                 const endRoundMsg = structuredClone(UpdateEndRoundData.getData());
                 this.onUpdate(endRoundMsg);//發送回合結束資料
-                await CGUtils.Delay(8);
+                await CGUtils.Delay(10);
                 const newRoundMsg = structuredClone(UpdateNewRoundData.getData());
                 this.onUpdate(newRoundMsg);//發送新局開始
+                this.simulateBettingOnUpdate(3);//再次執行下注倒數
             }
         }, 1)
     }
@@ -108,7 +111,7 @@ export class CGGameMain extends Component implements IBetHandler {
      * @param msg - 登入資訊訊息
      */
     private async onLoadInfo(msg: onLoadInfo) {
-        console.log('收到登入資訊:', JSON.stringify(msg));
+        // console.log('收到登入資訊:', JSON.stringify(msg));
         if (msg.gameType === GAME_TYPE) {
             this.controller.handleLogInfo(msg);
         }
@@ -119,7 +122,7 @@ export class CGGameMain extends Component implements IBetHandler {
      * @param msg - 加入遊戲訊息
      */
     private async onJoinGame(msg: onJoinGame) {
-        console.log('收到加入遊戲資訊:', JSON.stringify(msg));
+        // console.log('收到加入遊戲資訊:', JSON.stringify(msg));
         if (msg.gameType === GAME_TYPE) {
             this.controller.handleJoinGame(msg);
         }
@@ -130,7 +133,7 @@ export class CGGameMain extends Component implements IBetHandler {
      * @param msg - 更新訊息
      */
     private async onUpdate(msg: onUpdate) {
-        console.log('收到更新資料:', JSON.stringify(msg));
+        // console.log('收到更新資料:', JSON.stringify(msg));
         if (msg.gameType === GAME_TYPE) {
             this.controller.handleUpdate(msg);
         }
@@ -141,7 +144,6 @@ export class CGGameMain extends Component implements IBetHandler {
      * @param betCredits 新增的各注區注額
      */
     public async onBet(betCredits: number[], type: string) {
-        this.controller.lockBetArea.active = true;//開啟禁用下注區
         if (this.isSimulate) {
             //傳送下注資料給server，server確認後回傳
             const sendBetInfo = {
@@ -154,19 +156,7 @@ export class CGGameMain extends Component implements IBetHandler {
                 "event": true,
                 "data": { "type": type, "credit": 2000 }
             }
-            this.controller.lockBetArea.active = false;//關閉禁用下注區
-            if (msg.event) {
-                if (msg.data.type === 'newBet')
-                    this.controller.handleNewBetSuccessful(betCredits, msg.data.credit);
-                else if (msg.data.type === 'reBet')
-                    this.controller.handleReBetSuccessful(betCredits, msg.data.credit);
-            }
-            else {
-                if (msg.data.type === 'newBet')
-                    this.controller.handleNewBetError();
-                else if (msg.data.type === 'reBet')
-                    this.controller.handleReBetError();
-            }
+            this.controller.handleBetInfo(msg, betCredits);//處理下注流程
         } else {
             try {
                 // const response = await h5GameTools.slotGameConnector.SlotGameConnector.shared.callBeginGame({

@@ -30,7 +30,7 @@ export class CGDiceRunView extends Component {
      * @startColor 骰子方位參數[](0~35)
      * @controller
      */
-    public diceIdle(startColor:number[]) {
+    public diceIdle(startColor: number[]) {
         this.dice.forEach((dice, i) => {
             dice.setPosition(this.FIRST_POSITIONS[i]);
             dice.setRotationFromEuler(new Vec3(-20, 0, 0));
@@ -102,9 +102,9 @@ export class CGDiceRunView extends Component {
      */
     private diceRotate(winColor: number[], diceNumber: number[]): Vec3[] {
         return [
-            this.CHANGE_EULER[diceNumber[0]][winColor[0]],
-            this.CHANGE_EULER[diceNumber[1]][winColor[1]],
-            this.CHANGE_EULER[diceNumber[2]][winColor[2]]
+            this.CHANGE_EULER[diceNumber[0] * 6 + winColor[0]],
+            this.CHANGE_EULER[diceNumber[1] * 6 + winColor[1]],
+            this.CHANGE_EULER[diceNumber[2] * 6 + winColor[2]]
         ];
     }
 }
