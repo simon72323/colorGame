@@ -39,13 +39,13 @@ export class CGDataService {
     }
 
 
-    /**
-     * 獲取選擇的籌碼額度
-     * @returns 
-     */
-    public getTouchChipCredit() {
-        return this.betCreditList[this.touchChipID];
-    }
+    // /**
+    //  * 獲取選擇的籌碼額度
+    //  * @returns 
+    //  */
+    // public getTouchChipCredit() {
+    //     return this.betCreditList[this.touchChipID];
+    // }
 
     /**
      * 下注限額

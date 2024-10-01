@@ -4,7 +4,7 @@ const GAME_TYPE = "5278";
 
 //登入資料
 export const LoadInfoData = new class {
-  private data: onLoadInfo = {
+  private msg: onLoadInfo = {
     "event": true,
     "gameType": GAME_TYPE,
     "data":
@@ -23,13 +23,13 @@ export const LoadInfoData = new class {
     }
   }
   public getData(): onLoadInfo {
-    return this.data;
+    return this.msg;
   }
 }
 
 //登入遊戲資料
 export const JoinGameData = new class {
-  private data: onJoinGame = {
+  private msg: onJoinGame = {
     "action": "onJoinGame",
     "gameType": GAME_TYPE,
     "event": true,
@@ -37,7 +37,7 @@ export const JoinGameData = new class {
     {
       "gameState": Math.random() < 0.5 ? "Betting" : "Reward",//(下注中或開獎中?)"NewRound":新局開始，"Betting":下注中，"Reward":派獎中
       "wagersID": 47378797,
-      "avatarID": 10,//頭像ID (隨機0~31) 共32組
+      // "avatarID": 10,//頭像ID (隨機0~31) 共32組
       "betCreditList": [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],//遊戲籌碼注額
       "startColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 36)),//該局起始顏色編號(0~35)
       "countdown": 3,//剩餘下注時間
@@ -53,24 +53,24 @@ export const JoinGameData = new class {
         { "userID": 33333, "displayName": 'simon', "avatarID": 12, "credit": 50000, "betCredits": [200, 0, 100, 300, 200, 0] }
       ],
       "liveCount": 3 + Math.ceil(Math.random() * 30),//其他用戶人數
-      "pathID": Math.floor(Math.random() * 1000),//本局表演的路徑ID (隨機0~999) 
+      // "pathID": Math.floor(Math.random() * 1000),//本局表演的路徑ID (隨機0~999) 
       "winColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 6)),//該局開獎顏色編號(0~5)
-      "userPayoff": { "payoff": Math.floor(Math.random() * 1000), "credit": 2000 },
-      "ranksPayoff": [
-        { "payoff": Math.floor(Math.random() * 1000), "credit": 20000 },
-        { "payoff": Math.floor(Math.random() * 1000), "credit": 20000 },
-        { "payoff": Math.floor(Math.random() * 1000), "credit": 20000 }
-      ],
+      // "userPayoff": { "payoff": Math.floor(Math.random() * 1000), "credit": 2000 },
+      // "ranksPayoff": [
+      //   { "payoff": Math.floor(Math.random() * 1000), "credit": 20000 },
+      //   { "payoff": Math.floor(Math.random() * 1000), "credit": 20000 },
+      //   { "payoff": Math.floor(Math.random() * 1000), "credit": 20000 }
+      // ],
     }
   }
   public getData(): onJoinGame {
-    return this.data;
+    return this.msg;
   }
 }
 
 //更新下注資料(新局)
 export const UpdateNewRoundData = new class {
-  private data: onUpdate = {
+  private msg: onUpdate = {
     "action": "onUpdate",
     "event": true,
     "gameType": GAME_TYPE,
@@ -89,14 +89,14 @@ export const UpdateNewRoundData = new class {
     }
   }
   public getData(): onUpdate {
-    this.data.data.startColor = Array.from({ length: 3 }, () => Math.floor(Math.random() * 36));
-    return this.data;
+    this.msg.data.startColor = Array.from({ length: 3 }, () => Math.floor(Math.random() * 36));
+    return this.msg;
   }
 }
 
 //每秒更新下注資料
 export const UpdateBettingData = new class {
-  private data: onUpdate = {
+  private msg: onUpdate = {
     "action": "onUpdate",
     "event": true,
     "gameType": GAME_TYPE,
@@ -122,14 +122,14 @@ export const UpdateBettingData = new class {
     }
   }
   public getData(countdown: number): onUpdate {
-    this.data.data.countdown = countdown - 1;
-    return this.data;
+    this.msg.data.countdown = countdown - 1;
+    return this.msg;
   }
 }
 
 //更新派彩資料
 export const UpdateEndRoundData = new class {
-  private data: onUpdate = {
+  private msg: onUpdate = {
     "action": "onUpdate",
     "event": true,
     "gameType": GAME_TYPE,
@@ -161,15 +161,15 @@ export const UpdateEndRoundData = new class {
     }
   }
   public getData(): onUpdate {
-    this.data.data.pathID = Math.floor(Math.random() * 1000);
-    this.data.data.winColor = Array.from({ length: 3 }, () => Math.floor(Math.random() * 6));
-    return this.data;
+    this.msg.data.pathID = Math.floor(Math.random() * 1000);
+    this.msg.data.winColor = Array.from({ length: 3 }, () => Math.floor(Math.random() * 6));
+    return this.msg;
   }
 }
 
 //接收玩家下注資料
 export const BetData = new class {
-  private data: onBetInfo = {
+  private msg: onBetInfo = {
     "event": true,
     "error": "餘額不足",
     "data":
@@ -180,6 +180,6 @@ export const BetData = new class {
     }
   }
   public getData(): onBetInfo {
-    return this.data;
+    return this.msg;
   }
 }

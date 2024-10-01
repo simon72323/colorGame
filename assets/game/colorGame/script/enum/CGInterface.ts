@@ -10,10 +10,23 @@ export interface PathInfo {
   diceNumber: number[];//開獎點數[三顆骰子的點數](0~5)
 }
 
+//下注類型
+export enum BetType {
+  NewBet = "newBet",
+  ReBet = "reBet",
+  CallBet = "callBet"
+}
+
+//續押狀態
+export enum ReBetState {
+  Init = "init",
+  OnceBet = "onceBet",
+  AutoBet = "autoBet"
+}
+
 export enum User {
   local = 0,//本地用戶
   other = 1,//其他用戶
-
 }
 
 export const GAME_TYPE = "5278";
@@ -64,7 +77,7 @@ export interface onJoinGame {
   gameType: string;
   data: {
     gameState: string;//遊戲目前狀態
-    avatarID: number;//頭像ID
+    // avatarID: number;//頭像ID
     wagersID: number;//局號
     betCreditList: number[], // 下注credit選項
     startColor: number[];//該局起始顏色
@@ -76,10 +89,10 @@ export interface onJoinGame {
     // allBets: UserBets[];//該局有下注的用戶與注額分布與餘額
     rankings: RankInfo[];//前三名用戶資料(ID，名稱，頭像，餘額)，如果ID是本地用戶，不表演籌碼並取消跟注
     liveCount: number;//其他用戶人數
-    pathID?: number;//該局表演路徑ID
+    // pathID?: number;//該局表演路徑ID
     winColor?: number[];//該局勝利3顏色編號
-    userPayoff?: Payoff;//本地用戶派彩與餘額
-    ranksPayoff?: Payoff[];//前三名用戶派彩與餘額
+    // userPayoff?: Payoff;//本地用戶派彩與餘額
+    // ranksPayoff?: Payoff[];//前三名用戶派彩與餘額
   }
 }
 

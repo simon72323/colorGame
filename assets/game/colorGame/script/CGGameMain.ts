@@ -72,7 +72,7 @@ export class CGGameMain extends Component implements IBetHandler {
         if (joinGameMsg.data.gameState === GameState.NewRound || joinGameMsg.data.gameState === GameState.Betting)
             this.simulateBettingOnUpdate(joinGameMsg.data.countdown);//模擬下注倒數
         else {
-            await CGUtils.Delay(3);
+            await CGUtils.Delay(1);
             const newRoundMsg = structuredClone(UpdateNewRoundData.getData());
             this.onUpdate(newRoundMsg);//發送新局開始
             this.simulateBettingOnUpdate(joinGameMsg.data.betTotalTime);//模擬下注倒數
@@ -86,7 +86,6 @@ export class CGGameMain extends Component implements IBetHandler {
     private async simulateBettingOnUpdate(countdown: number) {
         this.scheduleOnce(async () => {
             const bettingMsg = structuredClone(UpdateBettingData.getData(countdown));//會自動-1秒
-            // console.log("剩餘秒數",bettingMsg.data.countdown)
             this.onUpdate(bettingMsg);//發送下注資料(有第0秒的下注資料)
             if (bettingMsg.data.countdown > 0)
                 this.simulateBettingOnUpdate(bettingMsg.data.countdown);//再次執行下注倒數
@@ -112,9 +111,7 @@ export class CGGameMain extends Component implements IBetHandler {
      */
     private async onLoadInfo(msg: onLoadInfo) {
         // console.log('收到登入資訊:', JSON.stringify(msg));
-        if (msg.gameType === GAME_TYPE) {
-            this.controller.handleLogInfo(msg);
-        }
+        msg.gameType === GAME_TYPE && this.controller.handleLogInfo(msg);
     }
 
     /**
@@ -123,9 +120,7 @@ export class CGGameMain extends Component implements IBetHandler {
      */
     private async onJoinGame(msg: onJoinGame) {
         // console.log('收到加入遊戲資訊:', JSON.stringify(msg));
-        if (msg.gameType === GAME_TYPE) {
-            this.controller.handleJoinGame(msg);
-        }
+        msg.gameType === GAME_TYPE && this.controller.handleJoinGame(msg);
     }
 
     /**
@@ -134,9 +129,7 @@ export class CGGameMain extends Component implements IBetHandler {
      */
     private async onUpdate(msg: onUpdate) {
         // console.log('收到更新資料:', JSON.stringify(msg));
-        if (msg.gameType === GAME_TYPE) {
-            this.controller.handleUpdate(msg);
-        }
+        msg.gameType === GAME_TYPE && this.controller.handleUpdate(msg);
     }
 
     /**

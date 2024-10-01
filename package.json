@@ -5,6 +5,7 @@
     "version": "3.8.3"
   },
   "dependencies": {
-    "@gt-npm/gt-lib-ts": "^1.0.15"
+    "@gt-npm/gt-lib-ts": "^1.0.15",
+    "vconsole": "^3.15.1"
   }
 }
