@@ -5,8 +5,8 @@ temp/
 library/
 profiles/
 native/
-coverage/
-node_modules/
+#coverage/
+#node_modules/
 # IDE
 .vscode/
 =======
@@ -23,7 +23,7 @@ native
 #//////////////////////////
 # NPM
 #//////////////////////////
-node_modules/
+#node_modules/
 
 #//////////////////////////
 # VSCode
