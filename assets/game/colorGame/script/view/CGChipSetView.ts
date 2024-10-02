@@ -6,7 +6,7 @@ const { ccclass, property } = _decorator;
 @ccclass('CGChipSetView')
 export class CGChipSetView extends Component {
     @property(Node)//籌碼選擇區
-    public touchChip!: Node;
+    private touchChip!: Node;
     @property(Node)//籌碼設置按鈕
     private btnChipSet!: Node;
     @property(Node)//籌碼預設按鈕

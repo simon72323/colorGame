@@ -21,8 +21,7 @@ export class CGRoundView extends Component {
     @property(Node)
     private betTime!: Node;//下注時間
     @property(Node)
-    private mainUserWin!: Node;//本地用戶贏分特效
-    private chips: Node[] = [];
+    private localWinFx!: Node;//本地用戶贏分特效
     @property(Node)
     private infoBar!: Node;//資訊面板
     @property(Node)
@@ -33,6 +32,8 @@ export class CGRoundView extends Component {
     private winOddSF: SpriteFrame[] = [];//倍率貼圖
     @property([SpriteFrame])
     private resultColorSF: SpriteFrame[] = [];//結算顏色貼圖
+
+    private chips: Node[] = [];
 
     /**
      * 在組件載入時初始化籌碼陣列
@@ -55,8 +56,8 @@ export class CGRoundView extends Component {
         this.result.active = false;
         this.infoBar.getComponent(Animation).play('InfoBarTip');//播放跑馬燈動態
         this.bgLight.getComponent(Animation).play('BgLightIdle');
-        for (let i = 0; i < 6; i++) {
-            this.betInfo.children[i].getComponent(UIOpacity).opacity = 255;
+        for (let child of this.betInfo.children) {
+            child.getComponent(UIOpacity).opacity = 255;
         }
         this.stageTitle.children[0].active = true;//標題顯示
         this.betLight.active = true;//下注提示光
@@ -120,38 +121,38 @@ export class CGRoundView extends Component {
      * @param winColor //開獎顏色
      * @param localWinArea //本地勝利注區
      * @param betOdds //各注區賠率
-     * @param userPayoff 本地用戶派彩
+     * @param payoff 本地用戶派彩
      * @controller
      */
-    public async endRound(winColor: number[], localWinArea: number[], betOdds: number[], userPayoff: Payoff) {
+    public async endRound(winColor: number[], localWinArea: number[], betOdds: number[], payoff: number) {
         this.bgLight.getComponent(Animation).play('BgLightOpen');//背景燈閃爍
         this.betWin.active = true;
+
         const winNum = new Set(winColor);//過濾重複數字
         for (let i of winNum) {
             this.betWin.children[i].active = true;
         }
         for (let i = 0; i < betOdds.length; i++) {
-            const odds = betOdds[i];
-            if (odds > 0) {
+            if (betOdds[i] > 0) {
                 if (localWinArea.indexOf(i) !== -1) {
-                    this.mainUserWin.children[i].active = true;
-                    const winOddSFID = odds === 9 ? 2 : odds - 1;//判斷倍率貼圖顯示
-                    this.mainUserWin.children[i].children[0].getComponent(Sprite).spriteFrame = this.winOddSF[winOddSFID];
+                    const winFx = this.localWinFx.children[i];
+                    winFx.active = true;
+                    const winOddSFID = betOdds[i] > 2 ? 2 : betOdds[i] - 1;//判斷倍率貼圖顯示
+                    winFx.children[0].getComponent(Sprite).spriteFrame = this.winOddSF[winOddSFID];
                 }
             } else
                 this.betInfo.children[i].getComponent(UIOpacity).opacity = 100;
         }
         //本地用戶勝利設置
-        if (userPayoff.payoff > 0) {
-            const showWinCredit = () => {
-                this.infoBar.getChildByName('Win').getChildByName('WinCredit').getChildByName('Label').getComponent(Label).string = CGUtils.NumDigits(userPayoff.payoff);
-                this.infoBar.getComponent(Animation).play('InfoBarWin');
-            }
+        if (payoff > 0) {
             //size===1代表開骰3顆骰子同一個id
             if (winNum.size === 1)
-                await this.runBigWin(userPayoff.payoff);
-            else
-                showWinCredit.bind(this)();
+                await this.runBigWin(payoff);//大獎顯示
+            else {
+                this.infoBar.getChildByName('Win').getChildByName('WinCredit').getChildByName('Label').getComponent(Label).string =
+                    CGUtils.NumDigits(payoff);
+                this.infoBar.getComponent(Animation).play('InfoBarWin');
+            }
         }
         //顯示結算彈窗
         this.result.active = true;
@@ -175,7 +176,7 @@ export class CGRoundView extends Component {
      * @param winCredit - 獲勝的金額
      * @returns 動畫完成後 resolve
      */
-    public runBigWin(winCredit: number): Promise<void> {
+    private runBigWin(winCredit: number): Promise<void> {
         this.bigWin.active = true;
         return new Promise<void>(async (resolve) => {
             this.bigWin.getComponent(UIOpacity).opacity = 0;

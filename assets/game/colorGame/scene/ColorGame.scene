@@ -190,7 +190,7 @@
     "_priority": 9,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 959.9999999999999,
+    "_orthoHeight": 960,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -70477,7 +70477,7 @@
     "betTime": {
       "__id__": 2062
     },
-    "mainUserWin": {
+    "localWinFx": {
       "__id__": 2075
     },
     "infoBar": {
@@ -78526,7 +78526,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "MainUserWin",
+    "_name": "LocalWinFx",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -100549,7 +100549,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1919.9999999999998
+      "height": 1920
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

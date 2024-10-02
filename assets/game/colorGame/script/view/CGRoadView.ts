@@ -11,7 +11,7 @@ export class CGRoadView extends Component {
     @property(Node)//關閉彈窗按鈕
     private btnClose!: Node;
     @property([SpriteFrame])//路子區骰子顏色
-    public roadColorSF!: SpriteFrame[];
+    private roadColorSF!: SpriteFrame[];
 
     /**
      * 設置按鈕事件監聽器

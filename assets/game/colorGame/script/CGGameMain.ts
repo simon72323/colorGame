@@ -96,7 +96,7 @@ export class CGGameMain extends Component implements IBetHandler {
                 await CGUtils.Delay(10);
                 const newRoundMsg = structuredClone(UpdateNewRoundData.getData());
                 this.onUpdate(newRoundMsg);//發送新局開始
-                this.simulateBettingOnUpdate(3);//再次執行下注倒數
+                this.simulateBettingOnUpdate(10);//再次執行下注倒數
             }
         }, 1)
     }

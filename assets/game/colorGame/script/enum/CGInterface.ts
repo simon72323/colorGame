@@ -1,3 +1,4 @@
+import { Node } from "cc";
 
 export interface IBetHandler {
   onBet(betCredits: number[], type: string): void;
@@ -22,6 +23,22 @@ export enum ReBetState {
   Init = "init",
   OnceBet = "onceBet",
   AutoBet = "autoBet"
+}
+
+//暫存下注籌碼
+export interface TempBetData {
+  credits: number[];//暫存的各區下注額
+  total: number;//暫存下注總金額
+  chipNode: Node[];//暫存的下注籌碼
+  chipCredit: number[];//暫存的籌碼額度
+}
+
+//上一次續押資料
+export interface ReBetData {
+  areaChipID: number[][];//上局本地用戶續押資料[下注區][籌碼ID]
+  credits: number[];//暫存續押的各區下注額
+  total: number;//續押金額
+  state: ReBetState;//續押狀態
 }
 
 export enum User {

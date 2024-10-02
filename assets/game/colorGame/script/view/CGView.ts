@@ -1,15 +1,15 @@
-import { _decorator, Component, Node, Label, UITransform, UIOpacity } from 'cc';
+import { _decorator, Component, Node, Label, UITransform, Animation } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
 
 const { ccclass, property } = _decorator;
 @ccclass('CGView')
 export class CGView extends Component {
     @property(Node)//下注區資訊
-    public betInfo!: Node;
+    private betInfo!: Node;
     @property(Node)//下注額度按鈕(公版)
-    public comBtnBet!: Node;
+    private comBtnBet!: Node;
     @property(Node)//額度兌換按鈕(公版)
-    public comBtnCredits!: Node;
+    private comBtnCredits!: Node;
 
     /**
      * 更新注區分數顯示
@@ -48,6 +48,7 @@ export class CGView extends Component {
      * @controller
      */
     public updateUserCredit(credit: number) {
+        this.comBtnCredits.getComponent(Animation).play();
         this.comBtnCredits.getChildByName('Label').getComponent(Label).string = CGUtils.NumDigits(credit);//更新本地用戶餘額
     }
 

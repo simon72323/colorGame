@@ -1,5 +1,5 @@
 import { _decorator, Component, Vec3, Quat, Animation, Node } from 'cc';
-import { PathInfo } from '../enum/CGInterface';
+import { CGPathManager } from '../manager/CGPathManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGDiceRunView')
@@ -39,14 +39,16 @@ export class CGDiceRunView extends Component {
         });
     }
 
+
     /**
      * 開骰表演
-     * @param pathData 骰子路徑數據
+     * @param pathID 路徑ID
      * @param winColor 獲勝顏色數組
      * @returns 回傳表演結束
      */
-    public async diceStart(pathData: PathInfo, winColor: number[]): Promise<void> {
+    public async diceStart(pathID: number, winColor: number[]): Promise<void> {
         return new Promise<void>((resolve) => {
+            const pathData = CGPathManager.getInstance().allPathData[pathID];
             const diceEuler = this.diceRotate(winColor, pathData.diceNumber);//起始骰子角度
             // 四元數插值轉換(慢慢校正骰子方向)
             const targetRotations = diceEuler.map(euler => {

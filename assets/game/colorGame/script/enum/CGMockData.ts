@@ -40,8 +40,8 @@ export const JoinGameData = new class {
       // "avatarID": 10,//頭像ID (隨機0~31) 共32組
       "betCreditList": [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],//遊戲籌碼注額
       "startColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 36)),//該局起始顏色編號(0~35)
-      "countdown": 3,//剩餘下注時間
-      "betTotalTime": 3,//遊戲下注時間(彈性調整)
+      "countdown": 10,//剩餘下注時間
+      "betTotalTime": 10,//遊戲下注時間(彈性調整)
       //前100局路子顏色[新到舊]
       "roadMap": Array.from({ length: 100 }, () => Array.from({ length: 3 }, () => Math.floor(Math.random() * 6))),
       // "betCredits": [200, 100, 0, 300, 400, 0], // 本地用戶各注區下注分

@@ -66,14 +66,6 @@ export class CGModel extends Component {
     }
 
     /**
-     * 設置路徑資料
-     * @param pathID 路徑ID
-     */
-    public setPathData(pathID: number): void {
-        this.pathData = CGPathManager.getInstance().allPathData[pathID];
-    }
-
-    /**
      * 計算勝利表演所需用參數
      * @param winColor 開獎顏色編號
      * @returns 
@@ -91,19 +83,10 @@ export class CGModel extends Component {
             if (count > 0) {
                 if (this.userBetAreaCredits[i] > 0)//如果用戶該區有下注
                     localWinArea.push(i);
-                betOdds[i] = this.getOdds(count);//設置賠率
+                betOdds[i] = count === 3 ? 14 : count;//設置賠率
             }
         }
         return { localWinArea, betOdds };
-    }
-
-    /**
-     * 計算賠率
-     * @param odds 
-     * @returns 
-     */
-    public getOdds(odds: number): number {
-        return odds === 3 ? 14 : odds;
     }
 
     /**
