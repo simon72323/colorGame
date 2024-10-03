@@ -77,9 +77,7 @@ export class CGUtils {
     public static SetSkeletonAnimation(node: Node, trackIndex: number, animationName: string, loop?: boolean, awaitComplete?: boolean): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             const skeletonComponent: sp.Skeleton = node.getComponent(sp.Skeleton);
-
             skeletonComponent.setAnimation(trackIndex, animationName, loop);
-
             if (awaitComplete) {
                 const onAnimationComplete = () => {
                     skeletonComponent.setCompleteListener(null);
@@ -104,7 +102,8 @@ export class CGUtils {
         eventHandler.target = target;
         eventHandler.component = component;
         eventHandler.handler = handler;
-        if (customData) eventHandler.customEventData = customData;
+        if (customData)
+            eventHandler.customEventData = customData;
         touchNode.getComponent(Button).clickEvents.push(eventHandler);
     }
 
@@ -121,7 +120,8 @@ export class CGUtils {
         eventHandler.target = target;
         eventHandler.component = component;
         eventHandler.handler = handler;
-        if (customData) eventHandler.customEventData = customData;
+        if (customData)
+            eventHandler.customEventData = customData;
         touchNode.getComponent(Toggle).clickEvents.push(eventHandler);
     }
 

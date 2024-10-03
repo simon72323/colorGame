@@ -149,7 +149,7 @@ export class CGGameMain extends Component implements IBetHandler {
                 "event": true,
                 "data": { "type": type, "credit": 2000 }
             }
-            this.controller.handleBetInfo(msg, betCredits);//處理下注流程
+            this.controller.handleOnBetInfo(msg, betCredits);//處理下注流程
         } else {
             try {
                 // const response = await h5GameTools.slotGameConnector.SlotGameConnector.shared.callBeginGame({

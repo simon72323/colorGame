@@ -90,8 +90,7 @@ export class CGRoadView extends Component {
             [colorMap, popupColorMap].forEach(node => {
                 const element = node.getChildByName(type);
                 element.active = roadMapPer.lastIndexOf(value) === index;
-                if (element.active)
-                    element.setPosition(node.children[index].getPosition());
+                element.active && element.setPosition(node.children[index].getPosition());
             });
         };
         updateElement('Hot');//更新熱值

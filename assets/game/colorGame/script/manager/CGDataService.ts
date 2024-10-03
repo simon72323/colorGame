@@ -37,24 +37,4 @@ export class CGDataService {
     public set betCreditList(value: number[]) {
         this._betCreditList = value;
     }
-
-
-    // /**
-    //  * 獲取選擇的籌碼額度
-    //  * @returns 
-    //  */
-    // public getTouchChipCredit() {
-    //     return this.betCreditList[this.touchChipID];
-    // }
-
-    /**
-     * 下注限額
-     */
-    // private _limit: number = 70000;
-    // public get limit(): number {
-    //     return this._limit;
-    // }
-    // public set limit(value: number) {
-    //     this._limit = value;
-    // }
 }

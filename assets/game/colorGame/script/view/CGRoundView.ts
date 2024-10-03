@@ -95,8 +95,7 @@ export class CGRoundView extends Component {
             }
             else
                 comLabel.color = new Color(0, 90, 80, 255);
-            if (!betTimeNode.active)
-                betTimeNode.active = true;
+            betTimeNode.active = true;
             tween(labelNode).to(0.2, { scale: new Vec3(1.4, 1.4, 1) }, { easing: 'sineOut' })
                 .then(tween(labelNode).to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }))
                 .start();
@@ -149,8 +148,8 @@ export class CGRoundView extends Component {
             if (winNum.size === 1)
                 await this.runBigWin(payoff);//大獎顯示
             else {
-                this.infoBar.getChildByName('Win').getChildByName('WinCredit').getChildByName('Label').getComponent(Label).string =
-                    CGUtils.NumDigits(payoff);
+                const WinCreditLabel = this.infoBar.getChildByName('Win').getChildByName('WinCredit').getChildByName('Label');
+                WinCreditLabel.getComponent(Label).string = CGUtils.NumDigits(payoff);
                 this.infoBar.getComponent(Animation).play('InfoBarWin');
             }
         }

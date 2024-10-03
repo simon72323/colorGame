@@ -22,7 +22,8 @@ export enum BetType {
 export enum ReBetState {
   Init = "init",
   OnceBet = "onceBet",
-  AutoBet = "autoBet"
+  AutoBet = "autoBet",
+  AutoStop = "autoStop"
 }
 
 //暫存下注籌碼

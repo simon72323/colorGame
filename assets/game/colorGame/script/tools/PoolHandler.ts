@@ -28,7 +28,6 @@ export default class PoolHandler {
         if (pool === undefined) {
             this.poolTable.set(poolName, new NodePool());
             pool = this.poolTable.get(poolName);
-
         }
         if (pool.size() > 0) {
             // console.log('提取', poolName)
@@ -54,12 +53,12 @@ export default class PoolHandler {
         pool.put(node);
     }
 
-    // public destroy(): void {
-    //     for (let tab in this.poolTable) {
-    //         let pool = this.poolTable.get(tab);
-    //         pool.clear();
-    //     }
-    //     this.poolTable.clear();
-    //     this.poolTable = null;
-    // }
+    public destroy(): void {
+        for (let tab in this.poolTable) {
+            let pool = this.poolTable.get(tab);
+            pool.clear();
+        }
+        this.poolTable.clear();
+        this.poolTable = null;
+    }
 }
