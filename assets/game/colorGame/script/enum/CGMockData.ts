@@ -35,7 +35,7 @@ export const JoinGameData = new class {
     "event": true,
     "data":
     {
-      "gameState": Math.random() < 0.5 ? "Betting" : "Reward",//(下注中或開獎中?)"NewRound":新局開始，"Betting":下注中，"Reward":派獎中
+      "gameState": Math.random() < 0.5 ? "Betting" : "EndRound",//(下注中或開獎中?)"NewRound":新局開始，"Betting":下注中，"EndRound":下注結束
       "wagersID": 47378797,
       // "avatarID": 10,//頭像ID (隨機0~31) 共32組
       "betCreditList": [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],//遊戲籌碼注額
@@ -136,6 +136,13 @@ export const UpdateEndRoundData = new class {
     "data":
     {
       "gameState": "EndRound",//派獎中
+      //最後一筆前三名+其他玩家新增的下注額度
+      "newBets": [
+        [200, 0, 0, 0, 400, 0],
+        [0, 100, 0, 0, 100, 0],
+        [100, 0, 0, 0, 0, 100],
+        [0, 200, 0, 350, 0, 1200]
+      ],
       "pathID": Math.floor(Math.random() * 1000),//本局表演的路徑ID (隨機0~999) 
       "winColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 6)),//該局開獎顏色編號(0~5)
       "userPayoff": { "payoff": Math.floor(Math.random() * 1000), "credit": 2000 },
@@ -152,12 +159,12 @@ export const UpdateEndRoundData = new class {
       //   { "userID": 44444, "payoff": 100 }
       // ],
       //目前前三名，{用戶ID、顯示名稱、頭像ID、下注資料、餘額}
-      "rankings": [
-        { "userID": 11111, "displayName": 'john', "avatarID": 10, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 70000 },
-        { "userID": 22222, "displayName": 'kenny', "avatarID": 11, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 60000 },
-        { "userID": 33333, "displayName": 'simon', "avatarID": 12, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 50000 }
-      ],
-      "liveCount": 3 + Math.ceil(Math.random() * 30),//線上用戶人數
+      // "rankings": [
+      //   { "userID": 11111, "displayName": 'john', "avatarID": 10, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 70000 },
+      //   { "userID": 22222, "displayName": 'kenny', "avatarID": 11, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 60000 },
+      //   { "userID": 33333, "displayName": 'simon', "avatarID": 12, "betCredits": [200, 100, 0, 300, 400, 0], "credit": 50000 }
+      // ],
+      // "liveCount": 3 + Math.ceil(Math.random() * 30),//線上用戶人數
     }
   }
   public getData(): onUpdate {

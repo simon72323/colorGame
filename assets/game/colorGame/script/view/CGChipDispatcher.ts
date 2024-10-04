@@ -193,7 +193,7 @@ export class CGChipDispatcher extends Component {
                 this.clearTempBetData();//清除暫存下注資料
                 break;
             case BetType.ReBet:
-                this.showTipMessage("續押: " + CGUtils.NumDigits(this.reBetData.total));
+                // this.showTipMessage("續押: " + CGUtils.NumDigits(this.reBetData.total));
                 if (this.reBetData.state !== ReBetState.AutoBet) {
                     this.btnReBet.active = false;
                     this.btnAuto.active = true;
@@ -217,7 +217,7 @@ export class CGChipDispatcher extends Component {
                         this.betChip(i, chipID, chipCredit, BetType.CallBet);//跟注籌碼下注
                     }
                 }
-                this.showTipMessage("跟注: " + CGUtils.NumDigits(callBetTotal));
+                // this.showTipMessage("跟注: " + CGUtils.NumDigits(callBetTotal));
                 break;
         }
     }
@@ -360,58 +360,114 @@ export class CGChipDispatcher extends Component {
 
     /**
      * 生成派獎籌碼到注區
-     * @param betID 注區ID
-     * @param odds 倍率(生成籌碼數量)
+     * @param betOdds 注區倍率(生成籌碼數量)
      * @controller
      */
-    public payChipToBetArea(betID: number, odds: number) {
-        //0=其他用戶，1=本地用戶
-        for (let i = 0; i < 2; i++) {
-            const betChipPos = this.chipDispatcher.children[i].children[betID];//下注區籌碼父節點
-            if (betChipPos.children.length > 0) {
-                const payChip = new Node();
-                //生成派獎籌碼(會根據倍率生成數量不同)
-                for (let j = 0; j < odds; j++) {
-                    betChipPos.children.forEach(child => {
-                        const poolBetChip = this.pool.get(i === 0 ? this.betChipBlack : this.betChipColor) as ChipNode;//生成新籌碼
-                        const referChip = child as ChipNode;
-                        poolBetChip.parent = payChip;
-                        poolBetChip.ChipID = referChip.ChipID;
-                        poolBetChip.UserPosID = referChip.UserPosID;
-                        poolBetChip.getComponent(Sprite).spriteFrame = referChip.getComponent(Sprite).spriteFrame;
-                        poolBetChip.children[0].getComponent(Label).string = referChip.children[0].getComponent(Label).string;
-                        const chipPos = referChip.position;
-                        poolBetChip.setPosition(new Vec3(chipPos.x, chipPos.y + (j + 1) * (i === 0 ? 5 : 6), chipPos.z));//籌碼疊高
-                    });
+    public async payChipToBetArea(betOdds: number[]): Promise<void> {
+        return new Promise((resolve, reject) => {
+            for (let i = 0; i < betOdds.length; i++) {
+                if (betOdds[i] > 0) {
+                    for (let user = 0; user < 2; user++) {
+                        const betChipPos = this.chipDispatcher.children[user].children[i];//下注區籌碼父節點
+                        if (betChipPos.children.length > 0) {
+                            const payChip = new Node();
+                            //生成派獎籌碼(會根據倍率生成數量不同)
+                            for (let j = 0; j < betOdds[i]; j++) {
+                                betChipPos.children.forEach(child => {
+                                    const poolBetChip = this.pool.get(user === 0 ? this.betChipBlack : this.betChipColor) as ChipNode;//生成新籌碼
+                                    const referChip = child as ChipNode;
+                                    poolBetChip.parent = payChip;
+                                    poolBetChip.ChipID = referChip.ChipID;
+                                    poolBetChip.UserPosID = referChip.UserPosID;
+                                    poolBetChip.getComponent(Sprite).spriteFrame = referChip.getComponent(Sprite).spriteFrame;
+                                    poolBetChip.children[0].getComponent(Label).string = referChip.children[0].getComponent(Label).string;
+                                    const chipPos = referChip.position;
+                                    poolBetChip.setPosition(new Vec3(chipPos.x, chipPos.y + (j + 1) * (user === 0 ? 5 : 6), chipPos.z));//籌碼疊高
+                                });
+                            }
+                            payChip.parent = betChipPos;
+                            const bankWorldPos = this.chipDispatcher.getChildByName('BankerPos').getWorldPosition();
+                            payChip.position = bankWorldPos.subtract(betChipPos.getWorldPosition());
+                            payChip.setScale(Vec3.ZERO);
+                            tween(payChip)
+                                .to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'sineOut' })
+                                .delay(0.4)
+                                .to(0.5, { position: Vec3.ZERO }, { easing: 'sineOut' })
+                                .call(async () => {
+                                    // 將所有子節點移到betChipPos
+                                    while (payChip.children.length > 0) {
+                                        payChip.children[0].parent = betChipPos;
+                                    }
+                                    payChip.destroy();
+                                    this.chipScale(betChipPos);//籌碼縮放動態
+                                    await CGUtils.Delay(0.4);
+                                    //注區籌碼派彩給用戶
+                                    betChipPos.children.forEach(chip => {//判斷籌碼數量
+                                        const startNode = this.userPos.children[(chip as ChipNode).UserPosID];
+                                        const movePos = startNode.getWorldPosition().subtract(betChipPos.getWorldPosition());
+                                        console.log("派發給玩家", (chip as ChipNode).UserPosID)
+                                        tween(chip)
+                                            .to(0.5, { position: movePos }, { easing: 'sineOut' })
+                                            .call(() => this.pool.put(chip))
+                                            .start();
+                                    });
+                                    await CGUtils.Delay(0.5);
+                                    resolve();
+                                }).start();
+                        }
+                    }
                 }
-                payChip.parent = betChipPos;
-                const bankWorldPos = this.chipDispatcher.getChildByName('BankerPos').getWorldPosition();
-                payChip.position = bankWorldPos.subtract(betChipPos.getWorldPosition());
-                payChip.setScale(Vec3.ZERO);
-                tween(payChip)
-                    .to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'sineOut' })
-                    .delay(0.4)
-                    .to(0.5, { position: Vec3.ZERO }, { easing: 'sineOut' })
-                    .call(() => {
-                        payChip.children.forEach(child => child.parent = betChipPos);// 將所有子節點移到betChipPos
-                        payChip.destroy();
-                        this.chipScale(betChipPos);//籌碼縮放動態
-                    })
-                    .delay(0.4)
-                    .call(() => {
-                        //注區籌碼派彩給用戶
-                        betChipPos.children.forEach(chip => {//判斷籌碼數量
-                            const startNode = this.userPos.children[(chip as ChipNode).UserPosID];
-                            const movePos = startNode.getWorldPosition().subtract(betChipPos.getWorldPosition());
-                            tween(chip)
-                                .to(0.5, { position: movePos }, { easing: 'sineOut' })
-                                .call(() => { this.pool.put(chip) })
-                                .start();
-                        });
-                    }).start();
             }
-        }
+        });
     }
+
+    // private async payBetToUser(betID: number, user: number, odds: number): Promise<void> {
+    //     return new Promise((resolve, reject) => {
+    //         const betChipPos = this.chipDispatcher.children[user].children[betID];//下注區籌碼父節點
+    //         if (betChipPos.children.length > 0) {
+    //             const payChip = new Node();
+    //             //生成派獎籌碼(會根據倍率生成數量不同)
+    //             for (let j = 0; j < odds; j++) {
+    //                 betChipPos.children.forEach(child => {
+    //                     const poolBetChip = this.pool.get(user === 0 ? this.betChipBlack : this.betChipColor) as ChipNode;//生成新籌碼
+    //                     const referChip = child as ChipNode;
+    //                     poolBetChip.parent = payChip;
+    //                     poolBetChip.ChipID = referChip.ChipID;
+    //                     poolBetChip.UserPosID = referChip.UserPosID;
+    //                     poolBetChip.getComponent(Sprite).spriteFrame = referChip.getComponent(Sprite).spriteFrame;
+    //                     poolBetChip.children[0].getComponent(Label).string = referChip.children[0].getComponent(Label).string;
+    //                     const chipPos = referChip.position;
+    //                     poolBetChip.setPosition(new Vec3(chipPos.x, chipPos.y + (j + 1) * (user === 0 ? 5 : 6), chipPos.z));//籌碼疊高
+    //                 });
+    //             }
+    //             payChip.parent = betChipPos;
+    //             const bankWorldPos = this.chipDispatcher.getChildByName('BankerPos').getWorldPosition();
+    //             payChip.position = bankWorldPos.subtract(betChipPos.getWorldPosition());
+    //             payChip.setScale(Vec3.ZERO);
+    //             tween(payChip)
+    //                 .to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'sineOut' })
+    //                 .delay(0.4)
+    //                 .to(0.5, { position: Vec3.ZERO }, { easing: 'sineOut' })
+    //                 .call(async () => {
+    //                     payChip.children.forEach(child => child.parent = betChipPos);// 將所有子節點移到betChipPos
+    //                     payChip.destroy();
+    //                     this.chipScale(betChipPos);//籌碼縮放動態
+    //                     await CGUtils.Delay(0.4);
+    //                     //注區籌碼派彩給用戶
+    //                     betChipPos.children.forEach(chip => {//判斷籌碼數量
+    //                         const startNode = this.userPos.children[(chip as ChipNode).UserPosID];
+    //                         const movePos = startNode.getWorldPosition().subtract(betChipPos.getWorldPosition());
+    //                         console.log("派發給玩家", (chip as ChipNode).UserPosID)
+    //                         tween(chip)
+    //                             .to(0.5, { position: movePos }, { easing: 'sineOut' })
+    //                             .call(() => { this.pool.put(chip) })
+    //                             .start();
+    //                     });
+    //                     resolve();
+    //                 }).start();
+    //         }
+    //     });
+    // }
 
     /**
      * 更新寫入續押資料

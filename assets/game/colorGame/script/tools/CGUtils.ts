@@ -1,4 +1,4 @@
-import { Animation, Node, Button, director, UITransform, tween, Label, sp, EventHandler, Toggle } from "cc";
+import { Animation, Node, Button, director, UITransform, tween, Label, sp, EventHandler, Toggle, Director } from "cc";
 
 export class CGUtils {
     /**
@@ -160,6 +160,14 @@ export class CGUtils {
             [array[i], array[j]] = [array[j], array[i]];
         }
         return array;
+    }
+
+    /**
+     * 在下一幀更新後執行指定的函數
+     * @param callback 要執行的回調函數
+     */
+    public static nextFrame(callback: () => void): void {
+        director.once(Director.EVENT_AFTER_UPDATE, callback);
     }
 
     public static get parent(): { Site: 'XC' | '' } {

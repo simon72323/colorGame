@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label, Sprite, Toggle, UIOpacity, EventHandler, sys, Button } from 'cc';
+import { _decorator, Component, Node, Label, Sprite, Toggle, UIOpacity, EventHandler, sys, Button, director, Director } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
 import { CGDataService } from '../manager/CGDataService';
 
@@ -74,16 +74,16 @@ export class CGChipSetView extends Component {
      * @param event 觸發事件
      * @param selectChip 選擇的籌碼ID
      */
-    private chipSet(event: Event, selectChip: string) {
+    private async chipSet(event: Event, selectChip: string) {
         const id = parseInt(selectChip);
         const isChecked = this.chipToggle.children[id].getComponent(Toggle).isChecked;
         if (isChecked && this.chipSetIDing.length > 1)
             this.chipSetIDing.splice(this.chipSetIDing.indexOf(id), 1);
         else if (!isChecked)
             this.chipSetIDing.push(id);
-        this.scheduleOnce(() => {
+        CGUtils.nextFrame(()=>{
             this.updateChipSet();
-        }, 0);
+        });
     }
 
     /**
