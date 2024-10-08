@@ -6,7 +6,7 @@
   "files": [],
   "subMetas": {},
   "userData": {
-    "isBundle": true,
-    "bundleName": "CGLang_tw"
+    "bundleName": "CGLang_us",
+    "isBundle": true
   }
 }

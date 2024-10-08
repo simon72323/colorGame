@@ -1,5 +1,6 @@
 import { _decorator, Component, Node, Label, Sprite, SpriteFrame, EventHandler, Button } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
+import { AudioName, CGAudioManager } from '../manager/CGAudioManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGRoadView')
@@ -12,6 +13,8 @@ export class CGRoadView extends Component {
     private btnClose!: Node;
     @property([SpriteFrame])//路子區骰子顏色
     private roadColorSF!: SpriteFrame[];
+    @property(CGAudioManager)
+    public audioManager: CGAudioManager = null;
 
     /**
      * 設置按鈕事件監聽器
@@ -101,6 +104,7 @@ export class CGRoadView extends Component {
      * 路子視窗顯示
      */
     private roadMapPopupShow() {
+        this.audioManager.playOnceAudio(AudioName.BtnOpen);
         CGUtils.popupShow(this.roadMapPopup);
     }
 
@@ -108,6 +112,7 @@ export class CGRoadView extends Component {
      * 路子視窗關閉
      */
     private roadMapPopupHide() {
+        this.audioManager.playOnceAudio(AudioName.BtnClose);
         CGUtils.popupHide(this.roadMapPopup);
     }
 }

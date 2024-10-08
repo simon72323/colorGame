@@ -1,6 +1,6 @@
 import { _decorator, Component, Label, SpriteFrame, Sprite, Animation, UIOpacity, tween, Vec3, Color, Node, Vec2, instantiate } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
-import { Payoff } from '../enum/CGInterface';
+import { AudioName, CGAudioManager } from '../manager/CGAudioManager';
 // import { CGController } from '../controller/CGController';
 const { ccclass, property } = _decorator;
 
@@ -32,6 +32,8 @@ export class CGRoundView extends Component {
     private winOddSF: SpriteFrame[] = [];//倍率貼圖
     @property([SpriteFrame])
     private resultColorSF: SpriteFrame[] = [];//結算顏色貼圖
+    @property(CGAudioManager)
+    public audioManager: CGAudioManager = null;
 
     private chips: Node[] = [];
 
@@ -60,6 +62,7 @@ export class CGRoundView extends Component {
             child.getComponent(UIOpacity).opacity = 255;
         }
         this.stageTitle.children[0].active = true;//標題顯示
+        this.audioManager.playAudio(AudioName.TitleStartBet);
         this.betLight.active = true;//下注提示光
         await CGUtils.Delay(1);
         this.stageTitle.children[0].active = false;//標題隱藏
@@ -74,23 +77,28 @@ export class CGRoundView extends Component {
      */
     public async setCountdown(time: number, betTotalTime: number) {
         const betTimeNode = this.betTime;
+        const labelNode = betTimeNode.getChildByName('Label');
+        const comLabel = labelNode.getComponent(Label);
+        comLabel.string = time.toString();//顯示秒數
         if (time <= 0) {
-            await CGUtils.Delay(0.1);
+            this.audioManager.playAudio(AudioName.TimeUp);
+            tween(labelNode).to(0.2, { scale: new Vec3(1.4, 1.4, 1) }, { easing: 'sineOut' })
+                .then(tween(labelNode).to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'backOut' }))
+                .start();
+            await CGUtils.Delay(1);
             betTimeNode.active = false;
         } else {
-            const labelNode = betTimeNode.getChildByName('Label');
-            const comLabel = labelNode.getComponent(Label);
-            comLabel.string = time.toString();//顯示秒數
             labelNode.setScale(new Vec3(1, 1, 1));
             const lastUIOpacity = betTimeNode.getChildByName('Last').getComponent(UIOpacity);
             lastUIOpacity.opacity = 0;
             if (time <= 5) {
+                this.audioManager.playAudio(AudioName.Countdown);
                 comLabel.color = new Color(255, 0, 0, 255);
-                tween(betTimeNode).to(0.5, { scale: new Vec3(1.1, 1.1, 1) })
-                    .then(tween(betTimeNode).to(0.5, { scale: new Vec3(1, 1, 1) }))
+                tween(betTimeNode).to(0.3, { scale: new Vec3(1.15, 1.15, 1) })
+                    .then(tween(betTimeNode).to(0.7, { scale: new Vec3(1, 1, 1) }))
                     .start();
-                tween(lastUIOpacity).to(0.5, { opacity: 255 })
-                    .then(tween(lastUIOpacity).to(0.5, { opacity: 0 }))
+                tween(lastUIOpacity).to(0.3, { opacity: 255 })
+                    .then(tween(lastUIOpacity).to(0.7, { opacity: 0 }))
                     .start();
             }
             else
@@ -111,6 +119,7 @@ export class CGRoundView extends Component {
      */
     public async betStop() {
         this.stageTitle.children[1].active = true;
+        this.audioManager.playAudio(AudioName.TitleStopBet);
         await CGUtils.Delay(1);
         this.stageTitle.children[1].active = false;
     }
@@ -126,7 +135,6 @@ export class CGRoundView extends Component {
     public async endRound(winColor: number[], localWinArea: number[], betOdds: number[], payoff: number) {
         this.bgLight.getComponent(Animation).play('BgLightOpen');//背景燈閃爍
         this.betWin.active = true;
-
         const winNum = new Set(winColor);//過濾重複數字
         for (let i of winNum) {
             this.betWin.children[i].active = true;
@@ -135,6 +143,7 @@ export class CGRoundView extends Component {
             if (betOdds[i] > 0) {
                 if (localWinArea.indexOf(i) !== -1) {
                     const winFx = this.localWinFx.children[i];
+                    this.audioManager.playAudio(AudioName.BetWin);
                     winFx.active = true;
                     const winOddSFID = betOdds[i] > 2 ? 2 : betOdds[i] - 1;//判斷倍率貼圖顯示
                     winFx.children[0].getComponent(Sprite).spriteFrame = this.winOddSF[winOddSFID];
@@ -145,16 +154,17 @@ export class CGRoundView extends Component {
         //本地用戶勝利設置
         if (payoff > 0) {
             //size===1代表開骰3顆骰子同一個id
-            if (winNum.size === 1)
+            if (winNum.size === 1) {
+                this.audioManager.playAudio(AudioName.BigWin);
                 await this.runBigWin(payoff);//大獎顯示
-            else {
-                const WinCreditLabel = this.infoBar.getChildByName('Win').getChildByName('WinCredit').getChildByName('Label');
-                WinCreditLabel.getComponent(Label).string = CGUtils.NumDigits(payoff);
-                this.infoBar.getComponent(Animation).play('InfoBarWin');
             }
+            const WinCreditLabel = this.infoBar.getChildByName('Win').getChildByName('WinCredit').getChildByName('Label');
+            WinCreditLabel.getComponent(Label).string = CGUtils.NumDigits(payoff);
+            this.infoBar.getComponent(Animation).play('InfoBarWin');
         }
         //顯示結算彈窗
         this.result.active = true;
+        this.audioManager.playAudio(AudioName.Result);
         for (let i = 0; i < 3; i++) {
             this.result.getChildByName(`Dice${i}`).getComponent(Sprite).spriteFrame = this.resultColorSF[winColor[i]];
         }
@@ -182,11 +192,11 @@ export class CGRoundView extends Component {
             this.bigWin.getComponent(Animation).play('BigWinShow');
             const label = this.bigWin.getChildByName('WinCredit').getChildByName('Label').getComponent(Label);
             label.string = '0';
-            CGUtils.runCredit(1.2, winCredit, label);
+            CGUtils.runCredit(1.7, winCredit, label);
             this.chipRunAndDistroy(30, new Vec2(500, 300));//噴籌碼
-            await CGUtils.Delay(1.1);
+            await CGUtils.Delay(1.6);
             this.bigWin.getComponent(Animation).play('BigWinHide');
-            await CGUtils.Delay(0.6);
+            await CGUtils.Delay(0.5);
             this.scheduleOnce(() => {
                 this.bigWin.active = false;
             }, 0.2)
@@ -213,6 +223,8 @@ export class CGRoundView extends Component {
         const instCoin = instantiate(this.chips[Math.floor(Math.random() * this.chips.length)]);
         const chipParent = new Node();
         chipParent.addChild(instCoin);
+        instCoin.position = new Vec3(0, 0, 0);
+        instCoin.active = true;
         this.bigWin.getChildByName('CreatChip').addChild(chipParent);
         // 計算籌碼的移動距離
         const moveX = size.x * (Math.random() * 2 - 1);

@@ -1,52 +1,52 @@
-export interface BaseSoundFilesDirectory {
-    [key: string]: string;
-}
-export interface SoundFilesDirectory extends BaseSoundFilesDirectory {
-    BasicMusic: string;
-    FGBakcgroundMusic: string;
-    DiceSeats: string;
-    ButtonClick: string;
-    Roll: string;
-    RollStop: string;
-    RollDrop: string;
-    TileSet: string;
-    TileMerge: string;
-    TileSetup: string;
-    Pong: string;
-    Kong: string;
-    ReadyHand: string;
-    Mahjong: string;
-    RollMoney: string;
-    Miroll: string;
-    Scatter: string;
-    FGInto: string;
-    FGAdd: string;
-    FGGet: string;
-    Win: string;
-    BigWin: string;
-    MegaWin: string;
-    SuperWin: string;
-    Mjslc: string;
-    Huwin: string;
-    WinHandsHeavenlyHand: string;
-    WinHandsAllHonors: string;
-    WinHandsBigFourWinds: string;
-    WinHandsEarthlyHand: string;
-    WinHandsAllOfOneSuit: string;
-    WinHandsBigThreeDragons: string;
-    WinHandsAllEightFlowers: string;
-    WinHandsMixedOneSuit: string;
-    WinHandsAllPongs: string;
-    WinHandsFlowerKong: string;
-    WinHandsWinningOnKong: string;
-    WinHandsExposedKong: string;
-    WinHandsFlowerTiles: string;
-    WinHandsFlower: string;
-    WinHandsHonorTiles: string;
-    WinScore: string;
-}
+// export interface BaseSoundFilesDirectory {
+//     [key: string]: string;
+// }
+// export interface SoundFilesDirectory {
+//     BasicMusic: string;
+//     FGBakcgroundMusic: string;
+//     DiceSeats: string;
+//     ButtonClick: string;
+//     Roll: string;
+//     RollStop: string;
+//     RollDrop: string;
+//     TileSet: string;
+//     TileMerge: string;
+//     TileSetup: string;
+//     Pong: string;
+//     Kong: string;
+//     ReadyHand: string;
+//     Mahjong: string;
+//     RollMoney: string;
+//     Miroll: string;
+//     Scatter: string;
+//     FGInto: string;
+//     FGAdd: string;
+//     FGGet: string;
+//     Win: string;
+//     BigWin: string;
+//     MegaWin: string;
+//     SuperWin: string;
+//     Mjslc: string;
+//     Huwin: string;
+//     WinHandsHeavenlyHand: string;
+//     WinHandsAllHonors: string;
+//     WinHandsBigFourWinds: string;
+//     WinHandsEarthlyHand: string;
+//     WinHandsAllOfOneSuit: string;
+//     WinHandsBigThreeDragons: string;
+//     WinHandsAllEightFlowers: string;
+//     WinHandsMixedOneSuit: string;
+//     WinHandsAllPongs: string;
+//     WinHandsFlowerKong: string;
+//     WinHandsWinningOnKong: string;
+//     WinHandsExposedKong: string;
+//     WinHandsFlowerTiles: string;
+//     WinHandsFlower: string;
+//     WinHandsHonorTiles: string;
+//     WinScore: string;
+// }
 
-export const SoundFiles: SoundFilesDirectory = {
+export const SoundFiles = {
     // MG遊戲背景音
     BasicMusic: 'music/pph_bgm',
     // FG遊戲背景音

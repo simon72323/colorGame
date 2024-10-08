@@ -13,6 +13,7 @@ import { IBetHandler } from '../enum/CGInterface';
 import { CGRankView } from '../view/CGRankView';
 import { CGDataService } from '../manager/CGDataService';
 import { CGUtils } from '../tools/CGUtils';
+import { AudioName, CGAudioManager } from '../manager/CGAudioManager';
 
 const { ccclass, property } = _decorator;
 
@@ -40,15 +41,19 @@ export class CGController extends Component {
     @property(CGMarquee)//跑馬燈腳本
     private Marquee: CGMarquee = null;
 
-    @property(Node)
+    @property(CGAudioManager)
+    public audioManager: CGAudioManager = null;
+
+    @property({ type: Node, group: { name: "UI", id: '1' } })
     private waitNewRound!: Node;//等待派獎畫面
-    @property(Node)
+    @property({ type: Node, group: { name: "UI", id: '1' } })
     private lockBetArea!: Node;//禁用下注區，介面區域
 
     private isOnBet: boolean = false;//如果等待確認下注中，就不能清除暫存的籌碼(會有錯誤)
 
     private betHandler: IBetHandler | null = null;
     private dataService: CGDataService;//數據服務
+
 
     public setBetHandler(handler: IBetHandler) {
         this.betHandler = handler;
@@ -65,6 +70,14 @@ export class CGController extends Component {
         // this.initWebSocket();
         //開始模擬server發送消息
         // this.startSimulatingServerMessages();
+    }
+
+    /**
+     * 加入遊戲成功後
+     */
+    private joinGameCompleted() {
+        this.audioManager.playLoopAudio(AudioName.Bgm);//播放背景音
+        this.resetUI();
     }
 
     /**
@@ -109,18 +122,20 @@ export class CGController extends Component {
         // !this.isOnBet && this.chipDispatcher.clearTempBetChip();//如果沒有等待下注回傳中，就清除暫存籌碼
         await CGUtils.Delay(1);
         this.chipDispatcher.updateReBetData(model.betTotal, model.userBetAreaCredits);//更新寫入續押資料
+        this.audioManager.playAudio(AudioName.DiceRotate);
         await this.diceRunView.diceStart(model.pathID, winColor);//骰子表演
         const { localWinArea, betOdds } = model.calculateWinData(winColor);//計算表演所需參數
         this.roundView.endRound(winColor, localWinArea, betOdds, userPayoff.payoff)//表演開獎結果
-        await CGUtils.Delay(1);
+        await CGUtils.Delay(1.4);
         for (let i = 0; i < betOdds.length; i++) {
             betOdds[i] === 0 && this.chipDispatcher.recycleChip(i);//回收未中獎的籌碼 
         }
-        await CGUtils.Delay(0.9);
+        await CGUtils.Delay(1);
         await this.chipDispatcher.payChipToBetArea(betOdds);//派發籌碼
         model.betTotal = 0;//清空注額
         //本地玩家加分
         if (userPayoff.payoff > 0) {
+            this.audioManager.playAudio(AudioName.AddPay);
             this.roundView.showAddCredit(userPayoff.payoff);//顯示加分
             model.credit = userPayoff.credit;//用戶額度更新
         }
@@ -137,6 +152,7 @@ export class CGController extends Component {
      * @param betID 注區ID
      */
     private betAreaPressed(betID: string) {
+        this.audioManager.playOnceAudio(AudioName.BtnOpen);
         if (this.lockBetArea.active)
             return;
         const data = this.dataService;
@@ -149,16 +165,17 @@ export class CGController extends Component {
      * ==========確認下注按鈕按下==========
      */
     private btnBetConfirmDown() {
+        this.audioManager.playOnceAudio(AudioName.BtnOpen);
         // console.log("下注分數", this.chipDispatcher.tempBetCredits)
         this.isOnBet = true;//等待下注回傳中
         this.sendOnBet(this.chipDispatcher.getTempAreaCredits(), BetType.NewBet);
     }
 
 
-    //傳送每秒下注新增總額
-    private sendAllOnBet() {
+    // //傳送每秒下注新增總額
+    // private sendAllOnBet() {
 
-    }
+    // }
 
     /**
      * ==========續押按鈕按下==========
@@ -166,6 +183,7 @@ export class CGController extends Component {
      * @param state 續押狀態
      */
     private btnReBetDown(event: Event, state: string) {
+        this.audioManager.playOnceAudio(AudioName.BtnOpen);
         const reBetAreaCredits = this.chipDispatcher.setReBet(state as ReBetState);//續押各注區注額
         reBetAreaCredits != null && this.sendOnBet(reBetAreaCredits, BetType.ReBet);//傳送續押各注區注額
     }
@@ -222,6 +240,7 @@ export class CGController extends Component {
         if (betType === BetType.NewBet)
             this.isOnBet = false; // 取消等待下注回傳中
         if (!msg.event) {
+            this.audioManager.playOnceAudio(AudioName.Error);
             chipDispatcher.betError(betType);
             return;
         }
@@ -262,7 +281,7 @@ export class CGController extends Component {
         model.betTotalTime = betTotalTime;
         model.totalBetAreaCredits = totalBetAreaCredits;//更新注區額度
         this.dataService.betCreditList = betCreditList;
-        this.resetUI();//初始化參數
+        this.joinGameCompleted();//加入遊戲完成
         switch (gameState) {
             case GameState.NewRound:
             case GameState.Betting:
@@ -314,7 +333,8 @@ export class CGController extends Component {
                     this.lockBetArea.active = true;//顯示禁用下注區
                     this.roundView.betStop();//停止下注
                     this.zoomView.zoomHideing();//放大鏡功能隱藏
-                    !this.isOnBet && this.chipDispatcher.clearTempBetChip();//如果沒有等待下注回傳中，就清除暫存籌碼
+                    if (!this.isOnBet)
+                        this.chipDispatcher.clearTempBetChip();//如果沒有等待下注回傳中，就清除暫存籌碼
                 }
                 break;
             case GameState.EndRound:

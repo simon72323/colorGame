@@ -1,6 +1,7 @@
 import { _decorator, Component, Node, Label, Sprite, Toggle, UIOpacity, EventHandler, sys, Button, director, Director } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
 import { CGDataService } from '../manager/CGDataService';
+import { AudioName, CGAudioManager } from '../manager/CGAudioManager';
 
 const { ccclass, property } = _decorator;
 @ccclass('CGChipSetView')
@@ -19,6 +20,9 @@ export class CGChipSetView extends Component {
     private chipSetPopup!: Node;
     @property(Node)//籌碼Toggle
     private chipToggle!: Node;
+
+    @property(CGAudioManager)
+    public audioManager: CGAudioManager = null;
 
     private chipSetID: number[];//用戶針對此遊戲設置的籌碼ID
     private defaultChipSetID: number[] = [0, 1, 2, 3, 4];//預設籌碼
@@ -75,6 +79,7 @@ export class CGChipSetView extends Component {
      * @param selectChip 選擇的籌碼ID
      */
     private async chipSet(event: Event, selectChip: string) {
+        this.audioManager.playOnceAudio(AudioName.BtnOpen);
         const id = parseInt(selectChip);
         const isChecked = this.chipToggle.children[id].getComponent(Toggle).isChecked;
         if (isChecked && this.chipSetIDing.length > 1)
@@ -99,6 +104,7 @@ export class CGChipSetView extends Component {
      * 籌碼設置使用預設值
      */
     private chipSetDefault() {
+        this.audioManager.playOnceAudio(AudioName.BtnOpen);
         this.chipSetIDing = [...this.defaultChipSetID];
         this.saveChipSetID();
         this.updateChipSet();//更新籌碼設置(設置頁面)
@@ -108,6 +114,7 @@ export class CGChipSetView extends Component {
      * 打開籌碼設置視窗
      */
     private chipSetPopupShow() {
+        this.audioManager.playOnceAudio(AudioName.BtnOpen);
         this.chipSetIDing = [...this.chipSetID];
         this.updateChipSet();//更新籌碼設置(設置頁面)
         CGUtils.popupShow(this.chipSetPopup);
@@ -117,6 +124,7 @@ export class CGChipSetView extends Component {
      * 關閉籌碼設置視窗
      */
     private chipSetPopupHide() {
+        this.audioManager.playOnceAudio(AudioName.BtnClose);
         CGUtils.popupHide(this.chipSetPopup);
     }
 
@@ -146,6 +154,7 @@ export class CGChipSetView extends Component {
      * @param touchPos 被選中籌碼的位置索引
      */
     private setTouchChipID(event: Event, touchPos: string) {
+        this.audioManager.playOnceAudio(AudioName.ChipSelect);
         const posID = parseInt(touchPos);
         this.dataService.touchChipID = this.chipSetID[posID];
         this.dataService.touchChipPosID = posID;

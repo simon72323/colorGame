@@ -1,5 +1,6 @@
 import { _decorator, Component, Node, Vec3, tween, Tween } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
+import { AudioName, CGAudioManager } from '../manager/CGAudioManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGZoomView')
@@ -28,12 +29,15 @@ export class CGZoomView extends Component {
     private btnClose!: Node;//關閉彈窗按鈕
     @property(Node)
     private zoomCamera!: Node;//zoom攝影機
-    @property(Node)
-    private btnOn!: Node;//zoom按鈕顯示
+    @property([Node])
+    private btnOn: Node[] = [];//zoom按鈕顯示
     @property([Node])
     private btnChange: Node[] = [];//change按鈕(上下左右，1~4)
+    @property(CGAudioManager)
+    public audioManager: CGAudioManager = null;
 
     private isOpen = false;//記錄使否開啟狀態
+    private isBet = false;//是否下注狀態
 
     /**
      * 設置按鈕事件監聽器
@@ -61,6 +65,7 @@ export class CGZoomView extends Component {
      * zoom彈窗顯示
      */
     private zoomPopupShow() {
+        this.audioManager.playOnceAudio(AudioName.BtnOpen);
         this.isOpen = true;
         this.zoomCamera.setPosition(this.cameraPos[0]);
         this.zoomCamera.setRotationFromEuler(this.cameraEuler[0]);
@@ -80,9 +85,10 @@ export class CGZoomView extends Component {
      * @param zoomID 視角ID，依次為：正、上、下、左、右(0~4)
      */
     private zoomRun(zoomID: number) {
+        console.log("視角轉換:", zoomID)
         this.hideBtn();
         if (zoomID > 0)
-            this.btnOn.children[zoomID - 1].active = true;
+            this.btnChange[zoomID - 1].children[0].active = true;
         tween(this.zoomCamera).to(0.2, { position: this.cameraPos[zoomID], eulerAngles: this.cameraEuler[zoomID] }, { easing: 'sineOut' }).start();
     }
 
@@ -91,6 +97,7 @@ export class CGZoomView extends Component {
      * @controller
      */
     public zoomHideing() {
+        this.isBet = false;
         this.btnZoom.active = false;
         this.zoomPopup.active = false;
     }
@@ -100,6 +107,7 @@ export class CGZoomView extends Component {
      * @controller
      */
     public zoomShowing() {
+        this.isBet = true;
         this.btnZoom.active = !this.isOpen;
         this.zoomPopup.active = this.isOpen;
     }
@@ -110,6 +118,7 @@ export class CGZoomView extends Component {
      * @param zoomID 視角ID
      */
     private zoomChange(event: Event, zoomID: string) {
+        this.audioManager.playOnceAudio(AudioName.BtnOpen);
         Tween.stopAllByTarget(this.zoomCamera);
         this.zoomRun(parseInt(zoomID));
     }
@@ -118,8 +127,8 @@ export class CGZoomView extends Component {
      * 隱藏控制按鈕
      */
     private hideBtn() {
-        for (const child of this.btnOn.children) {
-            child.active = false;
+        for (let i = 0; i < this.btnChange.length; i++) {
+            this.btnChange[i].children[0].active = false;
         }
     }
 
@@ -127,11 +136,13 @@ export class CGZoomView extends Component {
      * zoom彈窗隱藏
      */
     private zoomPopupHide() {
+        this.audioManager.playOnceAudio(AudioName.BtnClose);
         this.isOpen = false;
         CGUtils.popupHide(this.zoomPopup);
         setTimeout(() => {
             Tween.stopAllByTarget(this.zoomCamera);
-            this.btnZoom.active = true;
+            if (this.isBet)
+                this.btnZoom.active = true;
         }, 200)
     }
 }

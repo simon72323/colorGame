@@ -6,7 +6,6 @@ import { PathInfo } from "../enum/CGInterface";
 export class CGPathManager {
 
     private static singleton: CGPathManager = null;
-
     protected _isSingleton: boolean = false;
     get isSingleton(): boolean { return this._isSingleton; }
 

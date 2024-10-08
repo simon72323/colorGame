@@ -3,6 +3,7 @@ import PoolHandler from '../tools/PoolHandler';
 import { CGUtils } from '../tools/CGUtils';
 import { CGDataService } from '../manager/CGDataService';
 import { BetType, ReBetData, ReBetState, TempBetData } from '../enum/CGInterface';
+import { AudioName, CGAudioManager } from '../manager/CGAudioManager';
 const { ccclass, property } = _decorator;
 
 //生成籌碼屬性設置
@@ -45,20 +46,18 @@ export class CGChipDispatcher extends Component {
     private betChipColor: Prefab = null;//本地用戶下注籌碼
     @property(Prefab)
     private tipPrefab: Prefab = null;//提示訊息
+    @property(CGAudioManager)
+    public audioManager: CGAudioManager = null;
 
     private reBetData: ReBetData = null;//本地續押資料
     private tempBetData: TempBetData = null;//本地暫存資料
     private pool: PoolHandler = null;
     private dataService: CGDataService;//數據服務
 
-
-
-
     /**
      * 設置按鈕事件監聽器
      */
     protected onLoad(): void {
-
         this.dataService = CGDataService.getInstance();//實例化數據服務;
         for (let i = 0; i < this.btnCall.length; i++) {
             this.bindButtonEvent(this.btnCall[i], 'btnCallDown', i.toString());//跟注按鈕事件
@@ -67,11 +66,11 @@ export class CGChipDispatcher extends Component {
             this.bindButtonEvent(this.btnStopCall[i], 'btnStopCallDown', i.toString());//停止跟注按鈕事件件
         }
         this.bindButtonEvent(this.betTopBtns.getChildByName('BtnBetUndo'), 'betUndo');//返回上一步按鈕事件
-        this.bindButtonEvent(this.betTopBtns.getChildByName('BtnBetCancel'), 'clearTempBetChip');//取消下注按鈕事件
+        this.bindButtonEvent(this.betTopBtns.getChildByName('BtnBetClear'), 'clearTempBetChip');//清除下注按鈕事件
 
         this.pool = PoolHandler.getInstance();//獲得pool池實例
         window.onbeforeunload = () => {
-            console.log("清除物件池");
+            // console.log("清除物件池");
             this.pool.destroy(); // 清除池
         };
         //初始化參數
@@ -117,6 +116,7 @@ export class CGChipDispatcher extends Component {
      * 跟注按鈕按下
      */
     private btnCallDown(event: Event, customEventData: string) {
+        this.audioManager.playOnceAudio(AudioName.BtnOpen);
         const id = parseInt(customEventData);
         this.updateBetCallUI(id, true);//啟用跟注
     }
@@ -125,6 +125,7 @@ export class CGChipDispatcher extends Component {
      * 取消跟注按鈕按下
      */
     private btnStopCallDown(event: Event, customEventData: string) {
+        this.audioManager.playOnceAudio(AudioName.BtnClose);
         const id = parseInt(customEventData);
         this.updateBetCallUI(id, false);//停用跟注
     }
@@ -143,6 +144,7 @@ export class CGChipDispatcher extends Component {
      * 返回上一步按下
      */
     private betUndo() {
+        this.audioManager.playOnceAudio(AudioName.BtnClose);
         const lastChip = this.tempBetData.chipNode.pop();// 刪除最後一個籌碼
         this.pool.put(lastChip);
         const chipCredit = this.tempBetData.chipCredit.pop();// 刪除最後一個額度
@@ -168,8 +170,8 @@ export class CGChipDispatcher extends Component {
     public clearTempBetChip() {
         while (this.tempBetData.chipNode.length > 0) {
             const chip = this.tempBetData.chipNode.pop();
-            chip.getComponent(UIOpacity).opacity = 255; //還原透明度
-            this.pool.put(chip); // 退还所有
+            // chip.getComponent(UIOpacity).opacity = 255; //還原透明度
+            this.pool.put(chip); // 退還所有
         }
         this.clearTempBetData();//清除暫存下注資料
     }
@@ -323,6 +325,7 @@ export class CGChipDispatcher extends Component {
         const movePos = new Vec3(betChipWidth / 2 - Math.random() * betChipWidth, betChipHeight / 2 - Math.random() * betChipHeight, 0);//籌碼移動位置
         tween(poolBetChip).to(0.3, { position: movePos }, { easing: 'sineOut' })
             .call(() => {
+                this.audioManager.playAudio(AudioName.ChipBet);
                 this.chipScale(poolBetChip);//籌碼縮放動態
             }).start();
     }
@@ -370,11 +373,17 @@ export class CGChipDispatcher extends Component {
                     for (let user = 0; user < 2; user++) {
                         const betChipPos = this.chipDispatcher.children[user].children[i];//下注區籌碼父節點
                         if (betChipPos.children.length > 0) {
+                            if (betOdds.filter(odds => odds > 0).length === 1)
+                                this.audioManager.playAudio(AudioName.ChipPayMany);
+                            else
+                                this.audioManager.playAudio(AudioName.ChipPayLess);
                             const payChip = new Node();
                             //生成派獎籌碼(會根據倍率生成數量不同)
                             for (let j = 0; j < betOdds[i]; j++) {
                                 betChipPos.children.forEach(child => {
                                     const poolBetChip = this.pool.get(user === 0 ? this.betChipBlack : this.betChipColor) as ChipNode;//生成新籌碼
+                                    if (user === 1)
+                                        poolBetChip.getComponent(UIOpacity).opacity = 255;
                                     const referChip = child as ChipNode;
                                     poolBetChip.parent = payChip;
                                     poolBetChip.ChipID = referChip.ChipID;
@@ -391,7 +400,7 @@ export class CGChipDispatcher extends Component {
                             payChip.setScale(Vec3.ZERO);
                             tween(payChip)
                                 .to(0.3, { scale: new Vec3(1, 1, 1) }, { easing: 'sineOut' })
-                                .delay(0.4)
+                                .delay(0.5)
                                 .to(0.5, { position: Vec3.ZERO }, { easing: 'sineOut' })
                                 .call(async () => {
                                     // 將所有子節點移到betChipPos
@@ -400,12 +409,12 @@ export class CGChipDispatcher extends Component {
                                     }
                                     payChip.destroy();
                                     this.chipScale(betChipPos);//籌碼縮放動態
-                                    await CGUtils.Delay(0.4);
+                                    await CGUtils.Delay(0.5);
                                     //注區籌碼派彩給用戶
                                     betChipPos.children.forEach(chip => {//判斷籌碼數量
                                         const startNode = this.userPos.children[(chip as ChipNode).UserPosID];
                                         const movePos = startNode.getWorldPosition().subtract(betChipPos.getWorldPosition());
-                                        console.log("派發給玩家", (chip as ChipNode).UserPosID)
+                                        // console.log("派發給玩家", (chip as ChipNode).UserPosID)
                                         tween(chip)
                                             .to(0.5, { position: movePos }, { easing: 'sineOut' })
                                             .call(() => this.pool.put(chip))

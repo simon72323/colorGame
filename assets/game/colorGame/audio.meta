@@ -6,7 +6,6 @@
   "files": [],
   "subMetas": {},
   "userData": {
-    "isBundle": true,
     "bundleFilterConfig": [
       {
         "range": "include",
@@ -19,6 +18,7 @@
           ""
         ]
       }
-    ]
+    ],
+    "bundleName": "CGAudio"
   }
 }

@@ -35,13 +35,13 @@ export const JoinGameData = new class {
     "event": true,
     "data":
     {
-      "gameState": Math.random() < 0.5 ? "Betting" : "EndRound",//(下注中或開獎中?)"NewRound":新局開始，"Betting":下注中，"EndRound":下注結束
+      "gameState": "EndRound",//(下注中或開獎中?)"NewRound":新局開始，"Betting":下注中，"EndRound":下注結束
       "wagersID": 47378797,
       // "avatarID": 10,//頭像ID (隨機0~31) 共32組
       "betCreditList": [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],//遊戲籌碼注額
       "startColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 36)),//該局起始顏色編號(0~35)
       "countdown": 10,//剩餘下注時間
-      "betTotalTime": 10,//遊戲下注時間(彈性調整)
+      "betTotalTime": 15,//遊戲下注時間(彈性調整)
       //前100局路子顏色[新到舊]
       "roadMap": Array.from({ length: 100 }, () => Array.from({ length: 3 }, () => Math.floor(Math.random() * 6))),
       // "betCredits": [200, 100, 0, 300, 400, 0], // 本地用戶各注區下注分
@@ -54,7 +54,7 @@ export const JoinGameData = new class {
       ],
       "liveCount": 3 + Math.ceil(Math.random() * 30),//其他用戶人數
       // "pathID": Math.floor(Math.random() * 1000),//本局表演的路徑ID (隨機0~999) 
-      "winColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 6)),//該局開獎顏色編號(0~5)
+      "winColor": [1, 2, 3],//該局開獎顏色編號(0~5)
       // "userPayoff": { "payoff": Math.floor(Math.random() * 1000), "credit": 2000 },
       // "ranksPayoff": [
       //   { "payoff": Math.floor(Math.random() * 1000), "credit": 20000 },
@@ -64,6 +64,7 @@ export const JoinGameData = new class {
     }
   }
   public getData(): onJoinGame {
+    this.msg.data.winColor = [1, 2, 3];
     return this.msg;
   }
 }
@@ -129,6 +130,7 @@ export const UpdateBettingData = new class {
 
 //更新派彩資料
 export const UpdateEndRoundData = new class {
+  private index = -1;
   private msg: onUpdate = {
     "action": "onUpdate",
     "event": true,
@@ -144,8 +146,8 @@ export const UpdateEndRoundData = new class {
         [0, 200, 0, 350, 0, 1200]
       ],
       "pathID": Math.floor(Math.random() * 1000),//本局表演的路徑ID (隨機0~999) 
-      "winColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 6)),//該局開獎顏色編號(0~5)
-      "userPayoff": { "payoff": Math.floor(Math.random() * 1000), "credit": 2000 },
+      "winColor": [0, 0, 0],//該局開獎顏色編號(0~5)
+      "userPayoff": { "payoff": 500, "credit": 2000 },
       "ranksPayoff": [
         { "payoff": Math.floor(Math.random() * 1000), "credit": 20000 },
         { "payoff": Math.floor(Math.random() * 1000), "credit": 20000 },
@@ -167,9 +169,25 @@ export const UpdateEndRoundData = new class {
       // "liveCount": 3 + Math.ceil(Math.random() * 30),//線上用戶人數
     }
   }
+
+  public getWinColor() {
+    this.index++;
+    if (this.index > 5)
+      this.index = 5;
+    const show = [
+      [1, 2, 2],
+      [3, 3, 3],
+      [1, 4, 0],
+      [4, 4, 4],
+      [1, 2, 3],
+      [1, 1, 1]
+    ];
+    console.log("開獎", show[this.index])
+    return show[this.index];
+  }
   public getData(): onUpdate {
     this.msg.data.pathID = Math.floor(Math.random() * 1000);
-    this.msg.data.winColor = Array.from({ length: 3 }, () => Math.floor(Math.random() * 6));
+    this.msg.data.winColor = this.getWinColor();
     return this.msg;
   }
 }

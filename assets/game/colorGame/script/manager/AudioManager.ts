@@ -21,7 +21,7 @@ export interface IAudioManager {
     // 停止指定檔案
     stop(soundId: string);
     // 背景音樂跟音效切換
-    playEffect(options:{ soundId: string, duration: number, loop: boolean });
+    playEffect(options: { soundId: string, duration: number, loop: boolean });
     // 關閉切回
     stopEffect(duration: number);
     // Promise: play
@@ -33,11 +33,9 @@ export interface IAudioManager {
 }
 
 export class AudioManager implements IAudioManager {
-    
+
     private static singleton: AudioManager = null;
-
     private _isSingleton: boolean = false;
-
     get isSingleton(): boolean { return this._isSingleton; };
 
     protected bundleName: string = "audio";
@@ -57,9 +55,9 @@ export class AudioManager implements IAudioManager {
     public isMuted: boolean = false;
 
     protected isMutedBeforeHiding: boolean = false;
-    
+
     protected audioQueue: AudioSource[] = [];
-    
+
     public sourcesList: AudioClip[] = new Array<AudioClip>();
 
     private sourcesMap: Map<string, AudioClip> = new Map();
@@ -80,12 +78,12 @@ export class AudioManager implements IAudioManager {
         this.directory = SoundFiles;// 讀取定義設定檔案
         // this.loadDirectory(SoundFiles);
 
-        game.on(Game.EVENT_HIDE, ()=>{
+        game.on(Game.EVENT_HIDE, () => {
             this.isMutedBeforeHiding = this.isMuted;
             this.muted(true);
         }, this);
 
-        game.on(Game.EVENT_SHOW, ()=>{
+        game.on(Game.EVENT_SHOW, () => {
             this.muted(this.isMutedBeforeHiding);
         }, this);
 
@@ -158,7 +156,7 @@ export class AudioManager implements IAudioManager {
             if (clip) this.addSource(filePath, clip);
         }
         // log(`Audio load completed.`);
-        
+
     }
     // 讀取定義設定檔案
     // public loadDirectory(directory: SoundFilesDirectory) {
@@ -190,7 +188,7 @@ export class AudioManager implements IAudioManager {
         }
         return audio;
     }
-    addSource<T extends keyof SoundFilesDirectory & string>(name: T, clip: AudioClip):boolean {
+    addSource<T extends keyof SoundFilesDirectory & string>(name: T, clip: AudioClip): boolean {
         const { sourcesList, sourcesMap } = this;
         if (!sourcesMap.has(name)) {
             sourcesList.push(clip);
@@ -203,34 +201,42 @@ export class AudioManager implements IAudioManager {
         const { sourcesMap } = this;
         return sourcesMap.has(name);
     }
-    getSource<T extends keyof SoundFilesDirectory & string>(name: T):AudioClip {
+    getSource<T extends keyof SoundFilesDirectory & string>(name: T): AudioClip {
         return this.sourcesMap.get(name);
     }
     // 背景音樂跟音效切換
-    playEffect<T extends keyof SoundFilesDirectory & string>(options:{ soundId: T, duration: number, loop: boolean }) {
-        new Tween(this.music).to(options.duration, { volume: 0 }, { easing:'fade', onUpdate:(tar:any, ratio:number)=>{
-            let weight: number = this.isMuted? 0:1;
-            tar.volume = tar.volume * weight;
-        } }).start();
+    playEffect<T extends keyof SoundFilesDirectory & string>(options: { soundId: T, duration: number, loop: boolean }) {
+        new Tween(this.music).to(options.duration, { volume: 0 }, {
+            easing: 'fade', onUpdate: (tar: any, ratio: number) => {
+                let weight: number = this.isMuted ? 0 : 1;
+                tar.volume = tar.volume * weight;
+            }
+        }).start();
         this.sound.clip = this.getSource(options.soundId);
         this.sound.play();
         this.sound.volume = 0;
         this.sound.loop = options.loop;
-        new Tween(this.sound).to(options.duration, { volume: 1 }, { easing:'fade', onUpdate:(tar:any, ratio:number)=>{
-            let weight: number = this.isMuted? 0:1;
-            tar.volume = tar.volume * weight;
-        } }).start();
+        new Tween(this.sound).to(options.duration, { volume: 1 }, {
+            easing: 'fade', onUpdate: (tar: any, ratio: number) => {
+                let weight: number = this.isMuted ? 0 : 1;
+                tar.volume = tar.volume * weight;
+            }
+        }).start();
     }
     // 關閉切回
     stopEffect<T extends keyof SoundFilesDirectory & string>(duration: number = 1) {
-        new Tween(this.music).to(duration, { volume: 1 }, { easing:'fade', onUpdate:(tar:any, ratio:number)=>{
-            let weight: number = this.isMuted? 0:1;
-            tar.volume = tar.volume * weight;
-        } }).start();
-        new Tween(this.sound).to(duration, { volume: 0 }, { easing:'fade', onUpdate:(tar:any, ratio:number)=>{
-            let weight: number = this.isMuted? 0:1;
-            tar.volume = tar.volume * weight;
-        } }).call(() => {
+        new Tween(this.music).to(duration, { volume: 1 }, {
+            easing: 'fade', onUpdate: (tar: any, ratio: number) => {
+                let weight: number = this.isMuted ? 0 : 1;
+                tar.volume = tar.volume * weight;
+            }
+        }).start();
+        new Tween(this.sound).to(duration, { volume: 0 }, {
+            easing: 'fade', onUpdate: (tar: any, ratio: number) => {
+                let weight: number = this.isMuted ? 0 : 1;
+                tar.volume = tar.volume * weight;
+            }
+        }).call(() => {
             this.sound.loop = false;
             this.sound.stop();
             this.sound.clip = null;
@@ -243,7 +249,7 @@ export class AudioManager implements IAudioManager {
             sound.playOneShot(this.getSource(soundId), 1);
     }
     // 播放
-    play<T extends keyof SoundFilesDirectory & string>(soundId: T, loop: boolean = false):AudioSource {
+    play<T extends keyof SoundFilesDirectory & string>(soundId: T, loop: boolean = false): AudioSource {
         const { audioQueue, isMuted } = this;
         let sound: AudioSource;
         let i: number = 0;
@@ -259,7 +265,7 @@ export class AudioManager implements IAudioManager {
                 break;
             }
         }
-        
+
         if (!sound) {
             sound = this.createAudioSource();
             audioQueue.push(sound);
@@ -268,7 +274,7 @@ export class AudioManager implements IAudioManager {
         sound.loop = loop;
         sound.play();
         // log(`play ${soundId} audioQueue:${audioQueue.length}`);
-        
+
         return sound;
     }
     // 停止播放
@@ -292,7 +298,7 @@ export class AudioManager implements IAudioManager {
             (!audio) ? resolve() : this.responder.set(audio, resolve);
         });
     }
-    public muted(bool:boolean) {
+    public muted(bool: boolean) {
         this.music.volume = (!bool && !this.sound.clip) ? 1 : 0;
         this.sound.volume = (!bool && this.sound.clip) ? 1 : 0;
         this.isMuted = bool;
@@ -336,7 +342,7 @@ export class AudioManager implements IAudioManager {
         if (!AudioManager.singleton) {
             AudioManager.singleton = new AudioManager();
             AudioManager.singleton._isSingleton = true;
-        } 
+        }
         return AudioManager.singleton;
     }
 }

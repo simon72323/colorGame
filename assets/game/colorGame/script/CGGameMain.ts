@@ -6,10 +6,10 @@ import { WorkOnBlur } from './tools/WorkOnBlur';
 import { WorkerTimeout } from './tools/WorkerTimeout';
 import { CGUtils } from './tools/CGUtils';
 import { GameState, onBetInfo } from './enum/CGInterface';
-import { WebSocketManager } from './WebSocketManager';
+// import { WebSocketManager } from './WebSocketManager';
 import { GAME_TYPE } from './enum/CGInterface';
 import { IBetHandler } from './enum/CGInterface';
-
+import LocalizedUI from './tools/LocalizedUI';
 import { onLoadInfo, onJoinGame, onUpdate } from './enum/CGInterface';
 import { LoadInfoData, JoinGameData, UpdateNewRoundData, UpdateBettingData, UpdateEndRoundData } from './enum/CGMockData';
 const { ccclass, property } = _decorator;
@@ -21,12 +21,15 @@ export class CGGameMain extends Component implements IBetHandler {
     @property(CGController)
     private controller: CGController = null!;
 
-    private webSocketManager: WebSocketManager = null;
+    // private webSocketManager: WebSocketManager = null;
 
     protected onLoad(): void {
         //啟用後台運行(針對動畫、tween、schedule、spine等動畫)
         WorkOnBlur.getInstance();
         WorkerTimeout.getInstance().enable();
+        LocalizedUI.language = h5GameTools.UrlHelper.shared.lang;
+        console.log('lang: ',  LocalizedUI.language);
+        // this.node.emit("completed");
     }
 
     protected start(): void {
