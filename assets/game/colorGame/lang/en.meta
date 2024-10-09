@@ -2,10 +2,11 @@
   "ver": "1.2.0",
   "importer": "directory",
   "imported": true,
-  "uuid": "d83a9204-16a9-4b93-910f-da82d4ceb81f",
+  "uuid": "281eafe3-53da-4dea-b92a-5ff44bfd7daf",
   "files": [],
   "subMetas": {},
   "userData": {
-    "isBundle": true
+    "isBundle": true,
+    "bundleName": "ColorGame_en"
   }
 }

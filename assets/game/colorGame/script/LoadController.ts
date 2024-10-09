@@ -1,8 +1,8 @@
 import { Component, ImageAsset, JsonAsset, Label, Node, ProgressBar, Scene, Sprite, SpriteFrame, Texture2D, UIOpacity, _decorator, assetManager, director, game, tween } from 'cc'
 // import { Application } from "./Applicaiton"
-import { LanguageManager } from './manager/LanguageManager';
+// import { LanguageManager } from './manager/LanguageManager';
 // import { LanguageFiles } from './LanguageFiles';
-import { AudioManager } from './manager/AudioManager';
+// import { AudioManager } from './manager/AudioManager';
 import { CGPathManager } from './manager/CGPathManager';
 // import { AlertPanel } from './components/AlertPanel';
 // import { SoundFiles } from './components/SoundFiles';
@@ -31,7 +31,7 @@ export class LoadController extends Component {
     private pathProgress: number = 0;
 
     start() {
-        AudioManager.getInstance().muted(true);
+        // AudioManager.getInstance().muted(true);
 
         director.preloadScene('Load', (completedCount, total, item) => {
             let num = this.processNumCalculator(completedCount, total)
@@ -49,15 +49,15 @@ export class LoadController extends Component {
                 tween(ref).to(0.3, { opacity: 255 }).call(() => { }).start()
                 this.nowProcessGame = 0
                 //語系掛載之後會改用棋牌的方式
-                LanguageManager.getInstance().node.on("completed", () => {
+                // LanguageManager.getInstance().node.on("completed", () => {
                     // console.log("語系加載完成")
-                    this.languageManagerCompleted = true;
-                    this.languageManagerProgress = this.maxLanguageManagerProcess;
-                    this.updateProgress();
-                    if (this.languageManagerCompleted && this.sceneCompleted && this.pathCompleted) {
-                        this.onComplete();
-                    }
-                });
+                //     this.languageManagerCompleted = true;
+                //     this.languageManagerProgress = this.maxLanguageManagerProcess;
+                //     this.updateProgress();
+                //     if (this.languageManagerCompleted && this.sceneCompleted && this.pathCompleted) {
+                //         this.onComplete();
+                //     }
+                // });
 
                 CGPathManager.getInstance().node.on("completed", () => {
                     // console.log("路徑加載完成")

@@ -1,6 +1,6 @@
 // import { gtCommEvents } from '@gt-npm/gtlibts';
 import { h5GameTools, useGlobalEventDispatcher } from '@gt-npm/gt-lib-ts';
-import { _decorator, CCBoolean, Component } from 'cc';
+import { _decorator, CCBoolean, Component, director } from 'cc';
 import { CGController } from './controller/CGController';
 import { WorkOnBlur } from './tools/WorkOnBlur';
 import { WorkerTimeout } from './tools/WorkerTimeout';
@@ -9,9 +9,10 @@ import { GameState, onBetInfo } from './enum/CGInterface';
 // import { WebSocketManager } from './WebSocketManager';
 import { GAME_TYPE } from './enum/CGInterface';
 import { IBetHandler } from './enum/CGInterface';
-import LocalizedUI from './tools/LocalizedUI';
 import { onLoadInfo, onJoinGame, onUpdate } from './enum/CGInterface';
 import { LoadInfoData, JoinGameData, UpdateNewRoundData, UpdateBettingData, UpdateEndRoundData } from './enum/CGMockData';
+import CGLanguageManager from './manager/CGLanguageManager';
+
 const { ccclass, property } = _decorator;
 
 @ccclass('CGGameMain')
@@ -20,16 +21,17 @@ export class CGGameMain extends Component implements IBetHandler {
     public isSimulate: boolean = false;//模擬資料
     @property(CGController)
     private controller: CGController = null!;
+    @property(CGLanguageManager)
+    private languageManager: CGLanguageManager = null!;
 
     // private webSocketManager: WebSocketManager = null;
 
-    protected onLoad(): void {
+    protected async onLoad(): Promise<void> {
         //啟用後台運行(針對動畫、tween、schedule、spine等動畫)
         WorkOnBlur.getInstance();
         WorkerTimeout.getInstance().enable();
-        LocalizedUI.language = h5GameTools.UrlHelper.shared.lang;
-        console.log('lang: ',  LocalizedUI.language);
-        // this.node.emit("completed");
+        const h5Lang =  h5GameTools.UrlHelper.shared.lang;
+        this.languageManager.setSprite(h5Lang);//加載語系圖
     }
 
     protected start(): void {

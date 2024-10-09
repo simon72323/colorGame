@@ -454,7 +454,7 @@
   },
   {
     "__type__": "cc.animation.HierarchyPath",
-    "path": "BtnBetCancel"
+    "path": "BtnBetClear"
   },
   {
     "__type__": "cc.animation.Channel",
@@ -1098,7 +1098,7 @@
   },
   {
     "__type__": "cc.animation.HierarchyPath",
-    "path": "BtnBetCancel"
+    "path": "BtnBetClear"
   },
   {
     "__type__": "cc.animation.Channel",
