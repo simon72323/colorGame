@@ -1,4 +1,5 @@
 import { director } from 'cc';
+import { LocalizedLabel } from './LocalizedLabel';
 
 export let _language = 'cn';
 
@@ -17,15 +18,15 @@ export function init(language: string) {
  * 翻译数据
  * @param key 
  */
-export function t(key: string) {
+export function text(key: string): string {
     const win = window as any;
-    
+
     if (!win.languages) {
         return key;
     }
     const searcher = key.split('.');
-    
     let data = win.languages[_language];
+
     for (let i = 0; i < searcher.length; i++) {
         data = data[searcher[i]];
         if (!data) {
@@ -36,29 +37,18 @@ export function t(key: string) {
 }
 
 export function updateSceneRenderers() { // very costly iterations
-    const rootNodes = director.getScene()!.children;
-    // walk all nodes with localize label and update
-    const allLocalizedLabels: any[] = [];
-    for (let i = 0; i < rootNodes.length; ++i) {
-        let labels = rootNodes[i].getComponentsInChildren('LocalizedLabel');
-        Array.prototype.push.apply(allLocalizedLabels, labels);
-    }
-    for (let i = 0; i < allLocalizedLabels.length; ++i) {
-        let label = allLocalizedLabels[i];
-        if(!label.node.active)continue;
-        label.updateLabel();
-    }
-    // walk all nodes with localize sprite and update
-    const allLocalizedSprites: any[] = [];
-    for (let i = 0; i < rootNodes.length; ++i) {
-        let sprites = rootNodes[i].getComponentsInChildren('LocalizedSprite');
-        Array.prototype.push.apply(allLocalizedSprites, sprites);
-    }
-    for (let i = 0; i < allLocalizedSprites.length; ++i) {
-        let sprite = allLocalizedSprites[i];
-        if(!sprite.node.active)continue;
-        sprite.updateSprite();
-    }
+    // const scene = director.getScene();
+    // if (!scene) return;
+
+    // // 使用一次遍历来收集所有需要更新的组件
+    // const components = scene.getComponentsInChildren('LocalizedLabel');
+
+    // // 更新所有活跃的组件
+    // components.forEach(component => {
+    //     if (component.node.active && component instanceof LocalizedLabel) {
+    //         // component.updateLabel();//執行語系更新
+    //     }
+    // });
 }
 
 // 供插件查询当前语言使用

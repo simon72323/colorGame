@@ -13,6 +13,7 @@ import { onLoadInfo, onJoinGame, onUpdate } from './enum/CGInterface';
 import { LoadInfoData, JoinGameData, UpdateNewRoundData, UpdateBettingData, UpdateEndRoundData } from './enum/CGMockData';
 import CGLanguageManager from './manager/CGLanguageManager';
 
+
 const { ccclass, property } = _decorator;
 
 @ccclass('CGGameMain')
@@ -21,8 +22,8 @@ export class CGGameMain extends Component implements IBetHandler {
     public isSimulate: boolean = false;//模擬資料
     @property(CGController)
     private controller: CGController = null!;
-    @property(CGLanguageManager)
-    private languageManager: CGLanguageManager = null!;
+    // @property(CGLanguageManager)
+    // private languageManager: CGLanguageManager = null!;
 
     // private webSocketManager: WebSocketManager = null;
 
@@ -30,8 +31,9 @@ export class CGGameMain extends Component implements IBetHandler {
         //啟用後台運行(針對動畫、tween、schedule、spine等動畫)
         WorkOnBlur.getInstance();
         WorkerTimeout.getInstance().enable();
-        const h5Lang =  h5GameTools.UrlHelper.shared.lang;
-        this.languageManager.setSprite(h5Lang);//加載語系圖
+        let h5Lang = h5GameTools.UrlHelper.shared.lang;
+        CGLanguageManager.setLanguage(h5Lang);
+        // this.languageManager.setLanguage(h5Lang);//加載語系圖
     }
 
     protected start(): void {
