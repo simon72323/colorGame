@@ -1,10 +1,11 @@
 import { _decorator, Component, Label } from 'cc';
-const { ccclass, property } = _decorator;
+const { ccclass, property, menu } = _decorator;
 
 @ccclass('LocalizedLabel')
+@menu('i18n/LocalizedLabel')
 export class LocalizedLabel extends Component {
     @property({ tooltip: 'key' })
-    key: string = '';
+    public key: string = '';
 
     updateLabel(languageData: any) {
         if (this.key === '' || !languageData)

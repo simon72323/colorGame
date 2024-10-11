@@ -1,7 +1,8 @@
 import { _decorator, AudioClip, AudioSource, Component } from 'cc';
-const { ccclass, property } = _decorator;
+const { ccclass, property, menu } = _decorator;
 
 @ccclass('LocalizedAudioSource')
+@menu('i18n/LocalizedAudioSource')
 export class LocalizedAudioSource extends Component {
     @property({ tooltip: 'name' })
     public audioName: string = '';

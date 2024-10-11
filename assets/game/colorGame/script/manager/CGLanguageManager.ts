@@ -24,12 +24,18 @@ const languages = [
 ];
 
 @ccclass('CGLanguageManager')
-export default class CGLanguageManager {
+export class CGLanguageManager {
+    private static singleton: CGLanguageManager = null;
+    protected _isSingleton: boolean = false;
+    get isSingleton(): boolean { return this._isSingleton; }
+
+    public languageData: any = {};
+
     /**
      * 設置sprite
      * @returns 
      */
-    public static setLanguage(h5Lang: string): void {
+    public setLanguage(h5Lang: string): void {
         for (const { key, lang } of languages) {
             if (h5Lang.indexOf(key) > -1) {
                 const bundleName = 'ColorGame_' + lang;
@@ -54,7 +60,7 @@ export default class CGLanguageManager {
      * @param lang 
      * @returns 
      */
-    private static async updateLocalizedComponents(bundle: AssetManager.Bundle, lang: string) {
+    private async updateLocalizedComponents(bundle: AssetManager.Bundle, lang: string) {
         const scene = director.getScene();
         if (!scene) return;
 
@@ -70,8 +76,8 @@ export default class CGLanguageManager {
                 const spriteFrame = await this.getAsset(bundle, spriteName, SpriteFrame);
                 component.updateSprite(spriteFrame);
             } else if (component instanceof LocalizedLabel) {
-                const languageData = (await this.getAsset(bundle, lang, JsonAsset)).json;
-                component.updateLabel(languageData);
+                this.languageData = (await this.getAsset(bundle, lang, JsonAsset)).json;
+                component.updateLabel(this.languageData);
             } else if (component instanceof LocalizedAudioSource) {
                 const audioName = component.audioName;
                 const audioClip = await this.getAsset(bundle, audioName, AudioClip);
@@ -79,6 +85,10 @@ export default class CGLanguageManager {
             }
         }));
     }
+
+    // public getLang(key: string) {
+    //     if(this.languageData)
+    // }
 
     // /**
     //  * 設置Button貼圖
@@ -101,7 +111,7 @@ export default class CGLanguageManager {
     //     }
     // }
 
-    private static getAsset<T extends Asset>(bundle: AssetManager.Bundle, name: string, type: Constructor<T>): Promise<T> {
+    private getAsset<T extends Asset>(bundle: AssetManager.Bundle, name: string, type: Constructor<T>): Promise<T> {
         return new Promise((resolve, reject) => {
             bundle.load(name, type, (err, asset: T) => {
                 if (err) {
@@ -111,5 +121,13 @@ export default class CGLanguageManager {
                 }
             });
         });
+    }
+
+    public static getInstance(): CGLanguageManager {
+        if (!CGLanguageManager.singleton) {
+            CGLanguageManager.singleton = new CGLanguageManager();
+            CGLanguageManager.singleton._isSingleton = true;
+        }
+        return CGLanguageManager.singleton;
     }
 }

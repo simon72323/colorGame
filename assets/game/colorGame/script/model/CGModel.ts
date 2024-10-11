@@ -1,4 +1,4 @@
-import { _decorator, Component } from 'cc';
+import { _decorator } from 'cc';
 import { RankInfo } from '../enum/CGInterface';
 import { CGPathManager } from '../manager/CGPathManager';
 
@@ -6,7 +6,12 @@ import { PathInfo } from '../enum/CGInterface';
 const { ccclass, property } = _decorator;
 
 @ccclass('CGModel')
-export class CGModel extends Component {
+export class CGModel {
+    private static readonly _instance: CGModel = new CGModel();
+    public static getInstance(): CGModel {
+        return CGModel._instance;
+    }
+
     //用戶資料
     public userID: number;//用戶ID
     // public avatarID: number;//頭像ID
@@ -33,20 +38,46 @@ export class CGModel extends Component {
     //本地端資料
     public pathData: PathInfo;//該回合路徑資料
 
+    public touchChipID: number = 1;//點選的籌碼ID
+    public touchChipPosID: number = 1;//點選的籌碼位置ID
+    public betCreditList: number[] = [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000];//下注額度列表(固定值)
+
+    private constructor() {
+        // 初始化数据
+    }
+
     onLoad() {
         // this.dataInit();
         //非loading時暫時使用
-        CGPathManager.getInstance().node.on("completed", async () => {
-            console.log("路徑加載完畢，開始模擬遊戲")
-        });
+        // CGPathManager.getInstance().node.on("completed", async () => {
+        //     console.log("路徑加載完畢，開始模擬遊戲")
+        // });
         // this.setMockData();//暫時設置資料
     }
 
+
+
+    public setCredit(credit: number) {
+        this.credit = credit;
+    }
+
+    public updateRoadMap(newRoad: number[]) {
+        this.roadMap.pop();//刪除最後一個路子
+        this.roadMap.unshift(newRoad);//添加新路子到第一個
+    }
+
+    public getCredit() {
+        return this.credit;
+    }
+
+    public getRoadMap() {
+        return this.roadMap;
+    }
+
     /**
-     * 數值初始化
+     * 下注資料初始化
      */
-    public dataInit() {
-        // console.log("初始化", this.userBetAreaCredits);
+    public initBetData(): void {
         this.betTotal = 0;
         this.userBetAreaCredits = Array(6).fill(0);
         this.totalBetAreaCredits = Array(6).fill(0);

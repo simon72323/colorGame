@@ -19,7 +19,7 @@ export enum BetType {
 }
 
 //續押狀態
-export enum ReBetState {
+export enum RebetState {
   Init = "init",
   OnceBet = "onceBet",
   AutoBet = "autoBet",
@@ -35,11 +35,11 @@ export interface TempBetData {
 }
 
 //上一次續押資料
-export interface ReBetData {
+export interface RebetData {
   areaChipID: number[][];//上局本地用戶續押資料[下注區][籌碼ID]
   credits: number[];//暫存續押的各區下注額
   total: number;//續押金額
-  state: ReBetState;//續押狀態
+  state: RebetState;//續押狀態
 }
 
 export enum User {
@@ -98,6 +98,7 @@ export interface onJoinGame {
     // avatarID: number;//頭像ID
     wagersID: number;//局號
     betCreditList: number[], // 下注credit選項
+    limit:number,//限額(根據不同幣別不一樣)
     startColor: number[];//該局起始顏色
     countdown: number;//剩餘下注時間
     betTotalTime: number; // 單局下注時間

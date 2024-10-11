@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Label, Sprite, SpriteFrame, EventHandler, Button } from 'cc';
+import { _decorator, Component, Node, Label, Sprite, SpriteFrame } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
 import { AudioName, CGAudioManager } from '../manager/CGAudioManager';
 const { ccclass, property } = _decorator;

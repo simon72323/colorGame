@@ -1,10 +1,7 @@
 import { Node, assetManager, director, JsonAsset } from "cc";
 import { PathInfo } from "../enum/CGInterface";
 
-
-
 export class CGPathManager {
-
     private static singleton: CGPathManager = null;
     protected _isSingleton: boolean = false;
     get isSingleton(): boolean { return this._isSingleton; }
@@ -24,16 +21,15 @@ export class CGPathManager {
         this._node = node;
         director.addPersistRootNode(node);
         CGPathManager.singleton = this;
-
+        
         assetManager.loadBundle("path", (err: Error | null, bundle) => {
             if (err) {
-                console.error("加載 bundle 失敗:", err);
+                console.error("load bundle error:", err);
                 return;
             }
-            // 在這裡加載 bundle 中的資源
             bundle.load('CGPath', JsonAsset, (err: Error | null, jsonAsset: JsonAsset) => {
                 if (err) {
-                    console.error("加載路徑失敗:", err);
+                    console.error("load path error:", err);
                     return;
                 }
                 // 獲取json資料

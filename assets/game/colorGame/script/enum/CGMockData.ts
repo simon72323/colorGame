@@ -39,7 +39,8 @@ export const JoinGameData = new class {
       "wagersID": 47378797,
       // "avatarID": 10,//頭像ID (隨機0~31) 共32組
       "betCreditList": [2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000],//遊戲籌碼注額
-      "startColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 36)),//該局起始顏色編號(0~35)
+      "limit": 45000,
+      "startColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 24)),//該局起始顏色編號(0~23)
       "countdown": 10,//剩餘下注時間
       "betTotalTime": 15,//遊戲下注時間(彈性調整)
       //前100局路子顏色[新到舊]
@@ -79,7 +80,7 @@ export const UpdateNewRoundData = new class {
     {
       "gameState": "NewRound",//新局開始
       "wagersID": 47378797,
-      "startColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 36)),//該局起始顏色編號(0~35)
+      "startColor": Array.from({ length: 3 }, () => Math.floor(Math.random() * 24)),//該局起始顏色編號(0~23)
       //目前前三名，{用戶ID、顯示名稱、頭像ID、餘額}
       "rankings": [
         { "userID": 11111, "displayName": 'john', "avatarID": 10, "credit": 70000 },
@@ -90,7 +91,7 @@ export const UpdateNewRoundData = new class {
     }
   }
   public getData(): onUpdate {
-    this.msg.data.startColor = Array.from({ length: 3 }, () => Math.floor(Math.random() * 36));
+    this.msg.data.startColor = Array.from({ length: 3 }, () => Math.floor(Math.random() * 24));
     return this.msg;
   }
 }

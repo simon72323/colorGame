@@ -1,5 +1,24 @@
 {
-    "ROADMAP": "路紙",
-    "welcome": "歡迎來到我們的遊戲！"
+    "Rebet": "續押",
+    "Auto": "自動",
+    "Stop": "停止",
+    "RoadMap": "路紙",
+    "Bet": "下注",
+    "Confirm": "確定",
+    "Undo": "上一步",
+    "Clear": "清除",
+    "Cancel": "取消",
+    "Default": "預設",
+    "Call": "跟注",
+    "LastGame": "上局結果",
+    "WaitNextRound": "請等待下局",
+    "100RoadInfo": "近100局開獎統計",
+    "ChipSetting": "籌碼設置",
+    "ChipSettingInfo": "請選擇您要顯示於投注介面的籌碼",
+    "BetFailed": "下注失敗",
+    "RebetFailed": "續押失敗",
+    "CallFailed": "跟注失敗",
+    "StopAuto": "停止自動續押",
+    "AutoRebet": "啟用自動續押",
+    "PleaseBetFirst": "請先下注"
 }
-

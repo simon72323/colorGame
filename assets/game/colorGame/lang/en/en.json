@@ -1,5 +1,24 @@
 {
-    "ROADMAP": "英文ROADMAP",
-    "welcome": "歡迎來到我們的遊戲！"
+    "Rebet": "Rebet",
+    "Auto": "Auto",
+    "Stop": "Stop",
+    "RoadMap": "RoadMap",
+    "Bet": "Bet",
+    "Confirm": "Confirm",
+    "Undo": "Undo",
+    "Clear": "Clear",
+    "Cancel": "Cancel",
+    "Default": "Default",
+    "Call": "Call",
+    "LastGame": "Last Game",
+    "WaitNextRound": "Wait for the next round",
+    "100RoadInfo": "Statistics of the last 100 rounds",
+    "ChipSetting": "Chip Setting",
+    "ChipSettingInfo": "Please select the chips which you want to display on the betting interface.",
+    "BetFailed": "Bet failed",
+    "RebetFailed": "Rebet failed",
+    "CallFailed": "Call failed",
+    "StopAuto": "Stop auto",
+    "AutoRebet": "Auto rebet",
+    "PleaseBetFirst": "Please bet first"
 }
-

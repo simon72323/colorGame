@@ -1,7 +1,7 @@
 import { _decorator, Component, Node, Label, Sprite, Toggle, UIOpacity, EventHandler, sys, Button, director, Director } from 'cc';
 import { CGUtils } from '../tools/CGUtils';
-import { CGDataService } from '../manager/CGDataService';
 import { AudioName, CGAudioManager } from '../manager/CGAudioManager';
+import { CGModel } from '../model/CGModel';
 
 const { ccclass, property } = _decorator;
 @ccclass('CGChipSetView')
@@ -28,13 +28,13 @@ export class CGChipSetView extends Component {
     private defaultChipSetID: number[] = [0, 1, 2, 3, 4];//預設籌碼
     private chipSetIDing: number[] = [0, 1, 2, 3, 4];//暫存選擇中的籌碼
 
-    private dataService: CGDataService;//數據服務
+    // private dataService: CGDataService;//數據服務
 
     /**
      * 設置按鈕事件監聽器
      */
     protected onLoad(): void {
-        this.dataService = CGDataService.getInstance();//實例化數據服務
+        // this.dataService = CGDataService.getInstance();//實例化數據服務
         this.loadChipSetID();//讀取籌碼設置資料
         this.updateTouchChip();//更新點選的籌碼(每局更新)
         for (let i = 0; i < this.touchChip.children.length; i++) {
@@ -154,10 +154,11 @@ export class CGChipSetView extends Component {
      * @param touchPos 被選中籌碼的位置索引
      */
     private setTouchChipID(event: Event, touchPos: string) {
+        const model = CGModel.getInstance();
         this.audioManager.playOnceAudio(AudioName.ChipSelect);
         const posID = parseInt(touchPos);
-        this.dataService.touchChipID = this.chipSetID[posID];
-        this.dataService.touchChipPosID = posID;
+        model.touchChipID = this.chipSetID[posID];
+        model.touchChipPosID = posID;
     }
 
     /**
@@ -188,6 +189,7 @@ export class CGChipSetView extends Component {
      * 更新點選的籌碼(籌碼選擇區)
      */
     private updateTouchChip() {
+        const model = CGModel.getInstance();
         const chipSetID = this.chipSetID;
         const touchChipChildren = this.touchChip.children;
         for (let i = 0; i < touchChipChildren.length; i++) {
@@ -201,11 +203,11 @@ export class CGChipSetView extends Component {
                 touchChip.getChildByName('Checkmark').getComponent(Sprite).spriteFrame =
                     chipToggleChild.getChildByName('Checkmark').getComponent(Sprite).spriteFrame;
                 touchChip.getChildByName('Label').getComponent(Label).string =
-                    CGUtils.NumDigits(this.dataService.betCreditList[chipSetID[i]]);
+                    CGUtils.NumDigits(model.betCreditList[chipSetID[i]]);
             }
         }
-        this.dataService.touchChipID = chipSetID[0];//選擇籌碼回到第一顆
-        this.dataService.touchChipPosID = 0;
+        model.touchChipID = chipSetID[0];//選擇籌碼回到第一顆
+        model.touchChipPosID = 0;
         touchChipChildren[0].getComponent(Toggle).isChecked = true;
     }
 }

@@ -15,30 +15,39 @@ export class CGDiceRunView extends Component {
         new Vec3(0, 4.77, -1.83),
         new Vec3(1.25, 4.77, -1.83)
     ];
-    //骰子子物件顏色面向校正值
+    //骰子子物件顏色方位校正值
     private readonly CHANGE_EULER = [
-        new Vec3(0, 0, 0), new Vec3(-90, 0, 0), new Vec3(0, 0, 90), new Vec3(0, 0, -90), new Vec3(90, 0, 0), new Vec3(180, 0, 0),
-        new Vec3(90, 0, 0), new Vec3(0, 0, 0), new Vec3(0, -90, 0), new Vec3(0, 90, 0), new Vec3(0, 180, 0), new Vec3(-90, 0, 0),
-        new Vec3(0, 0, -90), new Vec3(0, 90, 0), new Vec3(0, 0, 0), new Vec3(0, 180, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 90),
-        new Vec3(0, 0, 90), new Vec3(0, -90, 0), new Vec3(0, 180, 0), new Vec3(0, 0, 0), new Vec3(0, 90, 0), new Vec3(0, 0, -90),
-        new Vec3(-90, 0, 0), new Vec3(0, 180, 0), new Vec3(0, 90, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 0), new Vec3(90, 0, 0),
-        new Vec3(180, 0, 0), new Vec3(90, 0, 0), new Vec3(0, 0, -90), new Vec3(0, 0, 90), new Vec3(-90, 0, 0), new Vec3(0, 0, 0)
+        [new Vec3(0, 0, 0), new Vec3(-90, 0, 0), new Vec3(0, 0, 90), new Vec3(0, 0, -90), new Vec3(90, 0, 0), new Vec3(180, 0, 0)],
+        [new Vec3(90, 0, 0), new Vec3(0, 0, 0), new Vec3(0, -90, 0), new Vec3(0, 90, 0), new Vec3(0, 180, 0), new Vec3(-90, 0, 0)],
+        [new Vec3(0, 0, -90), new Vec3(0, 90, 0), new Vec3(0, 0, 0), new Vec3(0, 180, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 90)],
+        [new Vec3(0, 0, 90), new Vec3(0, -90, 0), new Vec3(0, 180, 0), new Vec3(0, 0, 0), new Vec3(0, 90, 0), new Vec3(0, 0, -90)],
+        [new Vec3(-90, 0, 0), new Vec3(0, 180, 0), new Vec3(0, 90, 0), new Vec3(0, -90, 0), new Vec3(0, 0, 0), new Vec3(90, 0, 0)],
+        [new Vec3(180, 0, 0), new Vec3(90, 0, 0), new Vec3(0, 0, -90), new Vec3(0, 0, 90), new Vec3(-90, 0, 0), new Vec3(0, 0, 0)]
+    ];
+
+    //骰子子物件起始顏色方位值
+    private readonly START_EULER = [
+        new Vec3(0, 0, 0), new Vec3(0, 90, 0), new Vec3(0, 180, 0), new Vec3(0, -90, 0),
+        new Vec3(-90, 0, 0), new Vec3(-90, 90, 0), new Vec3(-90, 180, 0), new Vec3(-90, -90, 0),
+        new Vec3(0, 0, 90), new Vec3(0, 90, 90), new Vec3(0, 180, 90), new Vec3(0, -90, 90), 
+        new Vec3(0, 0, -90), new Vec3(0, 90, -90), new Vec3(0, 180, -90), new Vec3(0, -90, -90),
+        new Vec3(90, 0, 0), new Vec3(90, 90, 0), new Vec3(90, 180, 0), new Vec3(90, -90, 0),
+        new Vec3(180, 0, 0), new Vec3(180, 90, 0), new Vec3(180, 180, 0), new Vec3(180, -90, 0)
     ];
 
     /**
      * 初始化骰子方位
-     * @startColor 骰子方位參數[](0~35)
+     * @startColor 骰子方位參數[](0~23)
      * @controller
      */
     public diceIdle(startColor: number[]) {
         this.dice.forEach((dice, i) => {
             dice.setPosition(this.FIRST_POSITIONS[i]);
             dice.setRotationFromEuler(new Vec3(-20, 0, 0));
-            dice.children[0].setRotationFromEuler(this.CHANGE_EULER[startColor[i]]);
+            dice.children[0].setRotationFromEuler(this.START_EULER[startColor[i]]);
             dice.active = true; // 顯示骰子
         });
     }
-
 
     /**
      * 開骰表演
@@ -104,9 +113,9 @@ export class CGDiceRunView extends Component {
      */
     private diceRotate(winColor: number[], diceNumber: number[]): Vec3[] {
         return [
-            this.CHANGE_EULER[diceNumber[0] * 6 + winColor[0]],
-            this.CHANGE_EULER[diceNumber[1] * 6 + winColor[1]],
-            this.CHANGE_EULER[diceNumber[2] * 6 + winColor[2]]
+            this.CHANGE_EULER[diceNumber[0]][winColor[0]],
+            this.CHANGE_EULER[diceNumber[1]][winColor[1]],
+            this.CHANGE_EULER[diceNumber[2]][winColor[2]]
         ];
     }
 }

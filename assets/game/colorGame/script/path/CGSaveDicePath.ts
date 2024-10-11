@@ -261,7 +261,7 @@ export class CGSaveDicePath extends Component {
     saveDataAsJson() {
         // console.log(this.length)
         // console.log('起始點數分佈:' + this.point)
-        console.log('開獎點數分佈:' + this.numberShow)
+        // console.log('開獎點數分佈:' + this.numberShow)
         const jsonData = JSON.stringify(this.pathData, (key, value) => {
             if (value instanceof Vec3)
                 return { x: value.x, y: value.y, z: value.z || undefined };

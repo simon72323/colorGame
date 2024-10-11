@@ -8,20 +8,21 @@ import { CGChipSetView } from '../view/CGChipSetView';
 import { CGDiceRunView } from '../view/CGDiceRunView';
 import { CGMarquee } from '../view/CGMarquee';
 import { CGRoadView } from '../view/CGRoadView';
-import { BetType, GameState, Payoff, ReBetState, onBetInfo, onJoinGame, onLoadInfo, onUpdate } from '../enum/CGInterface';
+import { BetType, GameState, Payoff, RebetState, onBetInfo, onJoinGame, onLoadInfo, onUpdate } from '../enum/CGInterface';
 import { IBetHandler } from '../enum/CGInterface';
 import { CGRankView } from '../view/CGRankView';
-import { CGDataService } from '../manager/CGDataService';
+// import { CGDataService } from '../manager/CGDataService';
 import { CGUtils } from '../tools/CGUtils';
 import { AudioName, CGAudioManager } from '../manager/CGAudioManager';
+import { CGPathManager } from '../manager/CGPathManager';
 
 const { ccclass, property } = _decorator;
 
 @ccclass('CGController')
 export class CGController extends Component {
     //組件腳本
-    @property(CGModel)//GameModel
-    public model: CGModel = null;
+    // @property(CGModel)//GameModel
+    // public model: CGModel = null;
     @property(CGView)//基本介面
     public view: CGView = null;
     @property(CGZoomView)//骰子視角
@@ -52,7 +53,6 @@ export class CGController extends Component {
     private isOnBet: boolean = false;//如果等待確認下注中，就不能清除暫存的籌碼(會有錯誤)
 
     private betHandler: IBetHandler | null = null;
-    private dataService: CGDataService;//數據服務
 
 
     public setBetHandler(handler: IBetHandler) {
@@ -60,8 +60,11 @@ export class CGController extends Component {
     }
 
     protected onLoad() {
+        CGPathManager.getInstance().node.on("completed", async () => {
+            console.log("路徑加載完畢，開始模擬遊戲")
+        });
         this.node.on('OnButtonEventPressed', this.betAreaPressed, this);
-        this.dataService = CGDataService.getInstance();//實例化數據服務
+        this.diceRunView.diceIdle([1, 1, 1]);//初始化骰子(隨機顏色)
         //非loading時暫時使用
         // CGPathManager.getInstance().node.on("completed", async () => {
         //路徑加載完畢，開始模擬遊戲
@@ -84,12 +87,12 @@ export class CGController extends Component {
      * 初始化界面
      */
     private resetUI() {
-        // console.log("初始化參數")
-        const model = this.model;
-        model.dataInit();//初始化參數
+        const model = CGModel.getInstance();
+        model.initBetData();//初始化參數
         this.rankView.updateRanks(model.rankings, model.userID);//更新排名，同時判斷跟注狀態
         this.rankView.updateLiveCount(model.liveCount);//更新線上人數
         this.view.updateTotalBetArea(model.totalBetAreaCredits);//更新總注區額度
+        console.log(model.betTotal,model.userBetAreaCredits)
         this.view.updateUserBetArea(model.betTotal, model.userBetAreaCredits);//更新本地用戶注額
     }
 
@@ -102,8 +105,8 @@ export class CGController extends Component {
         this.roundView.newRound();//開始執行遊戲回合
         this.zoomView.zoomShowing();//放大鏡功能顯示
         this.diceRunView.diceIdle(startColor);//初始化骰子(隨機顏色)
-        const reBetAreaCredits = this.chipDispatcher.testReBet();//判斷是否執行續押(回傳續押注區額度)
-        reBetAreaCredits != null && this.sendOnBet(reBetAreaCredits, BetType.ReBet);//傳送續押各注區注額
+        const rebetAreaCredits = this.chipDispatcher.testRebet();//判斷是否執行續押(回傳續押注區額度)
+        rebetAreaCredits != null && this.sendOnBet(rebetAreaCredits, BetType.ReBet);//傳送續押各注區注額
         this.lockBetArea.active = false;//隱藏禁用下注區
     }
 
@@ -114,14 +117,14 @@ export class CGController extends Component {
      * @param ranksPayoff 前三名用戶派彩
      */
     private async handleEndRound(winColor: number[], userPayoff: Payoff, ranksPayoff: Payoff[]) {
-        const model = this.model;
+        const model = CGModel.getInstance();
         // console.log("停止下注", model.userBetAreaCredits)
         // this.lockBetArea.active = true;//顯示禁用下注區
         // this.roundView.betStop();//停止下注
         // this.zoomView.zoomHideing();//放大鏡功能隱藏
         // !this.isOnBet && this.chipDispatcher.clearTempBetChip();//如果沒有等待下注回傳中，就清除暫存籌碼
         await CGUtils.Delay(1);
-        this.chipDispatcher.updateReBetData(model.betTotal, model.userBetAreaCredits);//更新寫入續押資料
+        this.chipDispatcher.updateRebetData(model.betTotal, model.userBetAreaCredits);//更新寫入續押資料
         this.audioManager.playAudio(AudioName.DiceRotate);
         await this.diceRunView.diceStart(model.pathID, winColor);//骰子表演
         const { localWinArea, betOdds } = model.calculateWinData(winColor);//計算表演所需參數
@@ -132,18 +135,18 @@ export class CGController extends Component {
         }
         await CGUtils.Delay(1);
         await this.chipDispatcher.payChipToBetArea(betOdds);//派發籌碼
-        model.betTotal = 0;//清空注額
+        // betTotal = 0;//清空注額
         //本地玩家加分
         if (userPayoff.payoff > 0) {
             this.audioManager.playAudio(AudioName.AddPay);
             this.roundView.showAddCredit(userPayoff.payoff);//顯示加分
-            model.credit = userPayoff.credit;//用戶額度更新
+            model.setCredit(userPayoff.credit)//用戶額度更新
+        } else {
+            this.view.updateUserCredit(model.getCredit()); //本地餘額更新
         }
-        this.view.updateUserCredit(model.credit); //本地餘額更新
         this.rankView.updateRanksCredit(ranksPayoff);//排名用戶餘額更新
-        model.roadMap.pop();//刪除最後一個路子
-        model.roadMap.unshift(winColor);//添加新路子到第一個
-        this.roadView.updateRoadMap(model.roadMap);//更新路子
+        model.updateRoadMap(winColor);
+        this.roadView.updateRoadMap(model.getRoadMap());//更新路子
         //等待新局開始
     }
 
@@ -152,13 +155,13 @@ export class CGController extends Component {
      * @param betID 注區ID
      */
     private betAreaPressed(betID: string) {
+        const { betCreditList, touchChipID } = CGModel.getInstance();
         this.audioManager.playOnceAudio(AudioName.BtnOpen);
         if (this.lockBetArea.active)
             return;
-        const data = this.dataService;
-        const chipID = data.touchChipID;//目前點選的籌碼ID
-        const chipCredit = data.betCreditList[chipID];//籌碼額度
-        this.chipDispatcher.betChip(parseInt(betID), chipID, chipCredit, BetType.NewBet);//該籌碼移動至下注區
+        const chipCredit = betCreditList[touchChipID];//籌碼額度
+        //判斷本地餘額是否足夠
+        this.chipDispatcher.betChip(parseInt(betID), touchChipID, chipCredit, BetType.NewBet);//該籌碼移動至下注區
     }
 
     /**
@@ -182,10 +185,10 @@ export class CGController extends Component {
      * @param event 
      * @param state 續押狀態
      */
-    private btnReBetDown(event: Event, state: string) {
+    private btnRebetDown(event: Event, state: string) {
         this.audioManager.playOnceAudio(AudioName.BtnOpen);
-        const reBetAreaCredits = this.chipDispatcher.setReBet(state as ReBetState);//續押各注區注額
-        reBetAreaCredits != null && this.sendOnBet(reBetAreaCredits, BetType.ReBet);//傳送續押各注區注額
+        const rebetAreaCredits = this.chipDispatcher.setRebet(state as RebetState);//續押各注區注額
+        rebetAreaCredits != null && this.sendOnBet(rebetAreaCredits, BetType.ReBet);//傳送續押各注區注額
     }
 
     /**
@@ -195,16 +198,17 @@ export class CGController extends Component {
      * @param countdown 剩餘下注時間
      */
     private async otherUserDelayBet(userPosID: number, betCredits: number[], countdown: number) {
+        const model = CGModel.getInstance();
         const betTotal = betCredits.reduce((a, b) => a + b, 0);//下注總額
         if (betTotal <= 0)
             return;//無新增注額就不表演
-        const model = this.model;
+        
         countdown > 0 && await CGUtils.Delay(Math.random() * 0.5);
         let callBets = [0, 0, 0, 0, 0, 0];//跟注額度計算
         for (let i = 0; i < betCredits.length; i++) {
             if (betCredits[i] > 0) {
                 this.chipDispatcher.otherUserBetChip(i, userPosID, betCredits[i]);//排名玩家籌碼下注
-                const data = this.dataService;
+                const data = CGModel.getInstance();
                 callBets[i] = data.betCreditList[data.touchChipID];//目前選擇籌碼分數
             }
         }
@@ -234,7 +238,7 @@ export class CGController extends Component {
      * @main
      */
     public async handleOnBetInfo(msg: onBetInfo, betCredits: number[]) {
-        const model = this.model;
+        const model = CGModel.getInstance();
         const chipDispatcher = this.chipDispatcher;
         const betType = msg.data.type as BetType;
         if (betType === BetType.NewBet)
@@ -259,9 +263,10 @@ export class CGController extends Component {
      * @main
      */
     public handleLogInfo(msg: onLoadInfo) {
+        const model = CGModel.getInstance();
         const { userID, credit } = msg.data;
-        this.model.userID = userID;
-        this.model.credit = credit;
+        model.userID = userID;
+        model.credit = credit;
     }
 
     /**
@@ -272,7 +277,7 @@ export class CGController extends Component {
     public handleJoinGame(msg: onJoinGame) {
         const { gameState, wagersID, betCreditList, startColor, countdown, betTotalTime,
             roadMap, totalBetAreaCredits, rankings, liveCount, winColor } = msg.data;
-        const model = this.model;
+            const model = CGModel.getInstance();
         // model.avatarID = avatarID;
         model.wagersID = wagersID;
         model.roadMap = roadMap;
@@ -280,7 +285,7 @@ export class CGController extends Component {
         model.liveCount = liveCount;
         model.betTotalTime = betTotalTime;
         model.totalBetAreaCredits = totalBetAreaCredits;//更新注區額度
-        this.dataService.betCreditList = betCreditList;
+        CGModel.getInstance().betCreditList = betCreditList;
         this.joinGameCompleted();//加入遊戲完成
         switch (gameState) {
             case GameState.NewRound:
@@ -316,7 +321,7 @@ export class CGController extends Component {
     public handleUpdate(msg: onUpdate) {
         const { gameState, wagersID, startColor, countdown, newBets, rankings,
             liveCount, pathID, winColor, userPayoff, ranksPayoff } = msg.data;
-        const model = this.model;
+            const model = CGModel.getInstance();
         switch (gameState) {
             case GameState.NewRound:
                 model.rankings = rankings;
@@ -351,7 +356,7 @@ export class CGController extends Component {
      * @param countdown //剩餘下注秒數
      */
     private handleSecondBet(newBets: number[][], countdown: number) {
-        const model = this.model;
+        const model = CGModel.getInstance();
         for (let i = 0; i < newBets.length; i++) {
             if (i < 3 && model.rankings[i].userID === model.userID)//本地玩家在排名內不表演下注
                 continue;

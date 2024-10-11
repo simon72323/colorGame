@@ -56,14 +56,4 @@ export class CGView extends Component {
         // this.comBtnCredits.getComponent(Animation).play();
         this.comBtnCredits.getChildByName('Label').getComponent(Label).string = CGUtils.NumDigits(credit);//更新本地用戶餘額
     }
-
-    // /**
-    //  * 設置投注資訊透明度
-    //  */
-    // public newRoundViewInit(){
-    //     // this.bgLight.getComponent(Animation).play('BgLightIdle');
-    //     for (let i = 0; i < 6; i++) {
-    //         this.betInfo.children[i].getComponent(UIOpacity).opacity = 255;
-    //     }
-    // }
 }

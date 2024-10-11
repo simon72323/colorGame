@@ -85,7 +85,7 @@ export class CGZoomView extends Component {
      * @param zoomID 視角ID，依次為：正、上、下、左、右(0~4)
      */
     private zoomRun(zoomID: number) {
-        console.log("視角轉換:", zoomID)
+        // console.log("視角轉換:", zoomID)
         this.hideBtn();
         if (zoomID > 0)
             this.btnChange[zoomID - 1].children[0].active = true;

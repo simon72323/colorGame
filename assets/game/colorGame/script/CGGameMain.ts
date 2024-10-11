@@ -1,6 +1,6 @@
 // import { gtCommEvents } from '@gt-npm/gtlibts';
 import { h5GameTools, useGlobalEventDispatcher } from '@gt-npm/gt-lib-ts';
-import { _decorator, CCBoolean, Component, director } from 'cc';
+import { _decorator, CCBoolean, Component } from 'cc';
 import { CGController } from './controller/CGController';
 import { WorkOnBlur } from './tools/WorkOnBlur';
 import { WorkerTimeout } from './tools/WorkerTimeout';
@@ -11,7 +11,7 @@ import { GAME_TYPE } from './enum/CGInterface';
 import { IBetHandler } from './enum/CGInterface';
 import { onLoadInfo, onJoinGame, onUpdate } from './enum/CGInterface';
 import { LoadInfoData, JoinGameData, UpdateNewRoundData, UpdateBettingData, UpdateEndRoundData } from './enum/CGMockData';
-import CGLanguageManager from './manager/CGLanguageManager';
+import { CGLanguageManager } from './manager/CGLanguageManager';
 
 
 const { ccclass, property } = _decorator;
@@ -32,7 +32,7 @@ export class CGGameMain extends Component implements IBetHandler {
         WorkOnBlur.getInstance();
         WorkerTimeout.getInstance().enable();
         let h5Lang = h5GameTools.UrlHelper.shared.lang;
-        CGLanguageManager.setLanguage(h5Lang);
+        CGLanguageManager.getInstance().setLanguage(h5Lang);
         // this.languageManager.setLanguage(h5Lang);//加載語系圖
     }
 
